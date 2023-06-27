@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+	.btn-primary {
+		@apply p-2 block text-center bg-white text-black rounded-xl text-sm w-full;
+	}
+	.btn-primary-red {
+		@apply p-2 block text-center bg-red text-black rounded-xl text-sm w-full;
+	}
+	.btn-primary-green {
+		@apply p-2 block text-center bg-green text-black rounded-xl text-sm w-full;
+	}
+	.btn-secondary {
+		@apply p-2 block text-center bg-transparent border border-white rounded-xl text-sm w-full;
+	}
+	.btn-secondary-red {
+		@apply p-2 block text-center bg-transparent border border-red text-red rounded-xl text-sm w-full;
+	}
+	.btn-secondary-green {
+		@apply p-2 block text-center bg-transparent border border-green text-green rounded-xl text-sm w-full;
+	}
+	h2 {
+		@apply text-2xl text-center
+	}
+	input, textarea {
+		@apply p-2 block text-black rounded-xl text-sm w-full cursor-pointer;
+	}
+  }
