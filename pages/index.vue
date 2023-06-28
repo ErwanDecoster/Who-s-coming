@@ -15,12 +15,12 @@
 <script>
 export default {
 	mounted() {
-    const user = useSupabaseUser();
-    console.log(user);
-    watchEffect(() => {
-      if (user.value)
-        navigateTo('/Events');
-    })
-  },
+		const user = useSupabaseUser();
+		console.log(user);
+		watchEffect(() => {
+		if (user.value)
+			navigateTo('/events');
+		})
+  	},
 }
 </script>

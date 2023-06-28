@@ -92,7 +92,7 @@ export default {
     console.log(user);
     watchEffect(() => {
       if (user.value)
-        navigateTo('/Events');
+        navigateTo('/events');
     })
   },
 }

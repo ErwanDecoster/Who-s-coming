@@ -61,6 +61,8 @@
 export default {
 	data() {
 		return {
+			user: 0,
+			eventId: 0,
 			popup: {
 				addNeed: false,
 				formMessages: [],
@@ -80,7 +82,7 @@ export default {
 		}
 	},
 	methods: {
-		CheckpopupForm() {
+		CheckPopupForm() {
 			this.popup.formMessages = []
 			if (!this.popup.form.label)
 				this.popup.formMessages.push({ type: 'error', content: 'Le champ "Label" est requis' })
@@ -93,7 +95,7 @@ export default {
 			return (1)
 		},
 		AddNeedToEvent() {
-			if (this.CheckpopupForm())
+			if (this.CheckPopupForm())
 				return (1);
 			const need = {
 				label: this.popup.form.label,
@@ -119,33 +121,84 @@ export default {
 			return (1)
 		},
 		async SaveEvent() {
-			// const supabase = useSupabaseClient();
-			// let { data, error } = await supabase.auth.signUp({
-			// 	email: this.form.email,
-			// 	password: this.form.password
-			// })
-			// console.log('data', data);
-			// console.log('error', error);
+			let eventId;
+			try {
+				const supabase = useSupabaseClient();
+				const { data, error } = await supabase
+				.from('evenements')
+				.insert([
+					{
+						name: this.form.name,
+						address: this.form.address,
+						desc: this.form.desc,
+						rules: this.form.rules,
+						user_id: this.user.id,
+					},
+				]).select()
+				if (error) throw error
+				eventId = data[0].id_evenement;
+				this.eventId = eventId;
+				this.form.name = '';
+				this.form.address = '';
+				this.form.desc = '';
+				this.form.rules = '';
+				this.formMessages.push({ type: 'succes', content: 'L\'événement a bien été créé.' })
+				if (this.form.needs.length == 0)
+					navigateTo(`/events/${eventId}`);
+				this.form.needs.forEach(need => {
+					this.SaveNeeds(need, eventId);
+				})
+			} catch (error) {
+				this.formMessages.push({ type: 'error', content: 'Une erreur est survenue l\'événement ne pas été créé.' })
+			} finally {
+			}
+		},
+		async SaveNeeds(need, eventId) {
+			try {
+				const supabase = useSupabaseClient();
+				const { data, error } = await supabase
+				.from('needs')
+				.insert([
+					{ 
+						id_evenement: eventId,
+						label: need.label,
+						number: need.number
+					},
+				])
+				if (error) throw error
+				console.log('need 1', this.form.needs);
+				this.form.needs.splice(this.form.needs.indexOf(need), 1)
+				console.log('need 2', this.form.needs);
+				this.formMessages.push({ type: 'succes', content: 'Le nécessaire a bien été ajouté a l\'événement.' })
+				if (this.form.needs.length == 0)
+					navigateTo(`/events/${eventId}`);
+			} catch (error) {
+				this.formMessages.push({ type: 'error', content: 'Une erreur est survenue le nécessaire n\'a pas pu étre ajouté a l\'événement.' })
+			}
 		},
 		AddEvent() {
 			if (this.CheckForm())
 				return (1);
-			this.SignUp();
-		}
+			this.SaveEvent()
+		},
+		async GetUser(){
+			const supabase = useSupabaseClient();
+			const { data: { user } } = await supabase.auth.getUser()
+			this.user = user;
+		},
 	},
 	watch: {
 		'form.name'(newName) {
 			localStorage.name = newName;
-			console.log('cc');
 		},
 		'form.address'(newAddress) {
 			localStorage.address = newAddress;
 		},
 		'form.desc'(newDesc) {
-			localStorage.desc = desc;
+			localStorage.desc = newDesc;
 		},
-		'form.rules'(newObject) {
-			localStorage.rules = newObject;
+		'form.rules'(newRules) {
+			localStorage.rules = newRules;
 		},
 	},
 	mounted() {
@@ -164,8 +217,9 @@ export default {
 		if (localStorage.message) {
 			this.form.message = localStorage.message;
 		}
+		
 		const user = useSupabaseUser();
-		console.log(user);
+		this.GetUser();
 		watchEffect(() => {
 			if (!user.value)
 				navigateTo('/');
