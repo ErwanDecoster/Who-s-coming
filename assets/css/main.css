@@ -22,7 +22,7 @@
 		@apply p-2 block text-center bg-transparent border border-green text-green rounded-xl text-sm w-full cursor-pointer;
 	}
 	h2 {
-		@apply text-2xl text-center cursor-pointer;
+		@apply text-2xl text-center;
 	}
 	input, textarea {
 		@apply p-2 block text-black rounded-xl text-sm w-full cursor-pointer;

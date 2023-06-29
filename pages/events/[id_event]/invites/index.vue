@@ -16,12 +16,12 @@
 			<!-- <button class="btn-secondary rounded-t-none">Invités supprimé</button> -->
 		</div>
 		<div v-if="formMessages.length" class="grid gap-1">
-				<p v-for="message in formMessages" :key="message.type" class="px-4 py-0.5 rounded-xl"
-					:class="{ 'bg-red': message.type == 'error', 'bg-green': message.type == 'succes', 'bg-orange': message.type == 'warning' }"
-					@click="formMessages.splice(formMessages.indexOf(message), 1)">
-					{{ message.content }}
-				</p>
-			</div>
+			<p v-for="message in formMessages" :key="message.type" class="px-4 py-0.5 rounded-xl"
+				:class="{ 'bg-red': message.type == 'error', 'bg-green': message.type == 'succes', 'bg-orange': message.type == 'warning' }"
+				@click="formMessages.splice(formMessages.indexOf(message), 1)">
+				{{ message.content }}
+			</p>
+		</div>
 		<div v-if="admin && mode == 3" class="grid gap-2">
 			<div v-for="invite in invites" class="flex items-center gap-2">
 				<input type="checkbox" name="" :id="invite.id_invitation" :disabled="invite.id_state == 3" class="delete-selection h-4 w-4">

@@ -2,6 +2,13 @@
 	<div class="grid gap-6 relative">
 		<h2>Invitation {{ invite.first_name }} {{ invite.surname }}</h2>
 		<div class="grid gap-4">
+			<div v-if="messages.length" class="grid gap-1">
+				<p v-for="message in messages" :key="message.type" class="px-4 py-0.5 rounded-xl"
+					:class="{ 'bg-red': message.type == 'error', 'bg-green': message.type == 'succes', 'bg-orange': message.type == 'warning' }"
+					@click="messages.splice(messages.indexOf(message), 1)">
+					{{ message.content }}
+				</p>
+			</div>
 			<div class="bg-white block relative text-black rounded-xl p-2">
 				<div class="text-sm grid gap-1">
 					<p class="text-base">{{ event.name }} - {{ event.date }} - {{ event.time }} - <span class="underline">{{ event.address }}</span></p>
@@ -16,24 +23,62 @@
 				</div>
 			</div>
 			<NuxtLink :to="`/events/${$route.params.id_event}/invites`" class="btn-secondary">Voir la liste des invité</NuxtLink>
-			<div class="grid gap-2">
-				<h3 class="text-sm">Description :</h3>
-				<p class="text-xs">{{ event.desc }}</p>
-			</div>
-			<div class="grid gap-2">
-				<h3 class="text-sm">Règlement :</h3>
-				<p class="text-xs">{{ event.rules }}</p>
-			</div>
-			<div class="grid gap-2">
-				<h3 class="text-sm">Nécessaire a la soirée :</h3>
-				<div v-for="need in event.needs" class="flex items-center gap-2">
-					<input type="checkbox" name="" :id="need.id_need" :disabled="need.number == 0" class="delete-selection h-4 w-4">
-					<label :for="need.id_need" class="text-xs">
-						{{ need.label }} ({{ need.number }} manquants)
-					</label>
+			<div v-if="invite.id_state == 2 || invite.id_state == 4" class="grid gap-4">
+				<div class="grid gap-2">
+					<h3 class="text-sm">Description :</h3>
+					<p class="text-xs">{{ event.desc }}</p>
 				</div>
+				<div class="grid gap-2">
+					<h3 class="text-sm">Règlement :</h3>
+					<p class="text-xs">{{ event.rules }}</p>
+				</div>
+				<div class="grid gap-2">
+					<h3 class="text-sm">Nécessaire a la soirée :</h3>
+					<div v-for="need in event.needs" class="flex items-center gap-2">
+						<input type="checkbox" name="" :id="need.id_need" :disabled="need.number == 0" class="delete-selection h-4 w-4">
+						<label :for="need.id_need" class="text-xs">
+							{{ need.label }} ({{ need.number }} manquants)
+						</label>
+					</div>
+				</div>
+				<button @click="ChangeInviteState(3)" class="btn-primary">Accepter l'invitation</button>
+			</div>
+			<div v-if="invite.id_state == 3" class="grid gap-4">
+				<p class="my-8 mx-4">Parfait, ton invitation est bien noté comme acceptée, enregistre bien la date !</p>
+				<button @click="ChangeInviteState(3)" class="btn-primary">Ajouter au calendrier</button>
 			</div>
 		</div>
+		<button v-if="invite.id_state == 3" @click="popup.addInvite = true" class="btn-secondary">Demander l'ajout d'un invité</button>
+		<button @click="ChangeInviteState(4)" class="btn-secondary-red">Décliner l'invitation</button>
+		<Popup v-if="popup.addInvite" @close="popup.addInvite = false">
+			<p class="text-2xl text-center">Demande d'ajout d'invité</p>
+			<div class="grid gap-1" :class="{ 'hidden': popup.formMessages.length == 0 }">
+				<p v-for="message in popup.formMessages" :key="message.type" class="px-4 py-0.5 rounded-xl"
+					:class="{ 'bg-red': message.type == 'error', 'bg-green': message.type == 'succes', 'bg-orange': message.type == 'warning' }"
+					@click="popup.formMessages.splice(popup.formMessages.indexOf(message), 1)">
+					{{ message.content }}
+				</p>
+			</div>
+			<form class="grid gap-4" @submit.prevent="AddInviteToEvent()" action="">
+				<div class="grid gap-2">
+					<label for="add_invite_first_name">Prénom :</label>
+					<input v-model="popup.form.firstName" type="text" name="add_invite_first_name" id="add_invite_first_name">
+				</div>
+				<div class="grid gap-2">
+					<label for="add_invite_surname">Nom :</label>
+					<input v-model="popup.form.surname" type="text" name="add_invite_surname" id="add_invite_surname">
+				</div>
+				<div class="grid gap-2">
+					<label for="add_invite_tel">Tél :</label>
+					<input v-model="popup.form.tel" type="tel" name="add_invite_tel" id="add_invite_tel">
+				</div>
+				<div class="grid gap-2">
+					<label for="add_invite_relationship">Relation (petit amis, amis...) :</label>
+					<textarea v-model="popup.form.tel" type="tel" name="add_invite_relationship" id="add_invite_relationship"></textarea>
+				</div>
+				<input class="btn-primary" type="submit" value="Ajouter">
+			</form>
+		</Popup>
 	</div>
 </template>
 
@@ -45,6 +90,7 @@ export default {
 			user: 0,
 			event: '',
 			invite: '',
+			messages: [],
 			invitesStateNb: {
 				unsend: 0,
 				send: 0,
@@ -52,10 +98,52 @@ export default {
 				denied: 0,
 				asked: 0,
 			},
+			popup: {
+				formMessages: [],
+				addInvite: false,
+				form: {
+					firstName: '',
+					surname: '',
+					tel: '',
+				}
+			},
 		}
 	},
 	methods: {
-		SetInviteState(state) {
+		async ChangeInviteState(newState)
+		{
+			try {
+				const supabase = useSupabaseClient();
+				const { data, error } = await supabase
+				.from('invitations')
+				.update({ id_state: newState })
+				.eq('id_invitation', this.invite.id_invitation)
+				.select()
+				if (error) throw error
+				this.GetInvitesState()
+				this.SetInviteState()
+				this.invite.id_state = newState
+				this.messages = [];
+				this.AddMessageInviteStatu(newState)
+				
+			} catch (error) {
+					this.messages.push({ type: 'error', content: 'Une erreur est survenue le status de votre invitation n\'a pas pu étre mis a jour.' })
+			} finally {
+			}
+
+		},
+		AddMessageInviteStatu(state) {
+			if (state == 3) 
+				this.messages.push({ type: 'succes', content: 'Votre invitation est marqué comme accepté.' })
+			if (state == 4)
+				this.messages.push({ type: 'warning', content: 'Votre invitation est marqué comme decliné.' })
+		},
+		SetInviteState() {
+			this.invitesStateNb.unsend = 0;
+			this.invitesStateNb.send = 0;
+			this.invitesStateNb.accepted = 0;
+			this.invitesStateNb.denied = 0;
+			this.invitesStateNb.asked = 0;
 			this.invitesState.forEach(invite => {
 				if (invite.id_state == 1)
 					this.invitesStateNb.unsend++;
@@ -120,8 +208,8 @@ export default {
 				if (error) throw error
 				localStorage.code = invitation[0].code
 				this.invite = invitation[0];
+				this.AddMessageInviteStatu(this.invite.id_state)
 			} catch (error) {
-				console.log('c');
 			} finally {
 			}
 		},
