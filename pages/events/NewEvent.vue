@@ -14,6 +14,14 @@
 				<input v-model="form.name" type="text" name="event_name" id="event_name">
 			</div>
 			<div class="grid gap-2">
+				<label for="event_date">Date de l'événement :</label>
+				<input v-model="form.date" type="date" name="event_date" id="event_date">
+			</div>
+			<div class="grid gap-2">
+				<label for="event_time">Heure de l'événement :</label>
+				<input v-model="form.time" type="time" name="event_time" id="event_time">
+			</div>
+			<div class="grid gap-2">
 				<label for="event_address">Addresse :</label>
 				<input v-model="form.address" type="text" name="event_address" id="event_address">
 			</div>
@@ -74,6 +82,8 @@ export default {
 			formMessages: [],
 			form: {
 				name: '',
+				date: '',
+				time: '',
 				address: '',
 				desc: '',
 				rules: '',
@@ -110,6 +120,10 @@ export default {
 			this.formMessages = []
 			if (!this.form.name)
 				this.formMessages.push({ type: 'error', content: 'Le champ "Nom de l\'événement" est requis' })
+			if (!this.form.date)
+				this.formMessages.push({ type: 'error', content: 'Le champ "Date de l\'événement" est requis' })
+			if (!this.form.time)
+				this.formMessages.push({ type: 'error', content: 'Le champ "Heure de l\'événement" est requis' })
 			if (!this.form.address)
 				this.formMessages.push({ type: 'error', content: 'Le champ "Addresse" est requis' })
 			if (!this.form.desc)
@@ -129,6 +143,8 @@ export default {
 				.insert([
 					{
 						name: this.form.name,
+						date: this.form.date,
+						time: this.form.time,
 						address: this.form.address,
 						desc: this.form.desc,
 						rules: this.form.rules,
@@ -139,6 +155,8 @@ export default {
 				eventId = data[0].id_evenement;
 				this.eventId = eventId;
 				this.form.name = '';
+				this.form.date = '';
+				this.form.time = '';
 				this.form.address = '';
 				this.form.desc = '';
 				this.form.rules = '';
@@ -191,6 +209,12 @@ export default {
 		'form.name'(newName) {
 			localStorage.name = newName;
 		},
+		'form.date'(newDate) {
+			localStorage.date = newDate;
+		},
+		'form.time'(newTime) {
+			localStorage.time = newTime;
+		},
 		'form.address'(newAddress) {
 			localStorage.address = newAddress;
 		},
@@ -204,6 +228,12 @@ export default {
 	mounted() {
 		if (localStorage.name) {
 			this.form.name = localStorage.name;
+		}
+		if (localStorage.date) {
+			this.form.date = localStorage.date;
+		}
+		if (localStorage.time) {
+			this.form.time = localStorage.time;
 		}
 		if (localStorage.address) {
 			this.form.address = localStorage.address;

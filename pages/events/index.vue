@@ -1,19 +1,19 @@
 <template>
-	<div class="relative">
+	<div class="relative grid gap-6">
 		<h2>Événements</h2>
-		<button class="absolute top-3 right-3 btn-secondary w-fit">...</button>
+		<!-- <button class="absolute top-0 right-0 btn-secondary w-fit">•••</button> -->
 		<div class="grid gap-2">
 			<h3>Liste de vos événements :</h3>
 			<div class="grid gap-2">
-				<p v-if="events.length == 0">Vous n'avez encore aucun evenement.</p>
+				<p v-if="events.length == 0" class="text-sm">Vous n'avez encore aucun evenement.</p>
 				<NuxtLink v-for="event in events" :key="event.id" :to="`events/${event.id_evenement}/`" class="bg-white block relative text-black rounded-xl p-2">
 					<div class="text-sm grid gap-1">
 						<p class="text-base">{{ event.name }} - <span class="underline">{{ event.address }}</span></p>
 						<p class="text-opacity-70">{{ event.invites }} - {{ event.invitesConfirmed }}</p>
 					</div>
-					<span class="bg-orange w-[14px] h-[14px] absolute -top-1 -right-1 rounded-full">
+					<!-- <span class="bg-orange w-[14px] h-[14px] absolute -top-1 -right-1 rounded-full">
 						{{ event.nbInvitePending }}
-					</span>
+					</span> -->
 				</NuxtLink>
 			</div>
 		</div>

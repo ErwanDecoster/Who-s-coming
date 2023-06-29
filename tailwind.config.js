@@ -13,7 +13,8 @@ module.exports = {
     colors: {
       transparent: 'transparent',
       current: 'currentColor',
-      app: '#7BA5A1',
+      // app: '#7BA5A1',
+      app: '#CA2E55',
       white: '#FFFFFF',
       black: '#314240',
       orange: '#E8993E',

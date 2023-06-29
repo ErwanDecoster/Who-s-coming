@@ -22,14 +22,14 @@
 					{{ message.content }}
 				</p>
 			</div>
-		<div v-if="mode == 3" class="grid gap-2">
+		<div v-if="admin && mode == 3" class="grid gap-2">
 			<div v-for="invite in invites" class="flex items-center gap-2">
 				<input type="checkbox" name="" :id="invite.id_invitation" :disabled="invite.id_state == 3" class="delete-selection h-4 w-4">
 				<label :for="invite.id_invitation" class="btn-secondary">
 					{{ invite.first_name }} {{ invite.surname }} ({{ GetState(invite.id_state) }})
 				</label>
 			</div>
-			<button v-if="admin" class="btn-primary-red" @click="DeleteSelect()">Supprimer la sélection</button>
+			<button class="btn-primary-red" @click="DeleteSelect()">Supprimer la sélection</button>
 		</div>
 		<div v-if="mode == 0" class="grid gap-2">
 			<NuxtLink v-for="invite in invites" class="btn-secondary">
@@ -37,12 +37,13 @@
 			</NuxtLink>
 			<button v-if="admin && mode == 1" class="btn-secondary" @click="popup.addInvite = true">Ajouter un invité</button>
 		</div>
-		<div v-if="mode == 1" class="grid gap-2">
+		<div v-if="admin && mode == 1" class="grid gap-2">
 			<div v-for="invite in invites" class="flex">
 				<NuxtLink class="btn-primary" :class="{ 'rounded-r-none': invite.id_state < 3 }">
-					{{ invite.first_name }} {{ invite.surname }} ({{ GetState(invite.id_state) }})
+					{{ invite.first_name }} {{ invite.surname }} ({{ GetState(invite.id_state) }}) [{{ invite.code }}]
 				</NuxtLink>
-				<a v-if="invite.id_state < 3" class="btn-primary rounded-l-none border-l-2 border-black" :href="`tel:${invite.tel}`" >
+				<a v-if="invite.id_state < 3" class="btn-primary rounded-l-none border-l-2 border-black" :href="`sms://${invite.tel}?body=Salut%20je%20t%27invite%20a%20{}%20pour%20plus%20d%27information%20et%20pour%20accepter%20l%27invitation%20clique%20sur%20ce%20lien%20:%20http://10.14.6.5:3000/events/${$route.params.id_event}/invites/${invite.code}`" >
+				<!-- <a v-if="invite.id_state < 3" class="btn-primary rounded-l-none border-l-2 border-black" :href="`sms://${invite.tel}?body=test`" > -->
 					<template v-if="invite.id_state == 1">
 						Envoyer l'invitation
 					</template>
@@ -53,9 +54,12 @@
 			</div>
 			<button v-if="admin && mode == 1" class="btn-secondary" @click="popup.addInvite = true">Ajouter un invité</button>
 		</div>
-		<div class="grid gap-2">
-			<button @click="mode = 0" v-if="admin && mode == 1" class="btn-primary">Terminé</button>
-			<NuxtLink class="btn-secondary" @click="mode = 0" :to="`/events/${$route.params.id_event}`">Retour</NuxtLink>
+		<div v-if="admin" class="grid gap-2">
+			<button @click="mode = 0" v-if="mode != 0" class="btn-primary">Terminé</button>
+			<NuxtLink class="btn-primary" @click="mode = 1" :to="`/events/${$route.params.id_event}`">Retour a l'événement</NuxtLink>
+		</div>
+		<div v-else>
+			<NuxtLink class="btn-primary" :to="`/events/${$route.params.id_event}/invites/${userCode}`">Retour a l'invitation</NuxtLink>
 		</div>
 		<Popup v-if="popup.addInvite" @close="popup.addInvite = false">
 			<p class="text-2xl text-center">Nouvel invité</p>
@@ -95,6 +99,7 @@ export default {
 			admin: false,
 			mode: 0,
 			user: 0,
+			userCode: '',
 			popup: {
 				formMessages: [],
 				addInvite: false,
@@ -130,6 +135,7 @@ export default {
 		async SaveInvite() {
 			try {
 				const supabase = useSupabaseClient();
+				const code = Math.floor(Math.random() * 10000000).toString(16)
 				const { data, error } = await supabase
 				.from('invitations')
 				.insert([
@@ -139,11 +145,21 @@ export default {
 						surname: this.popup.form.surname,
 						tel: this.popup.form.tel,
 						id_state: 1,
-						code: Math.floor(Math.random() * 10000000).toString(16),
+						code: code,
 					},
 				])
+				const invite = {
+					id_invitation: this.$route.params.id_event,
+					first_name: this.popup.form.firstName,
+					surname: this.popup.form.surname,
+					tel: this.popup.form.tel,
+					id_state: 1,
+					code: code,
+				}
+				this.invites.push(invite);
 				if (error) throw error
 				this.popup.formMessages.push({ type: 'succes', content: 'L\'invité a bien été ajouté a l\'événement.' })
+				this.popup.addInvite = false;
 			} catch (error) {
 				this.popup.formMessages.push({ type: 'error', content: 'Une erreur est survenue l\'invité n\'a pas pu étre ajouté a l\'événement.' })
 			}
@@ -181,7 +197,6 @@ export default {
 				.eq('id_evenement', this.$route.params.id_event)
 				if (error) throw error
 				this.invites = invitations;
-				console.log(invitations);
 			} catch (error) {
 			} finally {
 			}
@@ -204,10 +219,10 @@ export default {
 		if (localStorage.mode) {
 			this.mode = localStorage.mode;
 		}
+		if (localStorage.code)
+			this.userCode = localStorage.code
 		watchEffect(() => {
-			if (!user.value)
-				navigateTo('/');
-			else
+			if (user.value)
 				this.admin = true;
 		})
 	},
