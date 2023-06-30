@@ -11,13 +11,12 @@
 				Demandes d'invités
 			</template>
 		</h2>
-		{{ mode }}
 		<button v-if="admin" class="absolute top-0 right-0 btn-secondary w-fit" @click="more = !more">•••</button>
+		<div v-if="more" @click="more = false" class="fixed inset-0"></div>
 		<div v-if="more" class="absolute right-0 top-10 z-10 bg-app rounded-xl">
 			<button @click="mode = 3, more = false" class="btn-secondary rounded-b-none">Sélectionner des invités</button>
 			<button @click="mode = 2, more = false" class="btn-secondary rounded-none">Demandes d'invités</button>
 			<button @click="mode = 1, more = false" class="btn-secondary rounded-t-none">Modifier la liste</button>
-			<!-- <button class="btn-secondary rounded-t-none">Invités supprimé</button> -->
 		</div>
 		<div v-if="formMessages.length" class="grid gap-1">
 			<p v-for="message in formMessages" :key="message.type" class="px-4 py-0.5 rounded-xl"
@@ -27,6 +26,7 @@
 			</p>
 		</div>
 		<div v-if="admin && mode == 2" class="grid gap-2">
+			<p v-if="!invitesAsked.length">Aucune demande pour le moment</p>
 			<div v-for="inviteAsked in invitesAsked" class="grid gap-2 bg-white text-black rounded-xl">
 				<div class="p-2">
 					<p>{{ inviteAsked.asker.first_name }} {{ inviteAsked.asker.surname }} souhaite invite : {{ inviteAsked.first_name }} {{ inviteAsked.surname }}</p>
@@ -40,26 +40,29 @@
 			</div>
 		</div>
 		<div v-if="admin && mode == 3" class="grid gap-2">
+			<p v-if="!invites.length">Aucun invité a selectionner pour le moment</p>
 			<div v-for="invite in invites" class="flex items-center gap-2">
 				<input type="checkbox" name="" :id="invite.id_invitation" :disabled="invite.id_state == 3" class="delete-selection h-4 w-4">
 				<label :for="invite.id_invitation" class="btn-secondary">
 					{{ invite.first_name }} {{ invite.surname }} ({{ GetState(invite.id_state) }})
 				</label>
 			</div>
-			<button class="btn-primary-red" @click="DeleteSelect()">Supprimer la sélection</button>
+			<button v-if="invites.length" class="btn-primary-red" @click="DeleteSelect()">Supprimer la sélection</button>
 		</div>
 		<div v-if="mode == 0" class="grid gap-2">
+			<p v-if="!invites.length">Aucun invité pour le moment</p>
 			<NuxtLink v-for="invite in invites" class="btn-secondary">
 				{{ invite.first_name }} {{ invite.surname }} ({{ GetState(invite.id_state) }})
 			</NuxtLink>
 			<button v-if="admin && mode == 1" class="btn-secondary" @click="popup.addInvite = true">Ajouter un invité</button>
 		</div>
 		<div v-if="admin && mode == 1" class="grid gap-2">
+			<p v-if="!invites.length">Aucun invité pour le moment</p>
 			<div v-for="invite in invites" class="flex">
 				<NuxtLink class="btn-primary" :class="{ 'rounded-r-none': invite.id_state < 3 }">
 					{{ invite.first_name }} {{ invite.surname }} ({{ GetState(invite.id_state) }}) [{{ invite.code }}]
 				</NuxtLink>
-				<a v-if="invite.id_state < 3" class="btn-primary rounded-l-none border-l-2 border-black" :href="`sms://${invite.tel}?body=Salut%20je%20t%27invite%20a%20{}%20pour%20plus%20d%27information%20et%20pour%20accepter%20l%27invitation%20clique%20sur%20ce%20lien%20:%20http://10.14.6.5:3000/events/${$route.params.id_event}/invites/${invite.code}`" >
+				<button v-if="invite.id_state < 3" @click="SendInvite(invite)" class="btn-primary rounded-l-none border-l-2 border-black">
 				<!-- <a v-if="invite.id_state < 3" class="btn-primary rounded-l-none border-l-2 border-black" :href="`sms://${invite.tel}?body=test`" > -->
 					<template v-if="invite.id_state == 1">
 						Envoyer l'invitation
@@ -67,13 +70,13 @@
 					<template v-if="invite.id_state == 2">
 						Re envoyer l'invitation
 					</template>
-				</a>
+				</button>
 			</div>
 			<button v-if="admin && mode == 1" class="btn-secondary" @click="popup.addInvite = true">Ajouter un invité</button>
 		</div>
 		<div v-if="admin" class="grid gap-2">
 			<button @click="mode = 0" v-if="mode != 0" class="btn-primary">Terminé</button>
-			<NuxtLink class="btn-primary" @click="mode = 1" :to="`/events/${$route.params.id_event}`">Retour a l'événement</NuxtLink>
+			<NuxtLink class="btn-primary" :to="`/events/${$route.params.id_event}`">Retour a l'événement</NuxtLink>
 		</div>
 		<div v-else>
 			<NuxtLink class="btn-primary" :to="`/events/${$route.params.id_event}/invites/${userCode}`">Retour a l'invitation</NuxtLink>
@@ -97,8 +100,8 @@
 					<input v-model="popup.form.surname" type="text" name="need_number" id="need_number">
 				</div>
 				<div class="grid gap-2">
-					<label for="need_number">Tél :</label>
-					<input v-model="popup.form.tel" type="tel" name="need_number" id="need_number">
+					<label for="need_tel">Tél :</label>
+					<input v-model="popup.form.tel" type="tel" name="need_tel" id="need_tel">
 				</div>
 				<input class="btn-primary" type="submit" value="Ajouter">
 			</form>
@@ -110,6 +113,7 @@
 export default {
 	data() {
 		return {
+			event: '',
 			invites: '',
 			formMessages: [],
 			message: [],
@@ -131,7 +135,31 @@ export default {
 		}
 	},
 	methods: {
-		async ChangeInviteState(newState, invite)
+		SendInvite(invite) {
+			const website = 'http://192.168.1.50:3000'
+			const message = `Salut ${invite.first_name} je t'invite a ${this.event.name} pour plus d'information et pour accepter l'invitation clique sur ce lien : ${website}/events/${this.$route.params.id_event}/invites/${invite.code} . code d'invitation : ${invite.code.toUpperCase()}`
+			// const message = `sms://${invite.tel}?body=Salut%20je%20t%27invite%20a%20{}%20pour%20plus%20d%27information%20et%20pour%20accepter%20l%27invitation%20clique%20sur%20ce%20lien%20:%20http://10.14.6.5:3000/events/${$route.params.id_event}/invites/${invite.code}`
+			message.replaceAll(' ', '%20')
+			message.replaceAll("'", '%27')
+			const link = `sms://${invite.tel}?body=${message}`
+			this.ChangeInviteStateAndSendInvite(2, invite, link).then (() => {
+				console.log(invite.id_state);
+			})
+		},
+		async GetEvent() {
+			try {
+				const supabase = useSupabaseClient();
+				let { data: evenements, error } = await supabase
+				.from('evenements')
+				.select("*")
+				.eq('id_evenement', this.$route.params.id_event)
+				if (error) throw error
+				this.event = evenements[0];
+			} catch (error) {
+			} finally {
+			}
+		},
+		async ChangeInviteStateAndSendInvite(newState, invite, link)
 		{
 			try {
 				this.formMessages = [];
@@ -141,12 +169,11 @@ export default {
 				.update({ id_state: newState })
 				.eq('id_invitation', invite.id_invitation)
 				if (error) throw error
-				window.location.href = `sms://${invite.tel}?body=Salut%20t%27invitation%20est%20comfirme%20!`;
+				window.location.href = link;
 			} catch (error) {
 				this.formMessages.push({ type: 'error', content: 'Une erreur est survenue le status de votre invitation n\'a pas pu étre mis a jour.' })
 			} finally {
 			}
-
 		},
 		SetInviteAskers(id) {
 			this.invitesAsked.forEach(element => {
@@ -253,7 +280,6 @@ export default {
 				.select("*")
 				.eq('id_evenement', this.$route.params.id_event)
 				.neq('id_state', 5)
-				// .is('id_invitation_asker', null)
 				if (error) throw error
 				this.invites = invitations;
 				this.GetInvitesAsked();
@@ -268,14 +294,15 @@ export default {
 		},
 	},
 	watch: {
-		mode(newMode) {
-			localStorage.mode = newMode;
-		},
+		// mode(newMode) {
+		// 	localStorage.mode = newMode;
+		// },
 	},
 	mounted() {
 		const user = useSupabaseUser();
 		this.GetUser();
 		this.GetInvites();
+		this.GetEvent()
 		if (localStorage.mode) {
 			this.mode = localStorage.mode;
 		}
@@ -285,6 +312,7 @@ export default {
 			if (user.value)
 				this.admin = true;
 		})
+		// console.log(this.admin);
 	},
 }
 </script>

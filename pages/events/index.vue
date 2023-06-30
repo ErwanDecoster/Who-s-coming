@@ -55,6 +55,11 @@ export default {
 	},
 	mounted() {
 		this.GetUser()
+		const user = useSupabaseUser();
+		watchEffect(() => {
+		if (!user.value)
+			navigateTo('/');
+		})
 	},
 }
 </script>

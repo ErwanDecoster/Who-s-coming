@@ -37,8 +37,8 @@ export default {
 			})
 			if (error) throw error
 			navigateTo('/events');
-		} catch {
-			this.formMessages.push({ type: 'error', content: 'Connection impossible' })
+		} catch (error) {
+			this.formMessages.push({type: 'error', content: error })
 		}
     },
   },

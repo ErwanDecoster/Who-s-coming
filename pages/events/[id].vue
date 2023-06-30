@@ -2,6 +2,7 @@
 	<div class="relative grid gap-6">
 		<h2>Votre événement</h2>
 		<button class="absolute top-0 right-0 btn-secondary w-fit" @click="more = !more">•••</button>
+		<div v-if="more" @click="more = false" class="fixed inset-0"></div>
 		<div v-if="more" class="absolute right-0 top-10 z-10 bg-app rounded-xl">
 			<button class="btn-secondary rounded-b-none">Modifier l'événement</button>
 			<button @click="DeleteEvent()" class="btn-secondary-red rounded-t-none">Supprimer l'événement</button>
@@ -148,6 +149,11 @@ export default {
 	},
 	mounted() {
 		this.GetUser()
+		const user = useSupabaseUser();
+		watchEffect(() => {
+		if (!user.value)
+			navigateTo('/');
+		})
 	},
 }
 </script>

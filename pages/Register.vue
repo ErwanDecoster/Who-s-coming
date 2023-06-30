@@ -62,7 +62,7 @@ export default {
 			this.formMessages.push({type: 'error', content: 'Le champ "Mot de passe" est requis'})
 		if (!this.form.passwordRetype)
 			this.formMessages.push({type: 'error', content: 'Le champ "Confirmation du mot de passe" est requis'})
-		if (this.form.password >= 6)
+		if (this.form.password.length < 6)
 			this.formMessages.push({type: 'error', content: 'Le Mot de passe doit contenir au moins 6 caracteres'})
 		if (this.form.passwordRetype && this.form.password)
 			if (this.form.password !== this.form.passwordRetype)
@@ -72,13 +72,16 @@ export default {
 		return (1)
 	},
 	async SignUp() {
-		const supabase = useSupabaseClient();
-		let { data, error } = await supabase.auth.signUp({
-			email: this.form.email,
-			password: this.form.password
-		})
-    	console.log('data', data);
-    	console.log('error', error);
+		try {
+			const supabase = useSupabaseClient();
+			let { data, error } = await supabase.auth.signUp({
+				email: this.form.email,
+				password: this.form.password
+			})
+			if (error) throw error
+		} catch (error) {
+			this.formMessages.push({type: 'error', content: error })
+		}
     }, 
 	Register()
 	{

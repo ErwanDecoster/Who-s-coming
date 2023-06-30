@@ -80,9 +80,6 @@
 			</form>
 		</Popup>
 	</div>
-	<div v-else>
-		<p>404</p>
-	</div>
 </template>
 
 <script>
@@ -257,6 +254,7 @@ export default {
 				this.invite = invitation[0];
 				this.AddMessageInviteStatu(this.invite.id_state)
 			} catch (error) {
+				navigateTo('/');
 			} finally {
 			}
 		},
