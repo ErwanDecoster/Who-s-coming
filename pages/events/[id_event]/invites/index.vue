@@ -7,11 +7,15 @@
 			<template v-if="mode == 1">
 				Modifier la liste
 			</template>
+			<template v-if="mode == 2">
+				Demandes d'invités
+			</template>
 		</h2>
+		{{ mode }}
 		<button v-if="admin" class="absolute top-0 right-0 btn-secondary w-fit" @click="more = !more">•••</button>
 		<div v-if="more" class="absolute right-0 top-10 z-10 bg-app rounded-xl">
 			<button @click="mode = 3, more = false" class="btn-secondary rounded-b-none">Sélectionner des invités</button>
-			<button class="btn-secondary rounded-none">Demandes d'invités</button>
+			<button @click="mode = 2, more = false" class="btn-secondary rounded-none">Demandes d'invités</button>
 			<button @click="mode = 1, more = false" class="btn-secondary rounded-t-none">Modifier la liste</button>
 			<!-- <button class="btn-secondary rounded-t-none">Invités supprimé</button> -->
 		</div>
@@ -21,6 +25,19 @@
 				@click="formMessages.splice(formMessages.indexOf(message), 1)">
 				{{ message.content }}
 			</p>
+		</div>
+		<div v-if="admin && mode == 2" class="grid gap-2">
+			<div v-for="inviteAsked in invitesAsked" class="grid gap-2 bg-white text-black rounded-xl">
+				<div class="p-2">
+					<p>{{ inviteAsked.asker.first_name }} {{ inviteAsked.asker.surname }} souhaite invite : {{ inviteAsked.first_name }} {{ inviteAsked.surname }}</p>
+					<p>Relation :</p>
+					<p>{{ inviteAsked.relationship }}</p>
+				</div>
+				<div class="flex">
+					<button class="btn-primary-red rounded-r-none rounded-t-none">Supprimer</button>
+					<button @click="ChangeInviteState(3, inviteAsked)" class="btn-primary-green rounded-l-none rounded-t-none">Accepter et envoyer l'invitation</button>
+				</div>
+			</div>
 		</div>
 		<div v-if="admin && mode == 3" class="grid gap-2">
 			<div v-for="invite in invites" class="flex items-center gap-2">
@@ -95,11 +112,13 @@ export default {
 		return {
 			invites: '',
 			formMessages: [],
+			message: [],
 			more: false,
 			admin: false,
 			mode: 0,
 			user: 0,
 			userCode: '',
+			invitesAsked: [],
 			popup: {
 				formMessages: [],
 				addInvite: false,
@@ -112,6 +131,28 @@ export default {
 		}
 	},
 	methods: {
+		async ChangeInviteState(newState, invite)
+		{
+			try {
+				this.formMessages = [];
+				const supabase = useSupabaseClient();
+				const { data, error } = await supabase
+				.from('invitations')
+				.update({ id_state: newState })
+				.eq('id_invitation', invite.id_invitation)
+				if (error) throw error
+				window.location.href = `sms://${invite.tel}?body=Salut%20t%27invitation%20est%20comfirme%20!`;
+			} catch (error) {
+				this.formMessages.push({ type: 'error', content: 'Une erreur est survenue le status de votre invitation n\'a pas pu étre mis a jour.' })
+			} finally {
+			}
+
+		},
+		SetInviteAskers(id) {
+			this.invitesAsked.forEach(element => {
+				element.asker = this.invites[this.invites.findIndex(invite => invite.id_invitation == element.id_invitation_asker)]
+			});
+		},
 		async DeleteRow(id)  {
 			try {
 				const supabase = useSupabaseClient();
@@ -180,13 +221,29 @@ export default {
 			return (1)
 		},
 		GetState(idState) {
-			const State = ['non invité','invité','comfirmé','refusé']
+			const State = ['non invité','invité','comfirmé','refusé','demandé']
 			return State[idState - 1]
 		},
 		AddInviteToEvent() {
 			if (this.CheckForm())
 				return
 			this.SaveInvite()
+		},
+		async GetInvitesAsked() {
+			try {
+				const supabase = useSupabaseClient();
+				let { data: invitations, error } = await supabase
+				.from('invitations')
+				.select("*")
+				.eq('id_evenement', this.$route.params.id_event)
+				.eq('id_state', 5)
+				.not("id_invitation_asker","is", null);
+				if (error) throw error
+				this.invitesAsked = invitations;
+				this.SetInviteAskers();
+			} catch (error) {
+			} finally {
+			}
 		},
 		async GetInvites() {
 			try {
@@ -195,8 +252,11 @@ export default {
 				.from('invitations')
 				.select("*")
 				.eq('id_evenement', this.$route.params.id_event)
+				.neq('id_state', 5)
+				// .is('id_invitation_asker', null)
 				if (error) throw error
 				this.invites = invitations;
+				this.GetInvitesAsked();
 			} catch (error) {
 			} finally {
 			}

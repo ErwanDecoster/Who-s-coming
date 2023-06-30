@@ -8,7 +8,7 @@
 			</div>
 			<div class="grid gap-2">
 				<label for="password">Mot de passe :</label>
-				<input v-model="form.password" type="text" name="password" id="password">
+				<input v-model="form.password" type="password" name="password" id="password">
 			</div>
 			<input class="btn-primary" type="submit" value="Connection">
 		</form>
@@ -36,6 +36,7 @@ export default {
 				password: this.form.password
 			})
 			if (error) throw error
+			navigateTo('/events');
 		} catch {
 			this.formMessages.push({ type: 'error', content: 'Connection impossible' })
 		}
