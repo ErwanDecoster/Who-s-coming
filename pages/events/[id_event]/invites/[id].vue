@@ -11,32 +11,33 @@
 			</div>
 			<div class="bg-white block relative text-black rounded-xl p-2">
 				<div class="text-sm grid gap-1">
-					<p class="text-base">{{ event.name }} - {{ event.date }} - {{ event.time }} - <span class="underline">{{ event.address }}</span></p>
-					<p class="text-opacity-70">
+					<p class="text-base"><span class="font-bold">{{ event.name }}</span> - {{ event.date }} - {{ event.time }}</p>
+					<a target="_blank" :href="`http://maps.google.com/?q=${event.address}`" class="underline">{{ event.address }}</a>
+					<p class="text-opacity-70 flex gap-1">
 						<span v-if="!invitesStateNb.unsend && !invitesStateNb.send && !invitesStateNb.accepted && !invitesStateNb.denied && !invitesStateNb.asked">Aucune personnes invité</span>
 						<span v-if="invitesStateNb.unsend">{{ invitesStateNb.unsend }} non invité</span>
-						<span v-if="invitesStateNb.send">- {{ invitesStateNb.send }} invités</span>  
-						<span v-if="invitesStateNb.accepted">- {{ invitesStateNb.accepted }} comfirmés</span>
-						<span v-if="invitesStateNb.denied">- {{ invitesStateNb.denied }} refusés</span>
-						<span v-if="invitesStateNb.asked">- {{ invitesStateNb.asked }} demandes</span>
+						<span v-if="invitesStateNb.send">{{ invitesStateNb.send }} invités</span>  
+						<span v-if="invitesStateNb.accepted">{{ invitesStateNb.accepted }} comfirmés</span>
+						<span v-if="invitesStateNb.denied">{{ invitesStateNb.denied }} refusés</span>
+						<span v-if="invitesStateNb.asked">{{ invitesStateNb.asked }} demandes</span>
 					</p>
 				</div>
 			</div>
 			<NuxtLink :to="`/events/${$route.params.id_event}/invites`" class="btn-secondary">Voir la liste des invité</NuxtLink>
 			<div v-if="invite.id_state == 2 || invite.id_state == 4" class="grid gap-4">
 				<div class="grid gap-2">
-					<h3 class="text-sm">Description :</h3>
-					<p class="text-xs">{{ event.desc }}</p>
+					<h3 class="">Description :</h3>
+					<p class="text-sm whitespace-pre-line">{{ event.desc }}</p>
 				</div>
 				<div class="grid gap-2">
-					<h3 class="text-sm">Règlement :</h3>
-					<p class="text-xs">{{ event.rules }}</p>
+					<h3 class="">Règlement :</h3>
+					<p class="text-sm whitespace-pre-line">{{ event.rules }}</p>
 				</div>
 				<div class="grid gap-2">
-					<h3 class="text-sm">Nécessaire a la soirée :</h3>
+					<h3 class="">Nécessaire a la soirée :</h3>
 					<div v-for="need in event.needs" class="flex items-center gap-2">
 						<input type="checkbox" name="" :id="need.id_need" :disabled="need.number == 0" class="delete-selection h-4 w-4">
-						<label :for="need.id_need" class="text-xs">
+						<label :for="need.id_need" class="text-sm">
 							{{ need.label }} ({{ need.number }} manquants)
 						</label>
 					</div>

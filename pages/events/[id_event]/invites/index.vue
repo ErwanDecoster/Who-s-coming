@@ -59,10 +59,11 @@
 		<div v-if="admin && mode == 1" class="grid gap-2">
 			<p v-if="!invites.length">Aucun invité pour le moment</p>
 			<div v-for="invite in invites" class="flex">
-				<NuxtLink class="btn-primary" :class="{ 'rounded-r-none': invite.id_state < 3 }">
+				<NuxtLink class="btn-primary" :class="{ 'rounded-r-none border-r-0': invite.id_state < 3 }">
 					{{ invite.first_name }} {{ invite.surname }} ({{ GetState(invite.id_state) }}) [{{ invite.code }}]
 				</NuxtLink>
-				<button v-if="invite.id_state < 3" @click="SendInvite(invite)" class="btn-primary rounded-l-none border-l-2 border-black">
+				<span v-if="invite.id_state < 3" class="bg-black h-full w-1"></span>
+				<button v-if="invite.id_state < 3" @click="SendInvite(invite)" class="btn-primary rounded-l-none border-l-0">
 				<!-- <a v-if="invite.id_state < 3" class="btn-primary rounded-l-none border-l-2 border-black" :href="`sms://${invite.tel}?body=test`" > -->
 					<template v-if="invite.id_state == 1">
 						Envoyer l'invitation
@@ -136,9 +137,8 @@ export default {
 	},
 	methods: {
 		SendInvite(invite) {
-			const website = 'http://192.168.1.50:3000'
-			const message = `Salut ${invite.first_name} je t'invite a ${this.event.name} pour plus d'information et pour accepter l'invitation clique sur ce lien : ${website}/events/${this.$route.params.id_event}/invites/${invite.code} . code d'invitation : ${invite.code.toUpperCase()}`
-			// const message = `sms://${invite.tel}?body=Salut%20je%20t%27invite%20a%20{}%20pour%20plus%20d%27information%20et%20pour%20accepter%20l%27invitation%20clique%20sur%20ce%20lien%20:%20http://10.14.6.5:3000/events/${$route.params.id_event}/invites/${invite.code}`
+			const website = 'http://192.168.1.33:3000'
+			const message = `Salut ${invite.first_name} je t'invite a l'événement ${this.event.name} pour plus d'information et pour accepter l'invitation clique sur ce lien : ${website}/events/${this.$route.params.id_event}/invites/${invite.code}. code d'invitation : ${invite.code.toUpperCase()}`
 			message.replaceAll(' ', '%20')
 			message.replaceAll("'", '%27')
 			const link = `sms://${invite.tel}?body=${message}`

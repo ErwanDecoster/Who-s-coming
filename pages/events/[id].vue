@@ -17,7 +17,8 @@
 			</div>
 			<div class="bg-white block relative text-black rounded-xl p-2">
 				<div class="text-sm grid gap-1">
-					<p class="text-base">{{ event.name }} - {{ event.date }} - {{ event.time }} - <a target="_blank" :href="`http://maps.google.com/?q=${event.address}`" class="underline">{{ event.address }}</a></p>
+					<p class="text-base"><span class="font-bold">{{ event.name }}</span> - {{ event.date }} - {{ event.time }}</p>
+					<a target="_blank" :href="`http://maps.google.com/?q=${event.address}`" class="underline">{{ event.address }}</a>
 					<p class="text-opacity-70">
 						<span v-if="!invitesStateNb.unsend && !invitesStateNb.send && !invitesStateNb.accepted && !invitesStateNb.denied && !invitesStateNb.asked">Aucune personnes invité</span>
 						<span v-if="invitesStateNb.unsend">{{ invitesStateNb.unsend }} non invité</span>
@@ -44,10 +45,14 @@
 			</div>
 			<div class="grid gap-2">
 				<h3 class="">Nécessaire a la soirée :</h3>
-				<p class="text-sm" v-for="need in event.needs" :key="need">{{ need.label }} ({{ need.number }} manquants)</p>
+				<ul class="grid gap-2 list-disc list-inside">
+					<li class="text-sm" v-for="need in event.needs" :key="need">
+						{{ need.label }} ({{ need.number }} manquants)
+					</li>
+				</ul>
 			</div>
 		</div>
-		<NuxtLink class="btn-primary disabled" to="/events">Retour au événements</NuxtLink>
+		<NuxtLink class="btn-primary" to="/events">Retour au événements</NuxtLink>
 	</div>
 </template>
 

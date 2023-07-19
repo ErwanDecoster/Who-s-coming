@@ -62,6 +62,6 @@
 		@apply whitespace-pre-line
 	}
 	a:hover {
-		@apply bg-red
+		/* @apply bg-red */
 	}
   }
