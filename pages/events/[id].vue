@@ -4,7 +4,7 @@
 		<button class="absolute top-0 right-0 btn-secondary w-fit" @click="more = !more">•••</button>
 		<div v-if="more" @click="more = false" class="fixed inset-0"></div>
 		<div v-if="more" class="absolute right-0 top-10 z-10 bg-app rounded-xl">
-			<button class="btn-secondary rounded-b-none">Modifier l'événement</button>
+			<button disabled class="btn-secondary rounded-b-none">Modifier l'événement</button>
 			<button @click="DeleteEvent()" class="btn-secondary-red rounded-t-none">Supprimer l'événement</button>
 		</div>
 		<div class="grid gap-4">
@@ -17,7 +17,7 @@
 			</div>
 			<div class="bg-white block relative text-black rounded-xl p-2">
 				<div class="text-sm grid gap-1">
-					<p class="text-base">{{ event.name }} - {{ event.date }} - {{ event.time }} - <span class="underline">{{ event.address }}</span></p>
+					<p class="text-base">{{ event.name }} - {{ event.date }} - {{ event.time }} - <a target="_blank" :href="`http://maps.google.com/?q=${event.address}`" class="underline">{{ event.address }}</a></p>
 					<p class="text-opacity-70">
 						<span v-if="!invitesStateNb.unsend && !invitesStateNb.send && !invitesStateNb.accepted && !invitesStateNb.denied && !invitesStateNb.asked">Aucune personnes invité</span>
 						<span v-if="invitesStateNb.unsend">{{ invitesStateNb.unsend }} non invité</span>
@@ -35,19 +35,19 @@
 				</span>
 			</NuxtLink>
 			<div class="grid gap-2">
-				<h3 class="text-sm">Description :</h3>
-				<p class="text-xs">{{ event.desc }}</p>
+				<h3 class="">Description :</h3>
+				<p class="text-sm">{{ event.desc }}</p>
 			</div>
 			<div class="grid gap-2">
-				<h3 class="text-sm">Règlement :</h3>
-				<p class="text-xs">{{ event.rules }}</p>
+				<h3 class="">Règlement :</h3>
+				<p class="text-sm">{{ event.rules }}</p>
 			</div>
 			<div class="grid gap-2">
-				<h3 class="text-sm">Nécessaire a la soirée :</h3>
-				<p class="text-xs" v-for="need in event.needs" :key="need">{{ need.label }} ({{ need.number }} manquants)</p>
+				<h3 class="">Nécessaire a la soirée :</h3>
+				<p class="text-sm" v-for="need in event.needs" :key="need">{{ need.label }} ({{ need.number }} manquants)</p>
 			</div>
 		</div>
-		<NuxtLink class="btn-primary" to="/events">Retour au événements</NuxtLink>
+		<NuxtLink class="btn-primary disabled" to="/events">Retour au événements</NuxtLink>
 	</div>
 </template>
 

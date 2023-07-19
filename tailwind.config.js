@@ -20,6 +20,8 @@ module.exports = {
       app: '#014979',
       white: '#FFFFFF',
       black: '#314240',
+      darkapp: '#002c4a',
+      darkgrey: '#555555',
       orange: '#E8993E',
       green: '#40D886',
       red: '#D8404D',

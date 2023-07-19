@@ -8,7 +8,7 @@
 				<p v-if="events.length == 0" class="text-sm">Vous n'avez encore aucun evenement.</p>
 				<NuxtLink v-for="event in events" :key="event.id" :to="`events/${event.id_evenement}/`" class="bg-white block relative text-black rounded-xl p-2">
 					<div class="text-sm grid gap-1">
-						<p class="text-base">{{ event.name }} - <span class="underline">{{ event.address }}</span></p>
+						<p class="text-base">{{ event.name }} - <a :href="`http://maps.google.com/?q=${event.address}`" class="underline">{{ event.address }}</a></p>
 						<p class="text-opacity-70">{{ event.invites }} - {{ event.invitesConfirmed }}</p>
 					</div>
 					<!-- <span class="bg-orange w-[14px] h-[14px] absolute -top-1 -right-1 rounded-full">
