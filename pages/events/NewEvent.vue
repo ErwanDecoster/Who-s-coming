@@ -184,9 +184,7 @@ export default {
 					},
 				])
 				if (error) throw error
-				console.log('need 1', this.form.needs);
 				this.form.needs.splice(this.form.needs.indexOf(need), 1)
-				console.log('need 2', this.form.needs);
 				this.formMessages.push({ type: 'succes', content: 'Le nécessaire a bien été ajouté a l\'événement.' })
 				if (this.form.needs.length == 0)
 					navigateTo(`/events/${eventId}`);

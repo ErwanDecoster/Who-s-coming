@@ -15,9 +15,9 @@
 					{{ message.content }}
 				</p>
 			</div>
-			<div class="bg-white block relative text-black rounded-xl p-2">
-				<div class="text-sm grid gap-1">
-					<p class="text-base"><span class="font-bold">{{ event.name }}</span> - {{ event.date }} - {{ event.time }}</p>
+			<div class="bg-white block relative text-black rounded-xl p-2 min-h-[88px]">
+				<div v-if="event" class="text-sm grid gap-1">
+					<p class="text-base"><span class="font-bold">{{ event.name }}</span> - {{ ReturnFrenchFormatDate(event.date) }} - {{ ReturnFormatedTime(event.time) }}</p>
 					<a target="_blank" :href="`http://maps.google.com/?q=${event.address}`" class="underline">{{ event.address }}</a>
 					<p v-if="event.invitations" class="text-opacity-70 flex gap-1">
 						<span v-if="!event.invitations.length">Aucune personne invité</span>
@@ -36,15 +36,15 @@
 				</span> -->
 			</NuxtLink>
 			<div class="grid gap-2">
-				<h3 class="">Description :</h3>
+				<h3 class="font-semibold">Description :</h3>
 				<p class="text-sm whitespace-pre-line">{{ event.desc }}</p>
 			</div>
 			<div class="grid gap-2">
-				<h3 class="">Règlement :</h3>
+				<h3 class="font-semibold">Règlement :</h3>
 				<p class="text-sm whitespace-pre-line">{{ event.rules }}</p>
 			</div>
 			<div class="grid gap-2">
-				<h3 class="">Nécessaire a la soirée :</h3>
+				<h3 class="font-semibold">Nécessaire a la soirée :</h3>
 				<ul class="grid gap-2 list-disc list-inside">
 					<li class="text-sm" v-for="need in event.needs" :key="need">
 						{{ need.label }} ({{ need.number }} manquants)
@@ -64,17 +64,20 @@ export default {
 			more: false,
 			user: '',
 			event: '',
-			// invitesState: [],
-			// invitesStateNb: {
-			// 	unsend: 0,
-			// 	send: 0,
-			// 	accepted: 0,
-			// 	denied: 0,
-			// 	asked: 0,
-			// },
 		}
 	},
 	methods: {
+		ReturnFrenchFormatDate(date) {
+			const currentDate = new Date(date)
+			const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+			return (currentDate.toLocaleDateString('fr-fr', options));
+		},
+		ReturnFormatedTime(time) {
+			let newTime = time.slice(0, 5).replaceAll(':', 'h')
+			if (time.slice(3, 5) == '00')
+				return (newTime.slice(0, 3))
+			return (newTime.slice(0, 5))
+		},
 		async DeleteEvent() {
 			try {
 				this.messages = [];
@@ -126,7 +129,6 @@ export default {
 				if (error) throw error
 				this.SetStateOccurence(evenements[0])
 				this.event = evenements[0];
-				console.log(this.event);
 			} catch (error) {
 			} finally {
 			}

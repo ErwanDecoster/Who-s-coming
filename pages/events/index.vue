@@ -60,7 +60,6 @@ export default {
 						event.inviteState.asked++;
 				});
 			});
-			console.log(events);
 		},
 		async GetUser() {
 			const supabase = useSupabaseClient();
