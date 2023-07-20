@@ -39,7 +39,7 @@
 				<button class="btn-secondary" @click="popup.addNeed = true">Ajouter un nécessaire a l'événement</button>
 			</div>
 			<input @click="AddEvent()" class="btn-primary" type="submit" value="Enregistrer">
-			<NuxtLink class="btn-secondary-red" to="Events">Annuler</NuxtLink>
+			<NuxtLink class="btn-secondary-red" to="/events">Annuler</NuxtLink>
 		</form>
 		<Popup v-if="popup.addNeed" @close="popup.addNeed = false">
 			<p class="text-2xl text-center">Nouveau nécessaire</p>

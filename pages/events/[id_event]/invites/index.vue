@@ -42,14 +42,14 @@
 		</div>
 		<!-- Selection des invites mode -->
 		<div v-if="admin && mode == 3" class="grid gap-2">
-			<p v-if="!event.invitations.length">Aucun invité a selectionner pour le moment</p>
+			<p v-if="event.invitations && !event.invitations.length">Aucun invité a selectionner pour le moment</p>
 			<div v-for="invite in event.invitations" class="flex items-center gap-2">
 				<input type="checkbox" name="" :id="invite.id_invitation" :disabled="invite.id_state == 3" class="delete-selection h-4 w-4">
 				<label :for="invite.id_invitation" class="btn-secondary">
 					{{ invite.first_name }} {{ invite.surname }} ({{ GetState(invite.id_state) }})
 				</label>
 			</div>
-			<button v-if="event.invitations.length" class="btn-primary-red" @click="DeleteSelect()">Supprimer la sélection</button>
+			<button v-if="event.invitations && event.invitations.length" class="btn-primary-red" @click="DeleteSelect()">Supprimer la sélection</button>
 		</div>
 		<!-- Liste des invites mode -->
 		<div v-if="mode == 0" class="grid gap-2">
@@ -60,7 +60,7 @@
 			<button v-if="admin && mode == 1" class="btn-secondary" @click="popup.addInvite = true">Ajouter un invité</button>
 		</div>
 		<div v-if="admin && mode == 1" class="grid gap-2">
-			<p v-if="!event.invitations.length">Aucun invité pour le moment</p>
+			<p v-if="event.invitations && !event.invitations.length">Aucun invité pour le moment</p>
 			<div v-for="invite in event.invitations" class="flex">
 				<NuxtLink class="btn-primary" :class="{ 'rounded-r-none border-r-0': invite.id_state < 3 }">
 					{{ invite.first_name }} {{ invite.surname }} ({{ GetState(invite.id_state) }}) [{{ invite.code }}]
@@ -139,7 +139,8 @@ export default {
 	},
 	methods: {
 		SendInvite(invite) {
-			const website = 'http://10.13.6.5:3000/'
+			// const website = 'http://10.13.6.5:3000/'
+			const website = 'https://who-s-coming-mevyute3q-erwandecoster.vercel.app/events'
 			const message = `Salut ${invite.first_name} je t'invite a l'événement ${this.event.name} pour plus d'information,  x pour accepter ou refuser l'invitation clique sur ce lien : ${website}/events/${this.$route.params.id_event}/invites/${invite.code}. code d'invitation : ${invite.code.toUpperCase()}`
 			message.replaceAll(' ', '%20')
 			message.replaceAll("'", '%27')
