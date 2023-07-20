@@ -19,29 +19,29 @@
 				<div class="text-sm grid gap-1">
 					<p class="text-base"><span class="font-bold">{{ event.name }}</span> - {{ event.date }} - {{ event.time }}</p>
 					<a target="_blank" :href="`http://maps.google.com/?q=${event.address}`" class="underline">{{ event.address }}</a>
-					<p class="text-opacity-70">
-						<span v-if="!invitesStateNb.unsend && !invitesStateNb.send && !invitesStateNb.accepted && !invitesStateNb.denied && !invitesStateNb.asked">Aucune personnes invité</span>
-						<span v-if="invitesStateNb.unsend">{{ invitesStateNb.unsend }} non invité</span>
-						<span v-if="invitesStateNb.send">- {{ invitesStateNb.send }} invités</span>  
-						<span v-if="invitesStateNb.accepted">- {{ invitesStateNb.accepted }} comfirmés</span>
-						<span v-if="invitesStateNb.denied">- {{ invitesStateNb.denied }} refusés</span>
-						<span v-if="invitesStateNb.asked">- {{ invitesStateNb.asked }} demandes</span>
+					<p v-if="event.invitations" class="text-opacity-70 flex gap-1">
+						<span v-if="!event.invitations.length">Aucune personne invité</span>
+						<span v-if="event.inviteState.unsend">{{ event.inviteState.unsend }} non invité</span>
+						<span v-if="event.inviteState.send">{{ event.inviteState.send }} invités</span>  
+						<span v-if="event.inviteState.accepted">{{ event.inviteState.accepted }} comfirmés</span>
+						<span v-if="event.inviteState.denied">{{ event.inviteState.denied }} refusés</span>
+						<span v-if="event.inviteState.asked">{{ event.inviteState.asked }} demandes</span>
 					</p>
 				</div>
 			</div>
 			<NuxtLink :to="`/events/${$route.params.id}/invites`" class="btn-secondary relative">
 				Voir la liste des invités
-				<span v-if="invitesStateNb.asked" class="bg-orange text-xs w-[14px] h-[14px] absolute -top-1 -right-1 rounded-full">
+				<!-- <span v-if="invitesStateNb.asked" class="bg-orange text-xs w-[14px] h-[14px] absolute -top-1 -right-1 rounded-full">
 					{{ invitesStateNb.asked }}
-				</span>
+				</span> -->
 			</NuxtLink>
 			<div class="grid gap-2">
 				<h3 class="">Description :</h3>
-				<p class="text-sm">{{ event.desc }}</p>
+				<p class="text-sm whitespace-pre-line">{{ event.desc }}</p>
 			</div>
 			<div class="grid gap-2">
 				<h3 class="">Règlement :</h3>
-				<p class="text-sm">{{ event.rules }}</p>
+				<p class="text-sm whitespace-pre-line">{{ event.rules }}</p>
 			</div>
 			<div class="grid gap-2">
 				<h3 class="">Nécessaire a la soirée :</h3>
@@ -64,14 +64,14 @@ export default {
 			more: false,
 			user: '',
 			event: '',
-			invitesState: [],
-			invitesStateNb: {
-				unsend: 0,
-				send: 0,
-				accepted: 0,
-				denied: 0,
-				asked: 0,
-			},
+			// invitesState: [],
+			// invitesStateNb: {
+			// 	unsend: 0,
+			// 	send: 0,
+			// 	accepted: 0,
+			// 	denied: 0,
+			// 	asked: 0,
+			// },
 		}
 	},
 	methods: {
@@ -89,64 +89,44 @@ export default {
 				this.messages.push({ type: 'error', content: 'Une erreur est survenue l\'événement n\'a pas pu étre supprimé.' })
 			}
 		},
-		SetInviteState(state) {
-			this.invitesState.forEach(invite => {
-				if (invite.id_state == 1)
-					this.invitesStateNb.unsend++;
-				if (invite.id_state == 2)
-					this.invitesStateNb.send++;
-				if (invite.id_state == 3)
-					this.invitesStateNb.accepted++;
-				if (invite.id_state == 4)
-					this.invitesStateNb.denied++;
-				if (invite.id_state == 5)
-					this.invitesStateNb.asked++;
-			})
-		},
-		async GetInvitesState() {
-			try {
-				const supabase = useSupabaseClient();
-				let { data: invitationsState, error } = await supabase
-				.from('invitations')
-				.select("id_state")
-				.eq('id_evenement', this.$route.params.id)
-				if (error) throw error
-				this.invitesState = invitationsState;
-				this.SetInviteState()
-			} catch (error) {
-			} finally {
-			}
-		},
 		async GetUser() {
 			const supabase = useSupabaseClient();
 			const { data: { user } } = await supabase.auth.getUser()
 			this.user = user;
 			this.GetEvent()
 		},
-		async GetNeeds() {
-			try {
-				const supabase = useSupabaseClient();
-				let { data: needs, error } = await supabase
-				.from('needs')
-				.select("*")
-				.eq('id_evenement', this.$route.params.id)
-				if (error) throw error
-				this.event.needs = needs;
-			} catch (error) {
-			} finally {
-			}
+		SetStateOccurence(event) {
+			event.inviteState = {};
+			event.inviteState.unsend = 0;
+			event.inviteState.send = 0;
+			event.inviteState.accepted = 0;
+			event.inviteState.denied = 0;
+			event.inviteState.asked = 0;
+			event.invitations.forEach(invitation => {
+				if (invitation.id_state == 1)
+					event.inviteState.unsend++;
+				if (invitation.id_state == 2)
+					event.inviteState.send++;
+				if (invitation.id_state == 3)
+					event.inviteState.accepted++;
+				if (invitation.id_state == 4)
+					event.inviteState.denied++;
+				if (invitation.id_state == 5)
+					event.inviteState.asked++;
+			});
 		},
 		async GetEvent() {
 			try {
 				const supabase = useSupabaseClient();
 				let { data: evenements, error } = await supabase
 				.from('evenements')
-				.select("*")
+				// .select("*")
+				.select('id_evenement, name, desc, rules, address, date, time, invitations ( id_evenement, id_state ), needs ( id_evenement, label, number )')
 				.eq('id_evenement', this.$route.params.id)
 				if (error) throw error
+				this.SetStateOccurence(evenements[0])
 				this.event = evenements[0];
-				this.GetNeeds()
-				this.GetInvitesState()
+				console.log(this.event);
 			} catch (error) {
 			} finally {
 			}

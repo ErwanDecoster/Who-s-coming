@@ -25,6 +25,7 @@
 				{{ message.content }}
 			</p>
 		</div>
+		<!-- Demande d'invites mode -->
 		<div v-if="admin && mode == 2" class="grid gap-2">
 			<p v-if="!invitesAsked.length">Aucune demande pour le moment</p>
 			<div v-for="inviteAsked in invitesAsked" class="grid gap-2 bg-white text-black rounded-xl">
@@ -39,9 +40,10 @@
 				</div>
 			</div>
 		</div>
+		<!-- Selection des invites mode -->
 		<div v-if="admin && mode == 3" class="grid gap-2">
-			<p v-if="!invites.length">Aucun invité a selectionner pour le moment</p>
-			<div v-for="invite in invites" class="flex items-center gap-2">
+			<p v-if="!event.invitations">Aucun invité a selectionner pour le moment</p>
+			<div v-for="invite in event.invitations" class="flex items-center gap-2">
 				<input type="checkbox" name="" :id="invite.id_invitation" :disabled="invite.id_state == 3" class="delete-selection h-4 w-4">
 				<label :for="invite.id_invitation" class="btn-secondary">
 					{{ invite.first_name }} {{ invite.surname }} ({{ GetState(invite.id_state) }})
@@ -49,22 +51,22 @@
 			</div>
 			<button v-if="invites.length" class="btn-primary-red" @click="DeleteSelect()">Supprimer la sélection</button>
 		</div>
+		<!-- Liste des invites mode -->
 		<div v-if="mode == 0" class="grid gap-2">
-			<p v-if="!invites.length">Aucun invité pour le moment</p>
-			<NuxtLink v-for="invite in invites" class="btn-secondary">
+			<p v-if="!event.invitations">Aucun invité pour le moment</p>
+			<NuxtLink v-for="invite in event.invitations" class="btn-secondary">
 				{{ invite.first_name }} {{ invite.surname }} ({{ GetState(invite.id_state) }})
 			</NuxtLink>
 			<button v-if="admin && mode == 1" class="btn-secondary" @click="popup.addInvite = true">Ajouter un invité</button>
 		</div>
 		<div v-if="admin && mode == 1" class="grid gap-2">
-			<p v-if="!invites.length">Aucun invité pour le moment</p>
-			<div v-for="invite in invites" class="flex">
+			<p v-if="!event.invitations">Aucun invité pour le moment</p>
+			<div v-for="invite in event.invitations" class="flex">
 				<NuxtLink class="btn-primary" :class="{ 'rounded-r-none border-r-0': invite.id_state < 3 }">
 					{{ invite.first_name }} {{ invite.surname }} ({{ GetState(invite.id_state) }}) [{{ invite.code }}]
 				</NuxtLink>
 				<span v-if="invite.id_state < 3" class="bg-black h-full w-1"></span>
 				<button v-if="invite.id_state < 3" @click="SendInvite(invite)" class="btn-primary rounded-l-none border-l-0">
-				<!-- <a v-if="invite.id_state < 3" class="btn-primary rounded-l-none border-l-2 border-black" :href="`sms://${invite.tel}?body=test`" > -->
 					<template v-if="invite.id_state == 1">
 						Envoyer l'invitation
 					</template>
@@ -151,10 +153,13 @@ export default {
 				const supabase = useSupabaseClient();
 				let { data: evenements, error } = await supabase
 				.from('evenements')
-				.select("*")
+				.select('id_evenement, name, desc, rules, address, date, time, invitations ( id_evenement, first_name, surname, id_state, code ), needs ( id_evenement, label, number )')
 				.eq('id_evenement', this.$route.params.id_event)
 				if (error) throw error
+				// this.SetStateOccurence(evenements[0])
 				this.event = evenements[0];
+				this.GetInvitesAsked();
+				console.log(this.event);
 			} catch (error) {
 			} finally {
 			}
@@ -272,21 +277,6 @@ export default {
 			} finally {
 			}
 		},
-		async GetInvites() {
-			try {
-				const supabase = useSupabaseClient();
-				let { data: invitations, error } = await supabase
-				.from('invitations')
-				.select("*")
-				.eq('id_evenement', this.$route.params.id_event)
-				.neq('id_state', 5)
-				if (error) throw error
-				this.invites = invitations;
-				this.GetInvitesAsked();
-			} catch (error) {
-			} finally {
-			}
-		},
 		async GetUser(){
 			const supabase = useSupabaseClient();
 			const { data: { user } } = await supabase.auth.getUser()
@@ -301,7 +291,6 @@ export default {
 	mounted() {
 		const user = useSupabaseUser();
 		this.GetUser();
-		this.GetInvites();
 		this.GetEvent()
 		if (localStorage.mode) {
 			this.mode = localStorage.mode;

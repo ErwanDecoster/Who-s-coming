@@ -14,7 +14,7 @@
 					<p class="text-base"><span class="font-bold">{{ event.name }}</span> - {{ event.date }} - {{ event.time }}</p>
 					<a target="_blank" :href="`http://maps.google.com/?q=${event.address}`" class="underline">{{ event.address }}</a>
 					<p class="text-opacity-70 flex gap-1">
-						<span v-if="!invitesStateNb.unsend && !invitesStateNb.send && !invitesStateNb.accepted && !invitesStateNb.denied && !invitesStateNb.asked">Aucune personnes invité</span>
+						<span v-if="!invitesStateNb.unsend && !invitesStateNb.send && !invitesStateNb.accepted && !invitesStateNb.denied && !invitesStateNb.asked">Aucune personne invité</span>
 						<span v-if="invitesStateNb.unsend">{{ invitesStateNb.unsend }} non invité</span>
 						<span v-if="invitesStateNb.send">{{ invitesStateNb.send }} invités</span>  
 						<span v-if="invitesStateNb.accepted">{{ invitesStateNb.accepted }} comfirmés</span>
