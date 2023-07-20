@@ -31,9 +31,9 @@
 			</div>
 			<NuxtLink :to="`/events/${$route.params.id}/invites`" class="btn-secondary relative">
 				Voir la liste des invités
-				<!-- <span v-if="invitesStateNb.asked" class="bg-orange text-xs w-[14px] h-[14px] absolute -top-1 -right-1 rounded-full">
-					{{ invitesStateNb.asked }}
-				</span> -->
+				<span v-if="event && event.inviteState.asked" class="bg-orange text-black w-[16px] h-[16px] absolute -top-1 -right-1 rounded-full text-sm justify-center flex items-center">
+					{{ event.inviteState.asked }}
+				</span>
 			</NuxtLink>
 			<div class="grid gap-2">
 				<h3 class="font-semibold">Description :</h3>

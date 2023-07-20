@@ -19,7 +19,7 @@
 							<span v-if="event.inviteState.asked">{{ event.inviteState.asked }} demandes</span>
 						</p>
 					</div>
-					<span v-if="event.inviteState.asked" class="bg-orange w-[14px] h-[14px] absolute -top-1 -right-1 rounded-full">
+					<span v-if="event.inviteState.asked" class="bg-orange w-[16px] h-[16px] absolute -top-1 -right-1 rounded-full text-sm justify-center flex items-center">
 						{{ event.inviteState.asked }}
 					</span>
 				</NuxtLink>

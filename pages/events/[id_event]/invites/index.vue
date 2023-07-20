@@ -11,11 +11,22 @@
 				Demandes d'invités
 			</template>
 		</h2>
-		<button v-if="admin" class="absolute top-0 right-0 btn-secondary w-fit" @click="more = !more">•••</button>
-		<div v-if="more" @click="more = false" class="fixed inset-0"></div>
+		<button v-if="admin" class="absolute top-0 right-0 btn-secondary w-fit" @click="more = !more">
+			•••
+			<span v-if="invitesAsked.length && !more && mode != 2" class="bg-orange text-black w-[16px] h-[16px] absolute -top-1 -right-1 rounded-full text-sm justify-center flex items-center">
+				{{ invitesAsked.length }}
+			</span>
+		</button>
+		<div v-if="more" @click="more = false" class="fixed inset-0">
+		</div>
 		<div v-if="more" class="absolute right-0 top-10 z-10 bg-app rounded-xl">
 			<button @click="mode = 3, more = false" class="btn-secondary rounded-b-none">Sélectionner des invités</button>
-			<button @click="mode = 2, more = false" class="btn-secondary rounded-none">Demandes d'invités</button>
+			<button @click="mode = 2, more = false" class="btn-secondary rounded-none relative">
+				Demandes d'invités
+				<span v-if="invitesAsked.length && mode != 2" class="bg-orange text-black w-[16px] h-[16px] absolute -top-1 -right-1 rounded-full text-sm justify-center flex items-center">
+					{{ invitesAsked.length }}
+				</span>
+			</button>
 			<button @click="mode = 1, more = false" class="btn-secondary rounded-t-none">Modifier la liste</button>
 		</div>
 		<div v-if="formMessages.length" class="grid gap-1">
@@ -35,8 +46,8 @@
 					<p>{{ inviteAsked.relationship }}</p>
 				</div>
 				<div class="flex">
-					<button class="btn-primary-red rounded-r-none rounded-t-none">Supprimer</button>
-					<button @click="ChangeInviteState(3, inviteAsked)" class="btn-primary-green rounded-l-none rounded-t-none">Accepter et envoyer l'invitation</button>
+					<button class="btn-primary-red rounded-r-none rounded-t-none hover:text-black">Supprimer</button>
+					<button @click="SendInvite(inviteAsked)" class="btn-primary-green rounded-l-none rounded-t-none hover:text-black">Accepter et envoyer l'invitation</button>
 				</div>
 			</div>
 		</div>
@@ -140,7 +151,7 @@ export default {
 	methods: {
 		SendInvite(invite) {
 			// const website = 'http://10.13.6.5:3000/'
-			const website = 'https://who-s-coming-mevyute3q-erwandecoster.vercel.app/events'
+			const website = 'https://who-s-coming-mevyute3q-erwandecoster.vercel.app/'
 			const message = `Salut ${invite.first_name} je t'invite a l'événement ${this.event.name} pour plus d'information,  x pour accepter ou refuser l'invitation clique sur ce lien : ${website}/events/${this.$route.params.id_event}/invites/${invite.code}. code d'invitation : ${invite.code.toUpperCase()}`
 			message.replaceAll(' ', '%20')
 			message.replaceAll("'", '%27')
@@ -154,8 +165,10 @@ export default {
 				.from('evenements')
 				.select('id_evenement, name, desc, rules, address, date, time, invitations ( id_evenement, id_invitation, first_name, surname, tel, id_state, code ), needs ( id_evenement, label, number )')
 				.eq('id_evenement', this.$route.params.id_event)
+				.neq('invitations.id_state', 5)
 				if (error) throw error
 				this.event = evenements[0];
+				this.GetInvitesAsked()
 			} catch (error) {
 			} finally {
 			}
@@ -178,7 +191,7 @@ export default {
 		},
 		SetInviteAskers(id) {
 			this.invitesAsked.forEach(element => {
-				element.asker = this.invites[this.invites.findIndex(invite => invite.id_invitation == element.id_invitation_asker)]
+				element.asker = this.event.invitations[this.event.invitations.findIndex(invite => invite.id_invitation == element.id_invitation_asker)]
 			});
 		},
 		async DeleteRow(id)  {
@@ -265,7 +278,7 @@ export default {
 				.select("*")
 				.eq('id_evenement', this.$route.params.id_event)
 				.eq('id_state', 5)
-				.not("id_invitation_asker","is", null);
+				.not("id_invitation_asker","is", null)
 				if (error) throw error
 				this.invitesAsked = invitations;
 				this.SetInviteAskers();
@@ -278,11 +291,6 @@ export default {
 			const { data: { user } } = await supabase.auth.getUser()
 			this.user = user;
 		},
-	},
-	watch: {
-		// mode(newMode) {
-		// 	localStorage.mode = newMode;
-		// },
 	},
 	mounted() {
 		const user = useSupabaseUser();
