@@ -4,7 +4,7 @@
 		<div class="grid gap-4">
 			<div v-if="messages.length" class="grid gap-1">
 				<p v-for="message in messages" :key="message.type" class="px-4 py-0.5 rounded-xl"
-					:class="{ 'bg-red': message.type == 'error', 'bg-green': message.type == 'succes', 'bg-orange': message.type == 'warning' }"
+					:class="{ 'bg-red': message.type == 'error', 'bg-green': message.type == 'succes', 'bg-orange': message.type == 'warning' , 'bg-white text-black': message.type == 'message' }"
 					@click="messages.splice(messages.indexOf(message), 1)">
 					{{ message.content }}
 				</p>
@@ -36,13 +36,13 @@
 				<div class="grid gap-2">
 					<h3 class="font-semibold">Nécessaire a la soirée :</h3>
 					<div v-for="need in event.needs" class="flex items-center gap-2">
-						<input type="checkbox" name="" :id="need.id_need" :disabled="need.number == 0" class="delete-selection h-4 w-4">
+						<input type="checkbox" name="" :id="need.id_need" :disabled="need.number == 0" class="need-selection h-4 w-4">
 						<label :for="need.id_need" class="text-sm">
 							{{ need.label }} ({{ need.number }} manquants)
 						</label>
 					</div>
 				</div>
-				<button @click="ChangeInviteState(3)" class="btn-primary">Accepter l'invitation</button>
+				<button @click="AccepteInvitation()" class="btn-primary">Accepter l'invitation</button>
 			</div>
 			<div v-if="invite.id_state == 3" class="grid gap-4">
 				<p class="my-8 mx-4">Parfait, ton invitation est bien noté comme acceptée, enregistre bien la date !</p>
@@ -112,6 +112,11 @@ export default {
 		}
 	},
 	methods: {
+		// ReturnInviteForNeed(id) {
+		// 	this.event.invitations.forEach(invitation => {
+		// 		invitation
+		// 	})
+		// },
 		ReturnFrenchFormatDate(date) {
 			const currentDate = new Date(date)
 			const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
@@ -122,6 +127,13 @@ export default {
 			if (time.slice(3, 5) == '00')
 				return (newTime.slice(0, 3))
 			return (newTime.slice(0, 5))
+		},
+		AccepteInvitation() {
+			ChangeInviteState(3)
+			const checkeds = document.querySelectorAll('input:checked.need-selection')
+			checkeds.forEach(checked => {
+				this.AddNeedInvitation(checked.id)
+			});
 		},
 		async ChangeInviteState(newState)
 		{
@@ -138,18 +150,22 @@ export default {
 				this.invite.id_state = newState
 				this.messages = [];
 				this.AddMessageInviteStatu(newState)
-				
 			} catch (error) {
 					this.messages.push({ type: 'error', content: 'Une erreur est survenue le status de votre invitation n\'a pas pu étre mis a jour.' })
 			} finally {
 			}
-
 		},
 		AddMessageInviteStatu(state) {
+			if (state == 1)
+				console.debug("\'invitation est marqué comme non envoyé.");
 			if (state == 3) 
 				this.messages.push({ type: 'succes', content: 'Votre invitation est marqué comme accepté.' })
 			if (state == 4)
 				this.messages.push({ type: 'warning', content: 'Votre invitation est marqué comme decliné.' })
+			if (state == 5)
+				this.messages.push({ type: 'warning', content: 'Votre invitation n\'a pas encore etait validé par l\'organisateur. Revenez plus tard !' })
+			if (state == 6)
+				this.messages.push({ type: 'warning', content: 'Votre invitation n\'a malheuresement pas etait validé par l\'organisateur.' })
 		},
 		SetInviteState() {
 			this.invitesStateNb.unsend = 0;
@@ -210,6 +226,17 @@ export default {
 			} catch (error) {
 			} finally {
 			}
+		},
+		async AddNeedInvitation(invitation_id) {
+			const supabase = useSupabaseClient();
+			const { data, error } = await supabase
+			.from('need_invitations')
+			.insert([
+				{ 
+					id_invitation: this.$route.params.id,
+					id_need: invitation_id,
+				},
+			])
 		},
 		async SaveInvite() {
 			try {

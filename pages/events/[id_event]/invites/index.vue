@@ -46,8 +46,8 @@
 					<p>{{ inviteAsked.relationship }}</p>
 				</div>
 				<div class="flex">
-					<button class="btn-primary-red rounded-r-none rounded-t-none hover:text-black">Supprimer</button>
-					<button @click="SendInvite(inviteAsked)" class="btn-primary-green rounded-l-none rounded-t-none hover:text-black">Accepter et envoyer l'invitation</button>
+					<button @click="ChangeStateAskedInvite(inviteAsked, 6)" class="btn-primary-red rounded-r-none rounded-t-none hover:text-black">Supprimer</button>
+					<button @click="ChangeStateAskedInvite(inviteAsked, 2)" class="btn-primary-green rounded-l-none rounded-t-none hover:text-black">Accepter et envoyer l'invitation</button>
 				</div>
 			</div>
 		</div>
@@ -73,10 +73,10 @@
 		<div v-if="admin && mode == 1" class="grid gap-2">
 			<p v-if="event.invitations && !event.invitations.length">Aucun invité pour le moment</p>
 			<div v-for="invite in event.invitations" class="flex">
-				<NuxtLink class="btn-primary" :class="{ 'rounded-r-none border-r-0': invite.id_state < 3 }">
+				<NuxtLink class="btn-primary" :class="{ 'rounded-r-none border-r-0': invite.id_state < 3 || invite.id_state == 6}">
 					{{ invite.first_name }} {{ invite.surname }} ({{ GetState(invite.id_state) }}) [{{ invite.code }}]
 				</NuxtLink>
-				<span v-if="invite.id_state < 3" class="bg-black h-full w-1"></span>
+				<span v-if="invite.id_state < 3 || invite.id_state == 6" class="bg-black h-full w-1"></span>
 				<button v-if="invite.id_state < 3" @click="SendInvite(invite)" class="btn-primary rounded-l-none border-l-0">
 					<template v-if="invite.id_state == 1">
 						Envoyer l'invitation
@@ -85,6 +85,7 @@
 						Re envoyer l'invitation
 					</template>
 				</button>
+				<button v-if="invite.id_state == 6" @click="ChangeStateAskedInvite(invite, 2)" class="btn-primary rounded-l-none border-l-0">Accepter et envoyer l'invitation</button>
 			</div>
 			<button v-if="admin && mode == 1" class="btn-secondary" @click="popup.addInvite = true">Ajouter un invité</button>
 		</div>
@@ -149,6 +150,13 @@ export default {
 		}
 	},
 	methods: {
+		ChangeStateAskedInvite(inviteAsked, newState) {
+			if (newState == 6)
+				this.ChangeInviteState(newState, inviteAsked)
+			if (newState == 2)
+				this.SendInvite(inviteAsked)
+			// SendInvite(inviteAsked)
+		},
 		SendInvite(invite) {
 			// const website = 'http://10.13.6.5:3000/'
 			const website = 'https://who-s-coming-mevyute3q-erwandecoster.vercel.app/'
@@ -161,11 +169,16 @@ export default {
 		async GetEvent() {
 			try {
 				const supabase = useSupabaseClient();
+				let masque = 6
+				if (this.admin)
+					masque = 5
 				let { data: evenements, error } = await supabase
 				.from('evenements')
 				.select('id_evenement, name, desc, rules, address, date, time, invitations ( id_evenement, id_invitation, first_name, surname, tel, id_state, code ), needs ( id_evenement, label, number )')
 				.eq('id_evenement', this.$route.params.id_event)
 				.neq('invitations.id_state', 5)
+				.neq('invitations.id_state', masque)
+				.order('id_state', { foreignTable: 'invitations', ascending: true })
 				if (error) throw error
 				this.event = evenements[0];
 				this.GetInvitesAsked()
@@ -183,7 +196,34 @@ export default {
 				.update({ id_state: newState })
 				.eq('id_invitation', invite.id_invitation)
 				if (error) throw error
+				invite.id_state = newState
+				if (this.mode == 2)
+				{
+					this.invitesAsked.splice(this.invitesAsked.indexOf(invite), 1)
+					this.event.invitations.push(invite)
+				}
 				window.location.href = link;
+			} catch (error) {
+				this.formMessages.push({ type: 'error', content: 'Une erreur est survenue le status de votre invitation n\'a pas pu étre mis a jour.' })
+			} finally {
+			}
+		},
+		async ChangeInviteState(newState, invite)
+		{
+			try {
+				this.formMessages = [];
+				const supabase = useSupabaseClient();
+				const { data, error } = await supabase
+				.from('invitations')
+				.update({ id_state: newState })
+				.eq('id_invitation', invite.id_invitation)
+				if (error) throw error
+				this.invitesAsked.splice(this.invitesAsked.indexOf(invite), 1)
+				if (this.mode == 2)
+				{
+					invite.id_state = newState
+					this.event.invitations.push(invite)
+				}
 			} catch (error) {
 				this.formMessages.push({ type: 'error', content: 'Une erreur est survenue le status de votre invitation n\'a pas pu étre mis a jour.' })
 			} finally {
@@ -262,7 +302,7 @@ export default {
 			return (1)
 		},
 		GetState(idState) {
-			const State = ['non invité','invité','comfirmé','refusé','demandé']
+			const State = ['non invité','invité','comfirmé','refusé','demandé','demande refusé']
 			return State[idState - 1]
 		},
 		AddInviteToEvent() {
@@ -294,6 +334,10 @@ export default {
 	},
 	mounted() {
 		const user = useSupabaseUser();
+		watchEffect(() => {
+			if (user.value)
+				this.admin = true;
+		})
 		this.GetUser();
 		this.GetEvent()
 		if (localStorage.mode) {
@@ -301,10 +345,6 @@ export default {
 		}
 		if (localStorage.code)
 			this.userCode = localStorage.code
-		watchEffect(() => {
-			if (user.value)
-				this.admin = true;
-		})
 	},
 }
 </script>

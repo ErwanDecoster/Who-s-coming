@@ -30,7 +30,7 @@
 			</div>
 			<input class="btn-primary" type="submit" value="Inscription">
 		</form>
-		<NuxtLink class="btn-secondary" to="Login">Se connecter</NuxtLink>
+		<NuxtLink class="btn-secondary" to="/login">Se connecter</NuxtLink>
 	</div>
 </template>
 

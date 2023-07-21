@@ -1,7 +1,7 @@
 <template>
 	<div class="grid gap-6">
 		<h2>Se connecter</h2>
-		<form @submit.prevent="SignUp()" class="grid gap-4" action="">
+		<form @submit.prevent="SignUp()" class="grid gap-4">
 			<div class="grid gap-2">
 				<label for="email">E-mail :</label>
 				<input v-model="form.email" type="email" name="email" id="email">
@@ -12,7 +12,7 @@
 			</div>
 			<input class="btn-primary" type="submit" value="Connection">
 		</form>
-		<NuxtLink class="btn-secondary" to="Register">S'inscrire</NuxtLink>
+		<NuxtLink class="btn-secondary" to="register">S'inscrire</NuxtLink>
 	</div>
 </template>
 

@@ -15,7 +15,7 @@
 			</div>
 			<input class="btn-primary" type="submit" value="Rejoindre">
 		</form>
-		<NuxtLink class="btn-secondary" to="Register">Créer un événement</NuxtLink>
+		<NuxtLink class="btn-secondary" to="/register">Créer un événement</NuxtLink>
 	</div>
 </template>
 
