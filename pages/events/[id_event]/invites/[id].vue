@@ -1,5 +1,5 @@
 <template>
-	<div v-if="invite" class="grid gap-6 relative">
+	<div v-if="invite.id_invitation" class="grid gap-6 relative">
 		<h2>Invitation {{ invite.first_name }} {{ invite.surname }}</h2>
 		<div class="grid gap-4">
 			<div v-if="messages.length" class="grid gap-1">
@@ -10,16 +10,16 @@
 				</p>
 			</div>
 			<div class="bg-white block relative text-black rounded-xl p-2">
-				<div class="text-sm grid gap-1">
+				<div v-if="event" class="text-sm grid gap-1">
 					<p class="text-base"><span class="font-bold">{{ event.name }}</span> - {{ ReturnFrenchFormatDate(event.date) }} - {{ ReturnFormatedTime(event.time) }}</p>
 					<a target="_blank" :href="`http://maps.google.com/?q=${event.address}`" class="underline">{{ event.address }}</a>
 					<p class="text-opacity-70 flex gap-1">
-						<span v-if="!invitesStateNb.unsend && !invitesStateNb.send && !invitesStateNb.accepted && !invitesStateNb.denied && !invitesStateNb.asked">Aucune personne invité</span>
-						<span v-if="invitesStateNb.unsend">{{ invitesStateNb.unsend }} non invité</span>
-						<span v-if="invitesStateNb.send">{{ invitesStateNb.send }} invités</span>  
-						<span v-if="invitesStateNb.accepted">{{ invitesStateNb.accepted }} comfirmés</span>
-						<span v-if="invitesStateNb.denied">{{ invitesStateNb.denied }} refusés</span>
-						<span v-if="invitesStateNb.asked">{{ invitesStateNb.asked }} demandes</span>
+						<span v-if="!event.inviteState.unsend && !event.inviteState.send && !event.inviteState.accepted && !event.inviteState.denied && !event.inviteState.asked">Aucune personne invité</span>
+						<span v-if="event.inviteState.unsend">{{ event.inviteState.unsend }} non invité</span>
+						<span v-if="event.inviteState.send">{{ event.inviteState.send }} invités</span>  
+						<span v-if="event.inviteState.accepted">{{ event.inviteState.accepted }} comfirmés</span>
+						<span v-if="event.inviteState.denied">{{ event.inviteState.denied }} refusés</span>
+						<span v-if="event.inviteState.asked">{{ event.inviteState.asked }} demandes</span>
 					</p>
 				</div>
 			</div>
@@ -36,9 +36,16 @@
 				<div class="grid gap-2">
 					<h3 class="font-semibold">Nécessaire a la soirée :</h3>
 					<div v-for="need in event.needs" class="flex items-center gap-2">
-						<input type="checkbox" name="" :id="need.id_need" :disabled="need.number == 0" class="need-selection h-4 w-4">
+						<input type="checkbox" name="" :id="need.id_need" :disabled="need.number == 0" :checked="need.need_invitations.findIndex(need_invitation => need_invitation.id_invitation == invite.id_invitation) != -1" class="need-selection h-4 w-4 self-start mt-0.5">
 						<label :for="need.id_need" class="text-sm">
-							{{ need.label }} ({{ need.number }} manquants)
+							{{ need.label }} ({{ need.number - need.need_invitations.length }} manquants sur {{need.number  }})
+							<ol class="ml-4 list-inside">
+							<li v-for="need_invitation in need.need_invitations" :key="need_invitation">
+								- 
+								{{ GetInvitationForNeedInvitation(need_invitation).first_name }}
+								{{ GetInvitationForNeedInvitation(need_invitation).surname }}
+							</li>
+						</ol>
 						</label>
 					</div>
 				</div>
@@ -46,7 +53,7 @@
 			</div>
 			<div v-if="invite.id_state == 3" class="grid gap-4">
 				<p class="my-8 mx-4">Parfait, ton invitation est bien noté comme acceptée, enregistre bien la date !</p>
-				<button @click="ChangeInviteState(3)" class="btn-primary">Ajouter au calendrier</button>
+				<!-- <button @click="" class="btn-primary">Ajouter au calendrier</button> -->
 			</div>
 		</div>
 		<button v-if="invite.id_state == 3" @click="popup.addInvite = true" class="btn-secondary">Demander l'ajout d'un invité</button>
@@ -112,11 +119,9 @@ export default {
 		}
 	},
 	methods: {
-		// ReturnInviteForNeed(id) {
-		// 	this.event.invitations.forEach(invitation => {
-		// 		invitation
-		// 	})
-		// },
+		GetInvitationForNeedInvitation(need_invitation) {
+			return (this.event.invitations[this.event.invitations.findIndex(invitation => invitation.id_invitation == need_invitation.id_invitation)])
+		},
 		ReturnFrenchFormatDate(date) {
 			const currentDate = new Date(date)
 			const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
@@ -128,12 +133,68 @@ export default {
 				return (newTime.slice(0, 3))
 			return (newTime.slice(0, 5))
 		},
-		AccepteInvitation() {
-			ChangeInviteState(3)
-			const checkeds = document.querySelectorAll('input:checked.need-selection')
-			checkeds.forEach(checked => {
-				this.AddNeedInvitation(checked.id)
-			});
+		async AccepteInvitation() {
+			this.ChangeInviteState(3)
+			const inputs = document.querySelectorAll('input.need-selection')
+			inputs.forEach(input => {
+				console.log(input);
+				if (input.checked)
+				{
+					this.CheckNeedInvitation(input.id).then((nb) => {
+						if (nb == 0) {
+							this.AddNeedInvitation(input.id);
+						}
+					})
+				} else {
+					this.DeleteNeedInvitation(input.id)
+				}
+			})
+		},
+		async CheckNeedInvitation(id_need) {
+			const supabase = useSupabaseClient();
+			const { data, error } = await supabase
+			.from('need_invitations')
+			.select('id', { count: 'exact' })
+			.eq('id_invitation', this.invite.id_invitation)
+			.eq('id_need', id_need)
+			return Promise.resolve(data.length);
+		},
+		async AddNeedInvitation(id_need) {
+			try {
+				const supabase = useSupabaseClient();
+				const { data, error } = await supabase
+				.from('need_invitations')
+				.insert([
+					{ 
+						id_invitation: this.invite.id_invitation,
+						id_need: id_need,
+					},
+				])
+				if (error) throw error
+				const need = this.event.needs[this.event.needs.findIndex(need => need.id_need == id_need)]
+				need.need_invitations.push({
+					id_need: id_need,
+					id_invitation: this.invite.id_invitation,
+				})
+			} catch {
+			}
+		},
+		async DeleteNeedInvitation(id_need) {
+			try {
+				const supabase = useSupabaseClient();
+				const { error } = await supabase
+				.from('need_invitations')
+				.delete()
+				.eq('id_invitation', this.invite.id_invitation)
+				.eq('id_need', id_need)
+				if (error) throw error
+				const needs = this.event.needs[this.event.needs.findIndex(need => need.id_need == id_need)];
+				console.log('needs', needs);
+				const need_invitation = needs.need_invitations[needs.need_invitations.findIndex(need_invitation => need_invitation.id_invitation == this.invite.id_invitation)]
+				console.log('need_invitation', need_invitation);
+				needs.need_invitations.splice(need_invitation, 1); 
+			} catch {
+			}
 		},
 		async ChangeInviteState(newState)
 		{
@@ -144,9 +205,16 @@ export default {
 				.update({ id_state: newState })
 				.eq('id_invitation', this.invite.id_invitation)
 				.select()
+				if (newState == 4)
+				{
+					this.event.needs.forEach(need => {
+						this.DeleteNeedInvitation(need.id)
+					})
+				}
 				if (error) throw error
-				this.GetInvitesState()
-				this.SetInviteState()
+				// this.GetInvitesState()
+				// this.SetInviteState()
+				// this.event.
 				this.invite.id_state = newState
 				this.messages = [];
 				this.AddMessageInviteStatu(newState)
@@ -168,75 +236,83 @@ export default {
 				this.messages.push({ type: 'warning', content: 'Votre invitation n\'a malheuresement pas etait validé par l\'organisateur.' })
 		},
 		SetInviteState() {
-			this.invitesStateNb.unsend = 0;
-			this.invitesStateNb.send = 0;
-			this.invitesStateNb.accepted = 0;
-			this.invitesStateNb.denied = 0;
-			this.invitesStateNb.asked = 0;
-			this.invitesState.forEach(invite => {
-				if (invite.id_state == 1)
-					this.invitesStateNb.unsend++;
-				if (invite.id_state == 2)
-					this.invitesStateNb.send++;
-				if (invite.id_state == 3)
-					this.invitesStateNb.accepted++;
-				if (invite.id_state == 4)
-					this.invitesStateNb.denied++;
-				if (invite.id_state == 5)
-					this.invitesStateNb.asked++;
-			})
+			this.event.inviteState = {};
+			this.event.inviteState.unsend = 0;
+			this.event.inviteState.send = 0;
+			this.event.inviteState.accepted = 0;
+			this.event.inviteState.denied = 0;
+			this.event.inviteState.asked = 0;
+			this.event.invitations.forEach(invitation => {
+				if (invitation.id_state == 1)
+					this.event.inviteState.unsend++;
+				if (invitation.id_state == 2)
+					this.event.inviteState.send++;
+				if (invitation.id_state == 3)
+					this.event.inviteState.accepted++;
+				if (invitation.id_state == 4)
+					this.event.inviteState.denied++;
+				if (invitation.id_state == 5)
+					this.event.inviteState.asked++;
+			});
 		},
-		async GetInvitesState() {
-			try {
-				const supabase = useSupabaseClient();
-				let { data: invitationsState, error } = await supabase
-				.from('invitations')
-				.select("id_state")
-				.eq('id_evenement', this.$route.params.id_event)
-				if (error) throw error
-				this.invitesState = invitationsState;
-				this.SetInviteState()
-			} catch (error) {
-			} finally {
-			}
-		},
-		async GetNeeds() {
-			try {
-				const supabase = useSupabaseClient();
-				let { data: needs, error } = await supabase
-				.from('needs')
-				.select("*")
-				.eq('id_evenement', this.$route.params.id_event)
-				if (error) throw error
-				this.event.needs = needs;
-			} catch (error) {
-			} finally {
-			}
-		},
+		// async GetInvitesState() {
+		// 	try {
+		// 		const supabase = useSupabaseClient();
+		// 		let { data: invitationsState, error } = await supabase
+		// 		.from('invitations')
+		// 		.select("id_state")
+		// 		.eq('id_evenement', this.$route.params.id_event)
+		// 		if (error) throw error
+		// 		this.invitesState = invitationsState;
+		// 		this.SetInviteState()
+		// 	} catch (error) {
+		// 	} finally {
+		// 	}
+		// },
+		// async GetNeeds() {
+		// 	try {
+		// 		const supabase = useSupabaseClient();
+		// 		let { data: needs, error } = await supabase
+		// 		.from('needs')
+		// 		.select("*")
+		// 		.eq('id_evenement', this.$route.params.id_event)
+		// 		if (error) throw error
+		// 		this.event.needs = needs;
+		// 	} catch (error) {
+		// 	} finally {
+		// 	}
+		// },
+		// async GetEvent() {
+		// 	try {
+		// 		const supabase = useSupabaseClient();
+		// 		let { data: evenements, error } = await supabase
+		// 		.from('evenements')
+		// 		.select("*")
+		// 		.eq('id_evenement', this.$route.params.id_event)
+		// 		if (error) throw error
+		// 		this.event = evenements[0];
+		// 		this.GetNeeds();
+		// 	} catch (error) {
+		// 	} finally {
+		// 	}
+		// },
 		async GetEvent() {
 			try {
 				const supabase = useSupabaseClient();
 				let { data: evenements, error } = await supabase
 				.from('evenements')
-				.select("*")
+				.select('id_evenement, name, desc, rules, address, date, time, invitations ( id_evenement, id_invitation, first_name, surname, tel, id_state, code ), needs ( id_evenement, id_need, label, number, need_invitations ( id_need, id_invitation ))')
 				.eq('id_evenement', this.$route.params.id_event)
+				// .eq('invitations.code', this.$route.params.id)
+				.neq('invitations.id_state', 5)
+				.order('id_state', { foreignTable: 'invitations', ascending: true })
 				if (error) throw error
 				this.event = evenements[0];
-				this.GetNeeds();
+				this.SetInvite()
+				this.SetInviteState()
 			} catch (error) {
 			} finally {
 			}
-		},
-		async AddNeedInvitation(invitation_id) {
-			const supabase = useSupabaseClient();
-			const { data, error } = await supabase
-			.from('need_invitations')
-			.insert([
-				{ 
-					id_invitation: this.$route.params.id,
-					id_need: invitation_id,
-				},
-			])
 		},
 		async SaveInvite() {
 			try {
@@ -280,33 +356,42 @@ export default {
 				return (0)
 			return (1)
 		},
-		async GetInvite() {
-			try {
-				const supabase = useSupabaseClient();
-				let { data: invitation, error } = await supabase
-				.from('invitations')
-				.select("*")
-				.eq('code', this.$route.params.id)
-				.eq('id_evenement', this.$route.params.id_event)
-				if (error) throw error
-				localStorage.code = invitation[0].code
-				this.invite = invitation[0];
-				this.AddMessageInviteStatu(this.invite.id_state)
-			} catch (error) {
-				navigateTo('/');
-			} finally {
-			}
+		SetInvite() {
+			this.event.invitations.forEach(invitation => {
+				if (invitation.code == this.$route.params.id)
+				{
+					this.invite = invitation
+					localStorage.code = invitation.code
+				}
+			})
 		},
+		// async GetInvite() {
+		// 	try {
+		// 		const supabase = useSupabaseClient();
+		// 		let { data: invitation, error } = await supabase
+		// 		.from('invitations')
+		// 		.select("*")
+		// 		.eq('code', this.$route.params.id)
+		// 		.eq('id_evenement', this.$route.params.id_event)
+		// 		if (error) throw error
+		// 		localStorage.code = invitation[0].code
+		// 		this.invite = invitation[0];
+		// 		this.AddMessageInviteStatu(this.event.invitations[0])
+		// 	} catch (error) {
+		// 		// navigateTo('/');
+		// 	} finally {
+		// 	}
+		// },
 		AddInviteToEvent() {
 			if (this.CheckForm())
 				return
 			this.SaveInvite()
 		},
-		async GetUser(){
-			const supabase = useSupabaseClient();
-			const { data: { user } } = await supabase.auth.getUser()
-			this.user = user;
-		},
+		// async GetUser(){
+		// 	const supabase = useSupabaseClient();
+		// 	const { data: { user } } = await supabase.auth.getUser()
+		// 	this.user = user;
+		// },
 	},
 	mounted() {
 		const user = useSupabaseUser();
@@ -315,9 +400,9 @@ export default {
 				navigateTo('/');
 		})
 		this.GetEvent()
-		this.GetInvite()
-		this.GetUser();
-		this.GetInvitesState()
+		// this.GetInvite()
+		// this.GetUser();
+		// this.GetInvitesState()
 	},
 }
 </script>

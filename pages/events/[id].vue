@@ -47,7 +47,13 @@
 				<h3 class="font-semibold">Nécessaire a la soirée :</h3>
 				<ul class="grid gap-2 list-disc list-inside">
 					<li class="text-sm" v-for="need in event.needs" :key="need">
-						{{ need.label }} ({{ need.number }} manquants)
+						{{ need.label }} ({{ need.number - need.need_invitations.length }} manquants sur {{need.number  }})
+						<ol class="ml-4 list-inside">
+							<li v-for="need_invitation in need.need_invitations" :key="need_invitation">
+								- {{ GetInvitationForNeedInvitation(need_invitation).first_name }}
+								{{ GetInvitationForNeedInvitation(need_invitation).surname }}
+							</li>
+						</ol>
 					</li>
 				</ul>
 			</div>
@@ -67,6 +73,9 @@ export default {
 		}
 	},
 	methods: {
+		GetInvitationForNeedInvitation(need_invitation) {
+			return (this.event.invitations[this.event.invitations.findIndex(invitation => invitation.id_invitation == need_invitation.id_invitation)])
+		},
 		ReturnFrenchFormatDate(date) {
 			const currentDate = new Date(date)
 			const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
@@ -124,7 +133,8 @@ export default {
 				let { data: evenements, error } = await supabase
 				.from('evenements')
 				// .select("*")
-				.select('id_evenement, name, desc, rules, address, date, time, invitations ( id_evenement, id_state ), needs ( id_evenement, label, number )')
+				// .select('id_evenement, name, desc, rules, address, date, time, invitations ( id_evenement, id_state ), needs ( id_evenement, label, number )')
+				.select('id_evenement, name, desc, rules, address, date, time, invitations ( id_evenement, id_invitation, first_name, surname, tel, id_state, code ), needs ( id_evenement, id_need, label, number, need_invitations ( id_need, id_invitation ))')
 				.eq('id_evenement', this.$route.params.id)
 				if (error) throw error
 				this.SetStateOccurence(evenements[0])
