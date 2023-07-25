@@ -271,22 +271,12 @@ export default {
 					},
 				])
 				.select()
-				console.log(data[0]);
-				const invite = {
-					id_invitation: this.$route.params.id_event,
-					first_name: this.popup.form.firstName,
-					surname: this.popup.form.surname,
-					tel: this.popup.form.tel,
-					id_state: 1,
-					code: code,
-				}
-				// this.event.invitations.push(invite);
 				this.event.invitations.push(data[0]);
 				if (error) throw error
 				this.popup.form.firstName = ''
 				this.popup.form.surname = ''
 				this.popup.form.tel = ''
-				this.popup.formMessages.push({ type: 'succes', content: 'L\'invité a bien été ajouté a l\'événement.' })
+				// this.popup.formMessages.push({ type: 'succes', content: 'L\'invité a bien été ajouté a l\'événement.' })
 				this.popup.addInvite = false;
 			} catch (error) {
 				this.popup.formMessages.push({ type: 'error', content: 'Une erreur est survenue l\'invité n\'a pas pu étre ajouté a l\'événement.' })
