@@ -407,8 +407,8 @@ export default {
 	created() {
 		const metadata = {
 			desc: "Visualisez votre invatation a l'événement.",
-			url: "http://localhost:3000/",
-			// url: "https://who-s-coming.vercel.app/",
+			// url: "http://localhost:3000/",
+			url: "https://who-s-coming.vercel.app/",
 			pageName: "Invitation - Who's coming",
 			imageDirectory: "cover.png"
 		}

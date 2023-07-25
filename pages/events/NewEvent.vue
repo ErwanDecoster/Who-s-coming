@@ -256,8 +256,8 @@ export default {
 	created() {
 		const metadata = {
 			desc: "Créés un nouvel événement choisissez votre date, créé une description et définissez votre règlement.",
-			url: "http://localhost:3000/",
-			// url: "https://who-s-coming.vercel.app/",
+			// url: "http://localhost:3000/",
+			url: "https://who-s-coming.vercel.app/",
 			pageName: "Nouvel événement - Who's coming",
 			imageDirectory: "cover.png"
 		}

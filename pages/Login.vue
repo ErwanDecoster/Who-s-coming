@@ -52,8 +52,8 @@ export default {
   created() {
 		const metadata = {
 			desc: "Connecter vous, visualiser vos événements et gérer vos invités",
-			url: "http://localhost:3000/",
-			// url: "https://who-s-coming.vercel.app/",
+			// url: "http://localhost:3000/",
+			url: "https://who-s-coming.vercel.app/",
 			pageName: "Connection - Who's coming",
 			imageDirectory: "cover.png"
 		}

@@ -155,8 +155,8 @@ export default {
 	created() {
 		const metadata = {
 			desc: "Visualiser votre événement ajouter des invités, voyer qui de vos invités viendront.",
-			url: "http://localhost:3000/",
-			// url: "https://who-s-coming.vercel.app/",
+			// url: "http://localhost:3000/",
+			url: "https://who-s-coming.vercel.app/",
 			pageName: "Événement - Who's coming",
 			imageDirectory: "cover.png"
 		}

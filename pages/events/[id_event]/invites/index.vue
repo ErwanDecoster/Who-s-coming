@@ -159,8 +159,8 @@ export default {
 		},
 		SendInvite(invite) {
 			// const website = 'http://10.13.6.5:3000/'
-			const website = 'https://who-s-coming-mevyute3q-erwandecoster.vercel.app/'
-			const message = `Salut ${invite.first_name} je t'invite a l'événement ${this.event.name} pour plus d'information,  x pour accepter ou refuser l'invitation clique sur ce lien : ${website}/events/${this.$route.params.id_event}/invites/${invite.code}. code d'invitation : ${invite.code.toUpperCase()}`
+			const url = 'https://who-s-coming.vercel.app/'
+			const message = `Salut ${invite.first_name} je t'invite a l'événement ${this.event.name} code d'invitation : ${invite.code.toUpperCase()}, pour plus d'information, ou pour accepter ou refuser l'invitation clique sur ce lien : ${url}/events/${this.$route.params.id_event}/invites/${invite.code}.`
 			message.replaceAll(' ', '%20')
 			message.replaceAll("'", '%27')
 			const link = `sms://${invite.tel}?body=${message}`
@@ -349,8 +349,8 @@ export default {
 	created() {
 		const metadata = {
 			desc: "Visualisez la liste des invités de l'événement.",
-			url: "http://localhost:3000/",
-			// url: "https://who-s-coming.vercel.app/",
+			// url: "http://localhost:3000/",
+			url: "https://who-s-coming.vercel.app/",
 			pageName: "Invités - Who's coming",
 			imageDirectory: "cover.png"
 		}
