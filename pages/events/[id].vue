@@ -132,8 +132,6 @@ export default {
 				const supabase = useSupabaseClient();
 				let { data: evenements, error } = await supabase
 				.from('evenements')
-				// .select("*")
-				// .select('id_evenement, name, desc, rules, address, date, time, invitations ( id_evenement, id_state ), needs ( id_evenement, label, number )')
 				.select('id_evenement, name, desc, rules, address, date, time, invitations ( id_evenement, id_invitation, first_name, surname, tel, id_state, code ), needs ( id_evenement, id_need, label, number, need_invitations ( id_need, id_invitation ))')
 				.eq('id_evenement', this.$route.params.id)
 				if (error) throw error
@@ -155,7 +153,6 @@ export default {
 	created() {
 		const metadata = {
 			desc: "Visualiser votre événement ajouter des invités, voyer qui de vos invités viendront.",
-			// url: "http://localhost:3000/",
 			url: "https://who-s-coming.vercel.app/",
 			pageName: "Événement - Who's coming",
 			imageDirectory: "cover.png"

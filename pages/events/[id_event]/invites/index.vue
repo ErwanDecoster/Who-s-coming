@@ -68,7 +68,7 @@
 			<NuxtLink v-for="invite in event.invitations" class="btn-secondary">
 				{{ invite.first_name }} {{ invite.surname }} ({{ GetState(invite.id_state) }})
 			</NuxtLink>
-			<button v-if="admin && mode == 1" class="btn-secondary" @click="popup.addInvite = true">Ajouter un invité</button>
+			<button v-if="admin && mode == 1 || mode == 0" class="btn-secondary" @click="popup.addInvite = true">Ajouter un invité</button>
 		</div>
 		<div v-if="admin && mode == 1" class="grid gap-2">
 			<p v-if="event.invitations && !event.invitations.length">Aucun invité pour le moment</p>
@@ -108,11 +108,11 @@
 			<form class="grid gap-4" @submit.prevent="AddInviteToEvent()" action="">
 				<div class="grid gap-2">
 					<label for="need_label">Prénom :</label>
-					<input v-model="popup.form.firstName" type="text" name="need_label" id="need_label">
+					<input v-model="popup.form.firstName" type="text" name="need_label" id="need_label" class="capitalize">
 				</div>
 				<div class="grid gap-2">
 					<label for="need_number">Nom :</label>
-					<input v-model="popup.form.surname" type="text" name="need_number" id="need_number">
+					<input v-model="popup.form.surname" type="text" name="need_number" id="need_number" class="capitalize">
 				</div>
 				<div class="grid gap-2">
 					<label for="need_tel">Tél :</label>
@@ -155,12 +155,11 @@ export default {
 				this.ChangeInviteState(newState, inviteAsked)
 			if (newState == 2)
 				this.SendInvite(inviteAsked)
-			// SendInvite(inviteAsked)
 		},
 		SendInvite(invite) {
-			// const website = 'http://10.13.6.5:3000/'
 			const url = 'https://who-s-coming.vercel.app/'
-			const message = `Salut ${invite.first_name} je t'invite a l'événement ${this.event.name} code d'invitation : ${invite.code.toUpperCase()}, pour plus d'information, ou pour accepter ou refuser l'invitation clique sur ce lien : ${url}/events/${this.$route.params.id_event}/invites/${invite.code}.`
+			const inviteUrl = `${url}events/${this.$route.params.id_event}/invites/${invite.code}`
+			const message = `Salut ${invite.first_name} je t'invite a l'événement ${this.event.name} code d'invitation : ${invite.code.toUpperCase()}, pour plus d'information, ou pour accepter ou refuser l'invitation clique sur ce lien : ${inviteUrl}.`
 			message.replaceAll(' ', '%20')
 			message.replaceAll("'", '%27')
 			const link = `sms://${invite.tel}?body=${message}`
@@ -179,6 +178,7 @@ export default {
 				.neq('invitations.id_state', 5)
 				.neq('invitations.id_state', masque)
 				.order('id_state', { foreignTable: 'invitations', ascending: true })
+				.order('first_name', { foreignTable: 'invitations', ascending: true })
 				if (error) throw error
 				this.event = evenements[0];
 				this.GetInvitesAsked()
@@ -265,11 +265,13 @@ export default {
 						id_evenement: this.$route.params.id_event,
 						first_name: this.popup.form.firstName,
 						surname: this.popup.form.surname,
-						tel: this.popup.form.tel,
+						tel: this.popup.form.tel.replaceAll(' ', ''),
 						id_state: 1,
 						code: code,
 					},
 				])
+				.select()
+				console.log(data[0]);
 				const invite = {
 					id_invitation: this.$route.params.id_event,
 					first_name: this.popup.form.firstName,
@@ -278,8 +280,12 @@ export default {
 					id_state: 1,
 					code: code,
 				}
-				this.event.invitations.push(invite);
+				// this.event.invitations.push(invite);
+				this.event.invitations.push(data[0]);
 				if (error) throw error
+				this.popup.form.firstName = ''
+				this.popup.form.surname = ''
+				this.popup.form.tel = ''
 				this.popup.formMessages.push({ type: 'succes', content: 'L\'invité a bien été ajouté a l\'événement.' })
 				this.popup.addInvite = false;
 			} catch (error) {
@@ -295,7 +301,7 @@ export default {
 				this.popup.formMessages.push({type: 'error', content: 'Le champ "Nom" est requis.'})
 			if (!this.popup.form.tel)
 				this.popup.formMessages.push({type: 'error', content: 'Le champ "Tél" est requis.'})
-			else if (this.popup.form.tel.length != 10)
+			else if (this.popup.form.tel.replaceAll(' ', '').length != 10)
 				this.popup.formMessages.push({type: 'error', content: 'Le numéro de téléphone n\'est pas valide.'})
 			if (this.popup.formMessages.length == 0)
 				return (0)
@@ -349,7 +355,6 @@ export default {
 	created() {
 		const metadata = {
 			desc: "Visualisez la liste des invités de l'événement.",
-			// url: "http://localhost:3000/",
 			url: "https://who-s-coming.vercel.app/",
 			pageName: "Invités - Who's coming",
 			imageDirectory: "cover.png"

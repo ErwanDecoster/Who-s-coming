@@ -77,9 +77,7 @@ export default {
 				if (error) throw error
 				this.SetStateOccurence(evenements);
 				this.events = evenements;
-				// this.formMessages.push({ type: 'succes', content: 'L\'événement a bien été créé.' })
 			} catch (error) {
-				// this.formMessages.push({ type: 'error', content: 'Une erreur est survenue l\'événement ne pas été créé.' })
 			} finally {
 			}
 		},
@@ -95,7 +93,6 @@ export default {
 	created() {
 		const metadata = {
 			desc: "Gérez vos événements créés en de nouveau et visualiser le nombre d'invités",
-			// url: "http://localhost:3000/",
 			url: "https://who-s-coming.vercel.app/",
 			pageName: "Événements - Who's coming",
 			imageDirectory: "cover.png"

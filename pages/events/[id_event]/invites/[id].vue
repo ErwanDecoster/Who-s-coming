@@ -212,9 +212,6 @@ export default {
 					})
 				}
 				if (error) throw error
-				// this.GetInvitesState()
-				// this.SetInviteState()
-				// this.event.
 				this.invite.id_state = newState
 				this.messages = [];
 				this.AddMessageInviteStatu(newState)
@@ -255,47 +252,6 @@ export default {
 					this.event.inviteState.asked++;
 			});
 		},
-		// async GetInvitesState() {
-		// 	try {
-		// 		const supabase = useSupabaseClient();
-		// 		let { data: invitationsState, error } = await supabase
-		// 		.from('invitations')
-		// 		.select("id_state")
-		// 		.eq('id_evenement', this.$route.params.id_event)
-		// 		if (error) throw error
-		// 		this.invitesState = invitationsState;
-		// 		this.SetInviteState()
-		// 	} catch (error) {
-		// 	} finally {
-		// 	}
-		// },
-		// async GetNeeds() {
-		// 	try {
-		// 		const supabase = useSupabaseClient();
-		// 		let { data: needs, error } = await supabase
-		// 		.from('needs')
-		// 		.select("*")
-		// 		.eq('id_evenement', this.$route.params.id_event)
-		// 		if (error) throw error
-		// 		this.event.needs = needs;
-		// 	} catch (error) {
-		// 	} finally {
-		// 	}
-		// },
-		// async GetEvent() {
-		// 	try {
-		// 		const supabase = useSupabaseClient();
-		// 		let { data: evenements, error } = await supabase
-		// 		.from('evenements')
-		// 		.select("*")
-		// 		.eq('id_evenement', this.$route.params.id_event)
-		// 		if (error) throw error
-		// 		this.event = evenements[0];
-		// 		this.GetNeeds();
-		// 	} catch (error) {
-		// 	} finally {
-		// 	}
-		// },
 		async GetEvent() {
 			try {
 				const supabase = useSupabaseClient();
@@ -303,7 +259,6 @@ export default {
 				.from('evenements')
 				.select('id_evenement, name, desc, rules, address, date, time, invitations ( id_evenement, id_invitation, first_name, surname, tel, id_state, code ), needs ( id_evenement, id_need, label, number, need_invitations ( id_need, id_invitation ))')
 				.eq('id_evenement', this.$route.params.id_event)
-				// .eq('invitations.code', this.$route.params.id)
 				.neq('invitations.id_state', 5)
 				.order('id_state', { foreignTable: 'invitations', ascending: true })
 				if (error) throw error
@@ -365,33 +320,11 @@ export default {
 				}
 			})
 		},
-		// async GetInvite() {
-		// 	try {
-		// 		const supabase = useSupabaseClient();
-		// 		let { data: invitation, error } = await supabase
-		// 		.from('invitations')
-		// 		.select("*")
-		// 		.eq('code', this.$route.params.id)
-		// 		.eq('id_evenement', this.$route.params.id_event)
-		// 		if (error) throw error
-		// 		localStorage.code = invitation[0].code
-		// 		this.invite = invitation[0];
-		// 		this.AddMessageInviteStatu(this.event.invitations[0])
-		// 	} catch (error) {
-		// 		// navigateTo('/');
-		// 	} finally {
-		// 	}
-		// },
 		AddInviteToEvent() {
 			if (this.CheckForm())
 				return
 			this.SaveInvite()
 		},
-		// async GetUser(){
-		// 	const supabase = useSupabaseClient();
-		// 	const { data: { user } } = await supabase.auth.getUser()
-		// 	this.user = user;
-		// },
 	},
 	mounted() {
 		const user = useSupabaseUser();
@@ -400,14 +333,10 @@ export default {
 				navigateTo('/');
 		})
 		this.GetEvent()
-		// this.GetInvite()
-		// this.GetUser();
-		// this.GetInvitesState()
 	},
 	created() {
 		const metadata = {
-			desc: "Visualisez votre invatation a l'événement.",
-			// url: "http://localhost:3000/",
+			desc: "Visualisez votre invitation à l'événement.",
 			url: "https://who-s-coming.vercel.app/",
 			pageName: "Invitation - Who's coming",
 			imageDirectory: "cover.png"
