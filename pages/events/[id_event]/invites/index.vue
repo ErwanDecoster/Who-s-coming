@@ -277,7 +277,6 @@ export default {
 				this.popup.form.firstName = ''
 				this.popup.form.surname = ''
 				this.popup.form.tel = ''
-				// this.popup.formMessages.push({ type: 'succes', content: 'L\'invité a bien été ajouté a l\'événement.' })
 				this.popup.addInvite = false;
 			} catch (error) {
 				this.popup.formMessages.push({ type: 'error', content: 'Une erreur est survenue l\'invité n\'a pas pu étre ajouté a l\'événement.' })

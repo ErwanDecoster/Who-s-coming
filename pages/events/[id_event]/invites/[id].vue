@@ -17,7 +17,7 @@
 						<p class="text-opacity-70 flex gap-1">
 							<span v-if="!event.inviteState.unsend && !event.inviteState.send && !event.inviteState.accepted && !event.inviteState.denied && !event.inviteState.asked">Aucune personne invité</span>
 							<span v-if="event.inviteState.unsend">{{ event.inviteState.unsend }} non invité</span>
-							<span v-if="event.inviteState.send">{{ event.inviteState.send }} invités</span>  
+							<span v-if="event.inviteState.send">{{ event.inviteState.send }} invités non comfirmés</span>  
 							<span v-if="event.inviteState.accepted">{{ event.inviteState.accepted }} comfirmés</span>
 							<!-- <span v-if="event.inviteState.denied">{{ event.inviteState.denied }} refusés</span> -->
 							<span v-if="event.inviteState.asked">{{ event.inviteState.asked }} demandes</span>
@@ -41,14 +41,24 @@
 							<label :for="need.id_need" class="text-sm">
 								{{ need.label }} ({{ need.number - need.need_invitations.length }} manquants sur {{need.number  }})
 								<ol class="ml-4 list-inside">
-									<template v-if="!showLess">
+									<template v-if="!need.need_invitations.showMore">
 										<li v-for="need_invitation in need.need_invitations.slice(0, 5)" :key="need_invitation">
 											- 
 											{{ GetInvitationForNeedInvitation(need_invitation).first_name }}
 											{{ GetInvitationForNeedInvitation(need_invitation).surname }}
 										</li>
 									</template>
-									<button v-if="need.need_invitations.length > 5" @click="showLess = false">Voir les autres participants</button>
+									<template v-else>
+										<li v-for="need_invitation in need.need_invitations" :key="need_invitation">
+											- 
+											{{ GetInvitationForNeedInvitation(need_invitation).first_name }}
+											{{ GetInvitationForNeedInvitation(need_invitation).surname }}
+										</li>
+									</template>
+									<button v-if="need.need_invitations.length > 5" @click="need.need_invitations.showMore = !need.need_invitations.showMore">
+										<template v-if="need.need_invitations.showMore">Masquer les autres participants</template> 
+										<template v-else>Voir les autres participants</template> 
+									</button>
 								</ol>
 							</label>
 						</div>
@@ -142,7 +152,6 @@ export default {
 			this.ChangeInviteState(3)
 			const inputs = document.querySelectorAll('input.need-selection')
 			inputs.forEach(input => {
-				console.log(input);
 				if (input.checked)
 				{
 					this.CheckNeedInvitation(input.id).then((nb) => {
@@ -194,9 +203,7 @@ export default {
 				.eq('id_need', id_need)
 				if (error) throw error
 				const needs = this.event.needs[this.event.needs.findIndex(need => need.id_need == id_need)];
-				console.log('needs', needs);
 				const need_invitation = needs.need_invitations[needs.need_invitations.findIndex(need_invitation => need_invitation.id_invitation == this.invite.id_invitation)]
-				console.log('need_invitation', need_invitation);
 				needs.need_invitations.splice(need_invitation, 1); 
 			} catch {
 			}
@@ -271,6 +278,9 @@ export default {
 				this.event = evenements[0];
 				this.SetInvite()
 				this.SetInviteState()
+				this.event.needs.forEach((need) => {
+					need.need_invitations.showMore = false
+				})
 			} catch (error) {
 				this.messages.push({type: 'error', content: "L'événement n'a pas pu être récupéré"})
 			} finally {
