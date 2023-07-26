@@ -19,7 +19,7 @@
 							<span v-if="event.inviteState.unsend">{{ event.inviteState.unsend }} non invité</span>
 							<span v-if="event.inviteState.send">{{ event.inviteState.send }} invités</span>  
 							<span v-if="event.inviteState.accepted">{{ event.inviteState.accepted }} comfirmés</span>
-							<span v-if="event.inviteState.denied">{{ event.inviteState.denied }} refusés</span>
+							<!-- <span v-if="event.inviteState.denied">{{ event.inviteState.denied }} refusés</span> -->
 							<span v-if="event.inviteState.asked">{{ event.inviteState.asked }} demandes</span>
 						</p>
 					</div>
