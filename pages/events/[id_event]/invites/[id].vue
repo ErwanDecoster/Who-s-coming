@@ -1,92 +1,97 @@
 <template>
-	<div v-if="invite.id_invitation" class="grid gap-6 relative">
-		<h2>Invitation {{ invite.first_name }} {{ invite.surname }}</h2>
-		<div class="grid gap-4">
-			<div v-if="messages.length" class="grid gap-1">
-				<p v-for="message in messages" :key="message.type" class="px-4 py-0.5 rounded-xl"
-					:class="{ 'bg-red': message.type == 'error', 'bg-green': message.type == 'succes', 'bg-orange': message.type == 'warning' , 'bg-white text-black': message.type == 'message' }"
-					@click="messages.splice(messages.indexOf(message), 1)">
-					{{ message.content }}
-				</p>
-			</div>
-			<div class="bg-white block relative text-black rounded-xl p-2">
-				<div v-if="event" class="text-sm grid gap-1">
-					<p class="text-base"><span class="font-bold">{{ event.name }}</span> - {{ ReturnFrenchFormatDate(event.date) }} - {{ ReturnFormatedTime(event.time) }}</p>
-					<a target="_blank" :href="`http://maps.google.com/?q=${event.address}`" class="underline">{{ event.address }}</a>
-					<p class="text-opacity-70 flex gap-1">
-						<span v-if="!event.inviteState.unsend && !event.inviteState.send && !event.inviteState.accepted && !event.inviteState.denied && !event.inviteState.asked">Aucune personne invité</span>
-						<span v-if="event.inviteState.unsend">{{ event.inviteState.unsend }} non invité</span>
-						<span v-if="event.inviteState.send">{{ event.inviteState.send }} invités</span>  
-						<span v-if="event.inviteState.accepted">{{ event.inviteState.accepted }} comfirmés</span>
-						<span v-if="event.inviteState.denied">{{ event.inviteState.denied }} refusés</span>
-						<span v-if="event.inviteState.asked">{{ event.inviteState.asked }} demandes</span>
-					</p>
-				</div>
-			</div>
-			<NuxtLink :to="`/events/${$route.params.id_event}/invites`" class="btn-secondary">Voir la liste des invité</NuxtLink>
-			<div v-if="invite.id_state == 2 || invite.id_state == 4" class="grid gap-4">
-				<div class="grid gap-2">
-					<h3 class="font-semibold">Description :</h3>
-					<p class="text-sm whitespace-pre-line">{{ event.desc }}</p>
-				</div>
-				<div class="grid gap-2">
-					<h3 class="font-semibold">Règlement :</h3>
-					<p class="text-sm whitespace-pre-line">{{ event.rules }}</p>
-				</div>
-				<div class="grid gap-2">
-					<h3 class="font-semibold">Nécessaire a la soirée :</h3>
-					<div v-for="need in event.needs" class="flex items-center gap-2">
-						<input type="checkbox" name="" :id="need.id_need" :disabled="need.number == 0" :checked="need.need_invitations.findIndex(need_invitation => need_invitation.id_invitation == invite.id_invitation) != -1" class="need-selection h-4 w-4 self-start mt-0.5">
-						<label :for="need.id_need" class="text-sm">
-							{{ need.label }} ({{ need.number - need.need_invitations.length }} manquants sur {{need.number  }})
-							<ol class="ml-4 list-inside">
-							<li v-for="need_invitation in need.need_invitations" :key="need_invitation">
-								- 
-								{{ GetInvitationForNeedInvitation(need_invitation).first_name }}
-								{{ GetInvitationForNeedInvitation(need_invitation).surname }}
-							</li>
-						</ol>
-						</label>
+	<div class="grid gap-6 relative">
+		<h2 v-if="invite.id_invitation">Invitation {{ invite.first_name }} {{ invite.surname }}</h2>
+		<div v-if="messages.length" class="grid gap-1">
+			<p v-for="message in messages" :key="message.type" class="px-4 py-0.5 rounded-xl"
+				:class="{ 'bg-red': message.type == 'error', 'bg-green': message.type == 'succes', 'bg-orange': message.type == 'warning' , 'bg-white text-black': message.type == 'message' }"
+				@click="messages.splice(messages.indexOf(message), 1)">
+				{{ message.content }}
+			</p>
+		</div>
+		<div v-if="invite.id_invitation" class="grid gap-6 relative">
+			<div class="grid gap-4">
+				<div class="bg-white block relative text-black rounded-xl p-2">
+					<div v-if="event" class="text-sm grid gap-1">
+						<p class="text-base"><span class="font-bold">{{ event.name }}</span> - {{ ReturnFrenchFormatDate(event.date) }} - {{ ReturnFormatedTime(event.time) }}</p>
+						<a target="_blank" :href="`http://maps.google.com/?q=${event.address}`" class="underline">{{ event.address }}</a>
+						<p class="text-opacity-70 flex gap-1">
+							<span v-if="!event.inviteState.unsend && !event.inviteState.send && !event.inviteState.accepted && !event.inviteState.denied && !event.inviteState.asked">Aucune personne invité</span>
+							<span v-if="event.inviteState.unsend">{{ event.inviteState.unsend }} non invité</span>
+							<span v-if="event.inviteState.send">{{ event.inviteState.send }} invités</span>  
+							<span v-if="event.inviteState.accepted">{{ event.inviteState.accepted }} comfirmés</span>
+							<span v-if="event.inviteState.denied">{{ event.inviteState.denied }} refusés</span>
+							<span v-if="event.inviteState.asked">{{ event.inviteState.asked }} demandes</span>
+						</p>
 					</div>
 				</div>
-				<button @click="AccepteInvitation()" class="btn-primary">Accepter l'invitation</button>
+				<NuxtLink :to="`/events/${$route.params.id_event}/invites`" class="btn-secondary">Voir la liste des invité</NuxtLink>
+				<div v-if="invite.id_state == 2 || invite.id_state == 4" class="grid gap-4">
+					<div class="grid gap-2">
+						<h3 class="font-semibold">Description :</h3>
+						<p class="text-sm whitespace-pre-line">{{ event.desc }}</p>
+					</div>
+					<div class="grid gap-2">
+						<h3 class="font-semibold">Règlement :</h3>
+						<p class="text-sm whitespace-pre-line">{{ event.rules }}</p>
+					</div>
+					<div class="grid gap-2">
+						<h3 class="font-semibold">Nécessaire a la soirée :</h3>
+						<div v-for="need in event.needs" class="flex items-center gap-2">
+							<input type="checkbox" name="" :id="need.id_need" :disabled="need.number == 0" :checked="need.need_invitations.findIndex(need_invitation => need_invitation.id_invitation == invite.id_invitation) != -1" class="need-selection h-4 w-4 self-start mt-0.5">
+							<label :for="need.id_need" class="text-sm">
+								{{ need.label }} ({{ need.number - need.need_invitations.length }} manquants sur {{need.number  }})
+								<ol class="ml-4 list-inside">
+									<template v-if="!showLess">
+										<li v-for="need_invitation in need.need_invitations.slice(0, 5)" :key="need_invitation">
+											- 
+											{{ GetInvitationForNeedInvitation(need_invitation).first_name }}
+											{{ GetInvitationForNeedInvitation(need_invitation).surname }}
+										</li>
+									</template>
+									<button v-if="need.need_invitations.length > 5" @click="showLess = false">Voir les autres participants</button>
+								</ol>
+							</label>
+						</div>
+					</div>
+					<button @click="AccepteInvitation()" class="btn-primary">Accepter l'invitation</button>
+				</div>
+				<div v-if="invite.id_state == 3" class="grid gap-4">
+					<p class="my-8 mx-4">Parfait, ton invitation est bien noté comme acceptée, enregistre bien la date !</p>
+					<!-- <button @click="" class="btn-primary">Ajouter au calendrier</button> -->
+				</div>
 			</div>
-			<div v-if="invite.id_state == 3" class="grid gap-4">
-				<p class="my-8 mx-4">Parfait, ton invitation est bien noté comme acceptée, enregistre bien la date !</p>
-				<!-- <button @click="" class="btn-primary">Ajouter au calendrier</button> -->
-			</div>
+			<button v-if="invite.id_state == 3" @click="popup.addInvite = true" class="btn-secondary">Demander l'ajout d'un invité</button>
+			<button v-if="invite.id_state == 3 || invite.id_state == 2" @click="ChangeInviteState(4)" class="btn-secondary-red">Décliner l'invitation</button>
+			<Popup v-if="popup.addInvite" @close="popup.addInvite = false">
+				<p class="text-2xl text-center">Demande d'ajout d'invité</p>
+				<div class="grid gap-1" :class="{ 'hidden': popup.formMessages.length == 0 }">
+					<p v-for="message in popup.formMessages" :key="message.type" class="px-4 py-0.5 rounded-xl"
+						:class="{ 'bg-red': message.type == 'error', 'bg-green': message.type == 'succes', 'bg-orange': message.type == 'warning' }"
+						@click="popup.formMessages.splice(popup.formMessages.indexOf(message), 1)">
+						{{ message.content }}
+					</p>
+				</div>
+				<form class="grid gap-4" @submit.prevent="AddInviteToEvent()" action="">
+					<div class="grid gap-2">
+						<label for="add_invite_first_name">Prénom :</label>
+						<input v-model="popup.form.firstName" type="text" name="add_invite_first_name" id="add_invite_first_name">
+					</div>
+					<div class="grid gap-2">
+						<label for="add_invite_surname">Nom :</label>
+						<input v-model="popup.form.surname" type="text" name="add_invite_surname" id="add_invite_surname">
+					</div>
+					<div class="grid gap-2">
+						<label for="add_invite_tel">Tél :</label>
+						<input v-model="popup.form.tel" type="tel" name="add_invite_tel" id="add_invite_tel">
+					</div>
+					<div class="grid gap-2">
+						<label for="add_invite_relationship">Relation (petit amis, amis...) :</label>
+						<textarea v-model="popup.form.relationship" type="tel" name="add_invite_relationship" id="add_invite_relationship"></textarea>
+					</div>
+					<input class="btn-primary" type="submit" value="Ajouter">
+				</form>
+			</Popup>
 		</div>
-		<button v-if="invite.id_state == 3" @click="popup.addInvite = true" class="btn-secondary">Demander l'ajout d'un invité</button>
-		<button v-if="invite.id_state == 3 || invite.id_state == 2" @click="ChangeInviteState(4)" class="btn-secondary-red">Décliner l'invitation</button>
-		<Popup v-if="popup.addInvite" @close="popup.addInvite = false">
-			<p class="text-2xl text-center">Demande d'ajout d'invité</p>
-			<div class="grid gap-1" :class="{ 'hidden': popup.formMessages.length == 0 }">
-				<p v-for="message in popup.formMessages" :key="message.type" class="px-4 py-0.5 rounded-xl"
-					:class="{ 'bg-red': message.type == 'error', 'bg-green': message.type == 'succes', 'bg-orange': message.type == 'warning' }"
-					@click="popup.formMessages.splice(popup.formMessages.indexOf(message), 1)">
-					{{ message.content }}
-				</p>
-			</div>
-			<form class="grid gap-4" @submit.prevent="AddInviteToEvent()" action="">
-				<div class="grid gap-2">
-					<label for="add_invite_first_name">Prénom :</label>
-					<input v-model="popup.form.firstName" type="text" name="add_invite_first_name" id="add_invite_first_name">
-				</div>
-				<div class="grid gap-2">
-					<label for="add_invite_surname">Nom :</label>
-					<input v-model="popup.form.surname" type="text" name="add_invite_surname" id="add_invite_surname">
-				</div>
-				<div class="grid gap-2">
-					<label for="add_invite_tel">Tél :</label>
-					<input v-model="popup.form.tel" type="tel" name="add_invite_tel" id="add_invite_tel">
-				</div>
-				<div class="grid gap-2">
-					<label for="add_invite_relationship">Relation (petit amis, amis...) :</label>
-					<textarea v-model="popup.form.relationship" type="tel" name="add_invite_relationship" id="add_invite_relationship"></textarea>
-				</div>
-				<input class="btn-primary" type="submit" value="Ajouter">
-			</form>
-		</Popup>
 	</div>
 </template>
 
@@ -262,10 +267,12 @@ export default {
 				.neq('invitations.id_state', 5)
 				.order('id_state', { foreignTable: 'invitations', ascending: true })
 				if (error) throw error
+				if (!evenements[0]) throw error
 				this.event = evenements[0];
 				this.SetInvite()
 				this.SetInviteState()
 			} catch (error) {
+				this.messages.push({type: 'error', content: "L'événement n'a pas pu être récupéré"})
 			} finally {
 			}
 		},
@@ -319,6 +326,10 @@ export default {
 					localStorage.code = invitation.code
 				}
 			})
+			if (!this.invite)
+				this.messages.push({type: 'error', content: 'Votre code ne correspond à aucune invitation.'})
+			else 
+				this.messages.push({ type: 'warning', content: 'Prévoyez de quoi dormir sur place : tente, sac de couchage. Une salle sera à disposition pour dormir sur place mais elle ne pourra pas accueillir tout le monde.' })
 		},
 		AddInviteToEvent() {
 			if (this.CheckForm())
