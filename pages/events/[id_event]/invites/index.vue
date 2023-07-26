@@ -73,12 +73,12 @@
 		<div v-if="admin && mode == 1" class="grid gap-2">
 			<p v-if="event.invitations && !event.invitations.length">Aucun invité pour le moment</p>
 			<div v-for="invite in event.invitations" class="flex group">
-				<NuxtLink class="btn-primary flex justify-between" :class="{ 'rounded-r-none border-r-0': invite.id_state < 3 || invite.id_state == 6}">
-					<span class="font-bold">{{ invite.first_name }} {{ invite.surname }}</span><span> ({{ GetState(invite.id_state) }}) </span>
-				    <span class="hidden group-hover:inline-block">[{{ invite.code }}]</span> 
+				<NuxtLink class="btn-primary grow flex flex-wrap justify-between gap-0.5 items-center" :class="{ 'rounded-r-none border-r-0': invite.id_state < 3 || invite.id_state == 6}">
+					<span class="font-bold">{{ invite.first_name }} {{ invite.surname }}</span><span class="text-xs"> ({{ GetState(invite.id_state) }}) </span>
+				    <span class="hidden group-hover:inline-block text-xs">[{{ invite.code }}]</span> 
 				</NuxtLink>
 				<span v-if="invite.id_state < 3 || invite.id_state == 6" class="bg-black h-full w-1"></span>
-				<button v-if="invite.id_state < 3" @click="SendInvite(invite)" class="btn-primary  rounded-l-none border-l-0">
+				<button v-if="invite.id_state < 3" @click="SendInvite(invite)" class="btn-primary rounded-l-none border-l-0 w-[80%]">
 					<template v-if="invite.id_state == 1">
 						Envoyer l'invitation
 					</template>
