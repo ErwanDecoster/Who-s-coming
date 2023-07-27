@@ -35,6 +35,9 @@
 </template>
 
 <script>
+// definePageMeta({
+// 	middleware: 'auth'
+// })
 export default {
   data() {
 	return {
@@ -89,13 +92,6 @@ export default {
 			return (1);
 		this.SignUp();
 	}
-  },
-  mounted() {
-    const user = useSupabaseUser();
-    watchEffect(() => {
-      if (user.value)
-        navigateTo('/events');
-    })
   },
   created() {
 		const metadata = {

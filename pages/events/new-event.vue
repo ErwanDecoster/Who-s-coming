@@ -66,6 +66,9 @@
 </template>
 
 <script>
+// definePageMeta({
+// 	middleware: 'auth'
+// })
 export default {
 	data() {
 		return {
@@ -245,13 +248,7 @@ export default {
 		if (localStorage.message) {
 			this.form.message = localStorage.message;
 		}
-		
-		const user = useSupabaseUser();
 		this.GetUser();
-		watchEffect(() => {
-			if (!user.value)
-				navigateTo('/');
-		})
 	},
 	created() {
 		const metadata = {

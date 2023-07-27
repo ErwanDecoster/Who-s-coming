@@ -17,6 +17,9 @@
 </template>
 
 <script>
+// definePageMeta({
+// 	middleware: 'auth'
+// })
 export default {
   data() {
 	return {
@@ -41,13 +44,6 @@ export default {
 			this.formMessages.push({type: 'error', content: error })
 		}
     },
-  },
-  mounted() {
-    const user = useSupabaseUser();
-    watchEffect(() => {
-      if (user.value)
-        navigateTo('/events');
-    })
   },
   created() {
 		const metadata = {

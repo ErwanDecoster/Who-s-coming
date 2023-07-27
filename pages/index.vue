@@ -20,6 +20,9 @@
 </template>
 
 <script>
+// definePageMeta({
+// 	middleware: 'auth'
+// })
 export default {
 	data() {
 		return {
@@ -64,13 +67,6 @@ export default {
 			this.GetInvite()
 		},
 	},
-	mounted() {
-		const user = useSupabaseUser()
-		watchEffect(() => {
-		if (user.value)
-			navigateTo('/events');
-		})
-  	},
 	created() {
 		const metadata = {
 			desc: "Who's coming, créé et organisée vos événements, gérer vos invites..",

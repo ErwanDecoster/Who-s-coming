@@ -15,7 +15,7 @@
 							<span v-if="event.inviteState.unsend">{{ event.inviteState.unsend }} non invité</span>
 							<span v-if="event.inviteState.send">{{ event.inviteState.send }} invités</span>  
 							<span v-if="event.inviteState.accepted">{{ event.inviteState.accepted }} comfirmés</span>
-							<span v-if="event.inviteState.denied">{{ event.inviteState.denied }} refusés</span>
+							<span v-if="event.inviteState.denied">{{ event.inviteState.denied }} declinés</span>
 							<span v-if="event.inviteState.asked">{{ event.inviteState.asked }} demandes</span>
 						</p>
 					</div>
@@ -25,7 +25,7 @@
 				</NuxtLink>
 			</div>
 		</div>
-		<NuxtLink class="btn-primary" to="Events/NewEvent">Créer un nouvelle événement</NuxtLink>
+		<NuxtLink class="btn-primary" to="/events/new-event">Créer un nouvelle événement</NuxtLink>
 	</div>
 </template>
 
@@ -84,11 +84,6 @@ export default {
 	},
 	mounted() {
 		this.GetUser()
-		const user = useSupabaseUser();
-		watchEffect(() => {
-		if (!user.value)
-			navigateTo('/');
-		})
 	},
 	created() {
 		const metadata = {
