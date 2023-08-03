@@ -19,7 +19,7 @@
 							<span v-if="event.inviteState.unsend">{{ event.inviteState.unsend }} non invité</span>
 							<span v-if="event.inviteState.send">{{ event.inviteState.send }} invités non comfirmés</span>  
 							<span v-if="event.inviteState.accepted">{{ event.inviteState.accepted }} comfirmés</span>
-							<!-- <span v-if="event.inviteState.denied">{{ event.inviteState.denied }} refusés</span> -->
+							<!-- <span v-if="event.inviteState.denied">{{ event.inviteState.denied }} decliné</span> -->
 							<span v-if="event.inviteState.asked">{{ event.inviteState.asked }} demandes</span>
 						</p>
 					</div>
@@ -297,7 +297,7 @@ export default {
 						id_evenement: this.$route.params.id_event,
 						first_name: this.popup.form.firstName,
 						surname: this.popup.form.surname,
-						tel: this.popup.form.tel,
+						tel: this.popup.form.tel.replaceAll(' ', ''),
 						relationship: this.popup.form.relationship,
 						id_invitation_asker: this.invite.id_invitation,
 						id_state: 5,
@@ -320,7 +320,7 @@ export default {
 				this.popup.formMessages.push({type: 'error', content: 'Le champ "Nom" est requis.'})
 			if (!this.popup.form.tel)
 				this.popup.formMessages.push({type: 'error', content: 'Le champ "Tél" est requis.'})
-				else if (this.popup.form.tel.length != 10)
+			else if (this.popup.form.tel.replaceAll(' ', '').length != 10)
 				this.popup.formMessages.push({type: 'error', content: 'Le numéro de téléphone n\'est pas valide.'})
 			if (!this.popup.form.relationship)
 				this.popup.formMessages.push({type: 'error', content: 'Le champ "Relation" est requis.'})

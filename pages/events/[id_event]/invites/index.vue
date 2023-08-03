@@ -160,7 +160,7 @@ export default {
 		SendInvite(invite) {
 			const url = 'https://who-s-coming.vercel.app/'
 			const inviteUrl = `${url}events/${this.$route.params.id_event}/invites/${invite.code}`
-			const message = `Salut ${invite.first_name} je t'invite a l'événement ${this.event.name} code d'invitation : ${invite.code.toUpperCase()}, pour plus d'information, ou pour accepter ou refuser l'invitation clique sur ce lien : ${inviteUrl}`
+			const message = `Salut ${invite.first_name} je t'invite a l'événement ${this.event.name} code d'invitation : ${invite.code.toUpperCase()}, pour plus d'information, ou pour accepter ou decliné l'invitation clique sur ce lien : ${inviteUrl}`
 			message.replaceAll(' ', '%20')
 			message.replaceAll("'", '%27')
 			const link = `sms://${invite.tel}?body=${message}`
@@ -298,7 +298,7 @@ export default {
 			return (1)
 		},
 		GetState(idState) {
-			const State = ['non invité','invité','comfirmé','refusé','demandé','demande refusé']
+			const State = ['non invité','invité','comfirmé','decliné','demandé','demande decliné']
 			return State[idState - 1]
 		},
 		AddInviteToEvent() {
