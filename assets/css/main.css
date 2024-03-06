@@ -1,67 +1,61 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+h1 {
+  @apply text-4xl text-center text-white
+}
+h2 {
+  @apply text-xl text-center text-white
+}
+.container {
+  @apply flex flex-col gap-4 mx-auto max-w-sm p-6 bg-white bg-opacity-70 backdrop-blur-lg rounded-2xl
+}
 
-@layer components {
-	.btn-primary {
-		@apply p-2 block text-center bg-white border border-white text-black rounded-xl text-sm w-full cursor-pointer duration-150;
-	}
-	.btn-primary:hover {
-		@apply bg-transparent text-white ;
-	}
-	.btn-primary-red {
-		@apply p-2 block text-center bg-red border border-red text-black rounded-xl text-sm w-full cursor-pointer duration-150;
-	}
-	.btn-primary-red:hover {
-		@apply bg-transparent text-white;
-	}
-	.btn-primary-green {
-		@apply p-2 block text-center bg-green border border-green text-black rounded-xl text-sm w-full cursor-pointer duration-150;
-	}
-	.btn-primary-green:hover {
-		@apply bg-transparent text-white;
-	}
-	.btn-secondary {
-		@apply p-2 block text-center bg-transparent border border-white rounded-xl text-sm w-full cursor-pointer duration-150;
-	}
-	.btn-secondary:hover {
-		@apply bg-white text-black;
-	}
-	.btn-secondary-red {
-		@apply p-2 block text-center bg-transparent border border-red text-red rounded-xl text-sm w-full cursor-pointer duration-150;
-	}
-	.btn-secondary-red:hover {
-		@apply bg-red text-black;
-	}
-	.btn-secondary-green {
-		@apply p-2 block text-center bg-transparent border border-green text-green rounded-xl text-sm w-full cursor-pointer;
-	}
-	.btn-secondary-green:hover {
-		@apply bg-green text-black;
-	}
-	.btn-primary, .btn-primary-green, .btn-primary-red {
-		@apply disabled:cursor-not-allowed disabled:text-darkapp disabled:bg-darkgrey
-	}
-	.btn-primary.disabled, .btn-primary-green.disabled, .btn-primary-red.disabled {
-		@apply cursor-not-allowed bg-darkapp text-darkgrey
-		/* @apply cursor-not-allowed text-darkapp bg-darkgrey */
-	}
-	.btn-secondary, .btn-secondary-green, .btn-secondary-red {
-		@apply disabled:cursor-not-allowed disabled:bg-darkapp disabled:text-darkgrey
-	}
-	.btn-secondary.disabled, .btn-secondary-green.disabled, .btn-secondary-red.disabled {
-		@apply cursor-not-allowed bg-darkapp text-darkgrey
-	}
-	h2 {
-		@apply text-2xl text-center;
-	}
-	input, textarea {
-		@apply p-2 block text-black rounded-xl text-sm w-full cursor-pointer;
-	}
-	textarea {
-		@apply whitespace-pre-line
-	}
-	a:hover {
-		/* @apply bg-red */
-	}
+button, a, .leaf, input[type=submit] {
+  @apply duration-300 text-lg py-1.5 rounded-sm
+}
+img {
+  @apply bg-beige rounded-sm rounded-tr-2xl rounded-bl-2xl aspect-video
+}
+form {
+  @apply flex flex-col gap-4;
+}
+input[type=submit] {
+  @apply text-center px-4 bg-primary hover:bg-opacity-90 text-beige rounded-tr-2xl rounded-bl-2xl hover:rounded-tr-3xl hover:rounded-bl-3xl;
+  @apply disabled:bg-red;
+}
+.input-container {
+  @apply flex flex-col gap-1 text-base;
+  label {
+    @apply text-black-100;
   }
+  input, textarea {
+    @apply px-2 py-1.5 bg-white hover:bg-beige text-black-300 duration-300 rounded-sm rounded-tr-xl rounded-bl-xl focus:rounded-tr-2xl focus:rounded-bl-2xl;
+  }
+  .grow-wrap {
+    @apply grid;
+    &::after {
+      content: attr(data-replicated-value) " ";
+      @apply whitespace-pre-wrap invisible px-2 py-1.5;
+    }
+    textarea {
+      @apply min-h-24 resize-none overflow-hidden;
+    }
+    &::after, textarea {
+      grid-area: 1 / 1 / 2 / 2;
+    }
+  }
+}
+button, a {
+  @apply text-center px-4 rounded-tr-2xl rounded-bl-2xl hover:rounded-tr-3xl hover:rounded-bl-3xl;
+  &.primary {
+    @apply bg-primary hover:bg-opacity-90 text-beige;
+  }
+  &.secondary {
+    @apply bg-secondary hover:bg-opacity-90 text-primary;
+  }
+  &.tertiary {
+    @apply hover:bg-beige text-primary;
+  }
+}
+/* .leaf {
+  @apply bg-white hover:bg-beige px-2 text-primary rounded-tr-xl rounded-bl-xl focus:rounded-tr-2xl focus:rounded-bl-2xl;
+} */
+

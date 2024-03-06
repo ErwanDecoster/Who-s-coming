@@ -1,71 +1,182 @@
+<script setup lang="ts">
+interface Message {
+  type: string;
+  content: string;
+}
+
+let messages = ref<Array<Message>>([])
+
+let form = ref({
+	image: File,
+	name: "Soirée d'integration 2026",
+	address: '1 Quartier Les Marettes, Andancette',
+	datetime: '',
+	desc: 'Cette soirée a pour objectif de mieux integret les nouveau éléves aux sein de l’école',
+	rule: '',
+})
+
+const ValidForm = (() => {
+  messages.value = [];
+	if (!form.value.address)
+		messages.value.push({type: 'error', content: 'Une adresse est requise."'})
+  if (!form.value.datetime)
+    messages.value.push({type: 'error', content: 'La date et l\'heure sont requise.'})
+  if (!form.value.name)
+  if (!form.value.desc)
+    messages.value.push({type: 'error', content: 'Une description est requise.'})
+  if (!form.value.name)
+    messages.value.push({type: 'error', content: 'Un titre est requis.'})
+	if (messages.value.length)
+    return (0)
+  return (1)
+})
+
+const AddEvent = async () => {
+	try {
+		console.log(form.value);
+		
+		const data = await $fetch('/api/events/add', {
+			method: 'post',
+			body: {
+				name: form.value.name,
+				address: form.value.address,
+				datetime: form.value.datetime,
+				desc: form.value.desc,
+				rule: form.value.rule,
+			},
+		}).then((data) => {
+			if (data) {
+				messages.value.push({
+					type: 'success',
+					content: "L'événement a été crée avec succès."
+				})
+				// console.log(data);
+				// console.log(form.value.image);
+				UploadImage(form.value.image, data.data[0].id_evenement, form.value.name)
+			}
+		})
+	} catch(e) {
+		console.log(e);
+	}
+}
+
+const UpdateImage = (event) => {
+	form.value.image = event.target.files[0]
+}
+
+const UploadImage = async (files:File, eventId, name) => {
+	console.log(files);
+	
+	try {
+		const supabase = useSupabaseClient();
+		const { data, error } = await supabase.storage
+			.from('event_picture')
+			.upload(`${eventId.toString()}`, files)
+		if (error) throw error
+			if (data) {
+			navigateTo(`/events/${eventId}-${toSlug(name)}`);
+		}
+	} catch(e) {
+		messages.value.push({
+			type: 'error',
+			content: `L'image n'as pas pu etre ajouté.`
+		})
+		messages.value.push({
+			type: 'error',
+			content: `statusCode ${e.statusCode}, error : ${e.error}, message: ${message}`
+		})
+		console.log(e);
+	}
+}
+</script>
+
 <template>
-	<div class="grid gap-6">
-		<h2>Nouvel événement</h2>
-		<form @submit.prevent="" class="grid gap-4" action="">
-			<div class="grid gap-1" :class="{ 'hidden': formMessages.length == 0 }">
-				<p v-for="message in formMessages" :key="message.type" class="px-4 py-0.5 rounded-xl"
-					:class="{ 'bg-red': message.type == 'error', 'bg-green': message.type == 'succes', 'bg-orange': message.type == 'warning' }"
-					@click="formMessages.splice(formMessages.indexOf(message), 1)">
+	<div class="container">
+		<form @submit.prevent="AddEvent()">
+			<ul>
+				<li 
+					v-for="message in messages" 
+					:key="message.type"
+					class="bg-black rounded-lg py-1 px-4 text-white bg-opacity-85"
+					:class="[
+						{ 'bg-red': message.type === 'error'},
+						{ 'bg-green': message.type === 'success'}
+					]"
+				>
 					{{ message.content }}
-				</p>
+				</li>
+			</ul>
+			<div class="input-container">
+				<label for="image">Image :</label>
+				<input 
+					@change="UpdateImage($event)"
+					type="file" 
+					accept="image/png, image/jpeg, image/webp"
+					name="image"
+					id="image"
+					required
+				>
 			</div>
-			<div class="grid gap-2">
-				<label for="event_name">Nom de l'événement :</label>
-				<input v-model="form.name" type="text" name="event_name" id="event_name">
+			<div class="input-container">
+				<label for="name">Titre :</label>
+				<input 
+					type="text" 
+					name="name" 
+					v-model="form.name" 
+					id="name"
+					required
+				>
 			</div>
-			<div class="grid gap-2">
-				<label for="event_date">Date de l'événement :</label>
-				<input v-model="form.date" type="date" name="event_date" id="event_date">
+			<div class="input-container">
+				<label for="address">Adresse postale :</label>
+				<input 
+					type="text" 
+					name="address" 
+					v-model="form.address" 
+					id="address"
+					required
+				>
 			</div>
-			<div class="grid gap-2">
-				<label for="event_time">Heure de l'événement :</label>
-				<input v-model="form.time" type="time" name="event_time" id="event_time">
+			<div class="input-container">
+				<label for="datetime">Date et heure :</label>
+				<input 
+					type="datetime-local" 
+					name="datetime" 
+					v-model="form.datetime" 
+					id="datetime"
+					required
+				>
 			</div>
-			<div class="grid gap-2">
-				<label for="event_address">Addresse :</label>
-				<input v-model="form.address" type="text" name="event_address" id="event_address">
+			<div class="input-container">
+				<label for="desc">Description :</label>
+				<div class="grow-wrap" :data-replicated-value="form.desc">
+					<textarea 
+						name="desc" 
+						v-model="form.desc" 
+						id="desc"
+						required
+					/>
+				</div>
 			</div>
-			<div class="grid gap-2">
-				<label for="event_desc">Description :</label>
-				<textarea v-model="form.desc" name="event_desc" id="event_desc"></textarea>
+			<div class="input-container">
+				<label for="rule">Règlement :</label>
+				<div class="grow-wrap" :data-replicated-value="form.rule">
+					<textarea 
+						name="rule" 
+						v-model="form.rule" 
+						id="rule"
+					/>
+				</div>
 			</div>
-			<div class="grid gap-2">
-				<label for="event_rules">Règlement :</label>
-				<textarea v-model="form.rules" name="event_rules" id="event_rules"></textarea>
-			</div>
-			<div class="grid gap-2">
-				<p>Nécessaire :</p>
-				<p v-for="need in form.needs" :key="need">{{ need.label }} ({{ need.number }} manquants)</p>
-				<button class="btn-secondary" @click="popup.addNeed = true">Ajouter un nécessaire a l'événement</button>
-			</div>
-			<input @click="AddEvent()" class="btn-primary" type="submit" value="Enregistrer">
-			<NuxtLink class="btn-secondary-red" to="Events">Annuler</NuxtLink>
+			<button type="submit" class="primary">
+				Ajouter
+			</button>
 		</form>
-		<Popup v-if="popup.addNeed" @close="popup.addNeed = false">
-			<p class="text-2xl text-center">Nouveau nécessaire</p>
-			<div class="grid gap-1" :class="{ 'hidden': popup.formMessages.length == 0 }">
-				<p v-for="message in popup.formMessages" :key="message.type" class="px-4 py-0.5 rounded-xl"
-					:class="{ 'bg-red': message.type == 'error', 'bg-green': message.type == 'succes', 'bg-orange': message.type == 'warning' }"
-					@click="popup.formMessages.splice(popup.formMessages.indexOf(message), 1)">
-					{{ message.content }}
-				</p>
-			</div>
-			<form class="grid gap-4" @submit.prevent="AddNeedToEvent" action="">
-				<div class="grid gap-2">
-					<label for="need_label">Label :</label>
-					<input v-model="popup.form.label" type="text" name="need_label" id="need_label">
-				</div>
-				<div class="grid gap-2">
-					<label for="need_number">Quantité :</label>
-					<input v-model="popup.form.number" type="number" name="need_number" id="need_number">
-				</div>
-				<input class="btn-primary" type="submit" value="Ajouter">
-			</form>
-		</Popup>
+		<NuxtLink to="/events" class="tertiary">Annuler</NuxtLink>
 	</div>
 </template>
 
-<script>
+<!-- <script>
 export default {
 	data() {
 		return {
@@ -256,4 +367,4 @@ export default {
 		})
 	},
 }
-</script>
+</script> -->

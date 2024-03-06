@@ -1,28 +1,68 @@
+<script setup lang="ts">
+// let events = ref()
+// const fetchEvents = async () => {
+//   const data = await $fetch('/api/events')
+// 	events.value = data.events
+// }
+const { data, pending, error, refresh } = useFetch('/api/events', {
+	onRequestError({ request, options, error }) {
+		console.log(request);
+		console.log(options);
+		console.log(error);
+		// Handle the request errors
+	},
+	onResponse({ request, response, options }) {
+		console.log(request);
+		// console.log(response);
+		// console.log(options);
+		// console.log(data);
+		// events.value = data
+	},
+	onResponseError({ request, response, options }) {
+		console.log(request);
+		console.log(response);
+		console.log(options);
+		// Handle the response errors
+	}
+})
+
+interface Message {
+  type: string;
+  content: string;
+}
+
+let messages = ref<Array<Message>>([])
+</script>
+
 <template>
-	<div class="relative grid gap-6">
-		<h2>Événements</h2>
-		<!-- <button class="absolute top-0 right-0 btn-secondary w-fit">•••</button> -->
-		<div class="grid gap-2">
-			<h3>Liste de vos événements :</h3>
-			<div class="grid gap-2">
-				<p v-if="events.length == 0" class="text-sm">Vous n'avez encore aucun evenement.</p>
-				<NuxtLink v-for="event in events" :key="event.id" :to="`events/${event.id_evenement}/`" class="bg-white block relative text-black rounded-xl p-2">
-					<div class="text-sm grid gap-1">
-						<p class="text-base font-bold">{{ event.name }}</p>
-						<a :href="`http://maps.google.com/?q=${event.address}`" class="underline">{{ event.address }}</a>
-						<p class="text-opacity-70">{{ event.invites }} - {{ event.invitesConfirmed }}</p>
-					</div>
-					<!-- <span class="bg-orange w-[14px] h-[14px] absolute -top-1 -right-1 rounded-full">
-						{{ event.nbInvitePending }}
-					</span> -->
-				</NuxtLink>
-			</div>
-		</div>
-		<NuxtLink class="btn-primary" to="Events/NewEvent">Créer un nouvelle événement</NuxtLink>
+	<div class="container">
+		<ul v-if="messages.length">
+			<li 
+				v-for="message in messages" 
+				:key="message.type"
+				class="bg-black rounded-lg py-1 px-4 text-white bg-opacity-85"
+				:class="[
+					{ 'bg-red': message.type === 'error'},
+					{ 'bg-green': message.type === 'success'}
+				]"
+			>
+				{{ message.content }}
+			</li>
+		</ul>
+		<!-- <p v-if="events && !data.length">Aucun événement pour le moment.</p> -->
+		<NuxtLink 
+			v-for="event in data?.events" 
+			:key="event.id_evenement" 
+			:to="`/events/${event.id_evenement}-${toSlug(event.name)}`" 
+			class="secondary"
+		>
+			{{ event.name }}
+		</NuxtLink>
+		<NuxtLink to="/events/newEvent" class="primary">Nouvel événement</NuxtLink>
 	</div>
 </template>
 
-<script>
+<!-- <script>
 export default {
 	data() {
 		return {
@@ -63,4 +103,4 @@ export default {
 		})
 	},
 }
-</script>
+</script> -->

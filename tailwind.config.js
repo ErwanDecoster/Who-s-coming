@@ -1,4 +1,3 @@
-/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     "./components/**/*.{js,vue,ts}",
@@ -12,17 +11,12 @@ module.exports = {
     extend: {},
     colors: {
       transparent: 'transparent',
-      current: 'currentColor',
-      // app: '#7BA5A1',
-      // app: '#CA2E55',
-      // app: '#F7A278',
-      // app: '#016FB9',
-      app: '#014979',
+      primary: '#121212',
+      secondary: '#F5786B',
+      'black-100': '#232323',
+      'black-300': '#454545',
       white: '#FFFFFF',
-      black: '#314240',
-      darkapp: '#002c4a',
-      darkgrey: '#555555',
-      orange: '#E8993E',
+      beige: '#F0EEEA',
       green: '#40D886',
       red: '#D8404D',
     },

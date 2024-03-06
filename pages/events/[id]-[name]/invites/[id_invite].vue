@@ -234,7 +234,7 @@ export default {
 				this.popup.formMessages.push({type: 'error', content: 'Le champ "Nom" est requis.'})
 			if (!this.popup.form.tel)
 				this.popup.formMessages.push({type: 'error', content: 'Le champ "Tél" est requis.'})
-				else if (this.popup.form.tel.length != 10)
+			else if (this.popup.form.tel.length != 10)
 				this.popup.formMessages.push({type: 'error', content: 'Le numéro de téléphone n\'est pas valide.'})
 			if (!this.popup.form.relationship)
 				this.popup.formMessages.push({type: 'error', content: 'Le champ "Relation" est requis.'})

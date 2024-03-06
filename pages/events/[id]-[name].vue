@@ -1,5 +1,64 @@
+<script setup lang="ts">
+const route = useRoute()
+
+const data = await $fetch(`/api/events/${route.params.id}`, {})
+
+interface Message {
+  type: string;
+  content: string;
+}
+
+let messages = ref<Array<Message>>([])
+
+</script>
+
 <template>
-	<div class="relative grid gap-6">
+	<div class="container">
+		<ul v-if="messages.length">
+			<li 
+				v-for="message in messages" 
+				:key="message.type"
+				class="bg-black rounded-lg py-1 px-4 text-white bg-opacity-85"
+				:class="[
+					{ 'bg-red': message.type === 'error'},
+					{ 'bg-green': message.type === 'success'}
+				]"
+			>
+				{{ message.content }}
+			</li>
+		</ul>
+		<img v-if="data.event.publicUrl" :src="data.event.publicUrl" alt="">
+		<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}/invites`" class="secondary">Liste des invités</NuxtLink>
+		<div class="grid gap-1">
+			<p>Adresse postale :</p>
+			<p v-if="data.event.address" class="text-black-300">{{ data.event.address }}</p>
+			<p v-else class="text-black-300">Aucune adresse configuré.</p>
+		</div>
+		<div class="grid gap-1">
+			<p>Description :</p>
+			<p v-if="data.event.desc" class="text-black-300">{{ data.event.desc }}</p>
+			<p v-else class="text-black-300">Aucune description configuré.</p>
+		</div>
+		<div class="grid gap-1">
+			<p>Règlement :</p>
+			<p v-if="data.event.rules" class="text-black-300">{{ data.event.rules }}</p>
+			<p v-else class="text-black-300">Aucune adresse configuré.</p>
+		</div>
+		<!-- <div class="grid gap-1">
+			<p>Besoins : </p>
+			<div v-if="event.needs">
+				<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}/needs/${toSlug(need.id_need)}`" v-for="need in needs" :key="need.id_need">
+					<p>{{ need.label }}</p>
+					<p> / {{ need.min_required_number }}</p>
+				</NuxtLink>
+			</div>
+			<p v-else>Aucun besoin ajouté.</p>
+			<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}/needs/newNeed`" class="secondary">Ajouter un besoin</NuxtLink>
+		</div> -->
+		<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}/edit`" class="primary">Modifier</NuxtLink>
+	</div>
+</template>
+	<!-- <div class="relative grid gap-6">
 		<h2>Votre événement</h2>
 		<button class="absolute top-0 right-0 btn-secondary w-fit" @click="more = !more">•••</button>
 		<div v-if="more" @click="more = false" class="fixed inset-0"></div>
@@ -54,9 +113,9 @@
 		</div>
 		<NuxtLink class="btn-primary" to="/events">Retour au événements</NuxtLink>
 	</div>
-</template>
+</template> -->
 
-<script>
+<!-- <script>
 export default {
 	data() {
 		return {
@@ -161,4 +220,4 @@ export default {
 		})
 	},
 }
-</script>
+</script> -->
