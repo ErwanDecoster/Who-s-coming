@@ -11,11 +11,22 @@
 				Demandes d'invités
 			</template>
 		</h2>
-		<button v-if="admin" class="absolute top-0 right-0 btn-secondary w-fit" @click="more = !more">•••</button>
-		<div v-if="more" @click="more = false" class="fixed inset-0"></div>
+		<button v-if="admin" class="absolute top-0 right-0 btn-secondary w-fit" @click="more = !more">
+			•••
+			<span v-if="invitesAsked.length && !more && mode != 2" class="bg-orange text-black w-[16px] h-[16px] absolute -top-1 -right-1 rounded-full text-sm justify-center flex items-center">
+				{{ invitesAsked.length }}
+			</span>
+		</button>
+		<div v-if="more" @click="more = false" class="fixed inset-0">
+		</div>
 		<div v-if="more" class="absolute right-0 top-10 z-10 bg-app rounded-xl">
 			<button @click="mode = 3, more = false" class="btn-secondary rounded-b-none">Sélectionner des invités</button>
-			<button @click="mode = 2, more = false" class="btn-secondary rounded-none">Demandes d'invités</button>
+			<button @click="mode = 2, more = false" class="btn-secondary rounded-none relative">
+				Demandes d'invités
+				<span v-if="invitesAsked.length && mode != 2" class="bg-orange text-black w-[16px] h-[16px] absolute -top-1 -right-1 rounded-full text-sm justify-center flex items-center">
+					{{ invitesAsked.length }}
+				</span>
+			</button>
 			<button @click="mode = 1, more = false" class="btn-secondary rounded-t-none">Modifier la liste</button>
 		</div>
 		<div v-if="formMessages.length" class="grid gap-1">
@@ -25,6 +36,7 @@
 				{{ message.content }}
 			</p>
 		</div>
+		<!-- Demande d'invites mode -->
 		<div v-if="admin && mode == 2" class="grid gap-2">
 			<p v-if="!invitesAsked.length">Aucune demande pour le moment</p>
 			<div v-for="inviteAsked in invitesAsked" class="grid gap-2 bg-white text-black rounded-xl">
@@ -34,37 +46,39 @@
 					<p>{{ inviteAsked.relationship }}</p>
 				</div>
 				<div class="flex">
-					<button class="btn-primary-red rounded-r-none rounded-t-none">Supprimer</button>
-					<button @click="ChangeInviteState(3, inviteAsked)" class="btn-primary-green rounded-l-none rounded-t-none">Accepter et envoyer l'invitation</button>
+					<button @click="ChangeStateAskedInvite(inviteAsked, 6)" class="btn-primary-red rounded-r-none rounded-t-none hover:text-black">Supprimer</button>
+					<button @click="ChangeStateAskedInvite(inviteAsked, 2)" class="btn-primary-green rounded-l-none rounded-t-none hover:text-black">Accepter et envoyer l'invitation</button>
 				</div>
 			</div>
 		</div>
+		<!-- Selection des invites mode -->
 		<div v-if="admin && mode == 3" class="grid gap-2">
-			<p v-if="!invites.length">Aucun invité a selectionner pour le moment</p>
-			<div v-for="invite in invites" class="flex items-center gap-2">
+			<p v-if="event.invitations && !event.invitations.length">Aucun invité a selectionner pour le moment</p>
+			<div v-for="invite in event.invitations" class="flex items-center gap-2">
 				<input type="checkbox" name="" :id="invite.id_invitation" :disabled="invite.id_state == 3" class="delete-selection h-4 w-4">
 				<label :for="invite.id_invitation" class="btn-secondary">
 					{{ invite.first_name }} {{ invite.surname }} ({{ GetState(invite.id_state) }})
 				</label>
 			</div>
-			<button v-if="invites.length" class="btn-primary-red" @click="DeleteSelect()">Supprimer la sélection</button>
+			<button v-if="event.invitations && event.invitations.length" class="btn-primary-red" @click="DeleteSelect()">Supprimer la sélection</button>
 		</div>
+		<!-- Liste des invites mode -->
 		<div v-if="mode == 0" class="grid gap-2">
-			<p v-if="!invites.length">Aucun invité pour le moment</p>
-			<NuxtLink v-for="invite in invites" class="btn-secondary">
+			<p v-if="event.invitations && !event.invitations.length">Aucun invité pour le moment</p>
+			<NuxtLink v-for="invite in event.invitations" class="btn-secondary">
 				{{ invite.first_name }} {{ invite.surname }} ({{ GetState(invite.id_state) }})
 			</NuxtLink>
-			<button v-if="admin && mode == 1" class="btn-secondary" @click="popup.addInvite = true">Ajouter un invité</button>
+			<button v-if="admin && mode == 1 || mode == 0" class="btn-secondary" @click="popup.addInvite = true">Ajouter un invité</button>
 		</div>
 		<div v-if="admin && mode == 1" class="grid gap-2">
-			<p v-if="!invites.length">Aucun invité pour le moment</p>
-			<div v-for="invite in invites" class="flex">
-				<NuxtLink class="btn-primary" :class="{ 'rounded-r-none border-r-0': invite.id_state < 3 }">
-					{{ invite.first_name }} {{ invite.surname }} ({{ GetState(invite.id_state) }}) [{{ invite.code }}]
+			<p v-if="event.invitations && !event.invitations.length">Aucun invité pour le moment</p>
+			<div v-for="invite in event.invitations" class="flex group">
+				<NuxtLink class="btn-primary grow flex flex-wrap justify-between gap-0.5 items-center" :class="{ 'rounded-r-none border-r-0': invite.id_state < 3 || invite.id_state == 6}">
+					<span class="font-bold">{{ invite.first_name }} {{ invite.surname }}</span><span class="text-xs"> ({{ GetState(invite.id_state) }}) </span>
+				    <span class="hidden group-hover:inline-block text-xs">[{{ invite.code }}]</span> 
 				</NuxtLink>
-				<span v-if="invite.id_state < 3" class="bg-black h-full w-1"></span>
-				<button v-if="invite.id_state < 3" @click="SendInvite(invite)" class="btn-primary rounded-l-none border-l-0">
-				<!-- <a v-if="invite.id_state < 3" class="btn-primary rounded-l-none border-l-2 border-black" :href="`sms://${invite.tel}?body=test`" > -->
+				<span v-if="invite.id_state < 3 || invite.id_state == 6" class="bg-black h-full w-1"></span>
+				<button v-if="invite.id_state < 3" @click="SendInvite(invite)" class="btn-primary rounded-l-none border-l-0 w-[80%]">
 					<template v-if="invite.id_state == 1">
 						Envoyer l'invitation
 					</template>
@@ -72,6 +86,7 @@
 						Re envoyer l'invitation
 					</template>
 				</button>
+				<button v-if="invite.id_state == 6" @click="ChangeStateAskedInvite(invite, 2)" class="btn-primary rounded-l-none border-l-0">Accepter et envoyer l'invitation</button>
 			</div>
 			<button v-if="admin && mode == 1" class="btn-secondary" @click="popup.addInvite = true">Ajouter un invité</button>
 		</div>
@@ -94,11 +109,11 @@
 			<form class="grid gap-4" @submit.prevent="AddInviteToEvent()" action="">
 				<div class="grid gap-2">
 					<label for="need_label">Prénom :</label>
-					<input v-model="popup.form.firstName" type="text" name="need_label" id="need_label">
+					<input v-model="popup.form.firstName" type="text" name="need_label" id="need_label" class="capitalize">
 				</div>
 				<div class="grid gap-2">
 					<label for="need_number">Nom :</label>
-					<input v-model="popup.form.surname" type="text" name="need_number" id="need_number">
+					<input v-model="popup.form.surname" type="text" name="need_number" id="need_number" class="capitalize">
 				</div>
 				<div class="grid gap-2">
 					<label for="need_tel">Tél :</label>
@@ -136,25 +151,38 @@ export default {
 		}
 	},
 	methods: {
+		ChangeStateAskedInvite(inviteAsked, newState) {
+			if (newState == 6)
+				this.ChangeInviteState(newState, inviteAsked)
+			if (newState == 2)
+				this.SendInvite(inviteAsked)
+		},
 		SendInvite(invite) {
-			const website = 'http://192.168.1.33:3000'
-			const message = `Salut ${invite.first_name} je t'invite a l'événement ${this.event.name} pour plus d'information et pour accepter l'invitation clique sur ce lien : ${website}/events/${this.$route.params.id_event}/invites/${invite.code}. code d'invitation : ${invite.code.toUpperCase()}`
+			const url = 'https://who-s-coming.vercel.app/'
+			const inviteUrl = `${url}events/${this.$route.params.id_event}/invites/${invite.code}`
+			const message = `Salut ${invite.first_name} je t'invite a l'événement ${this.event.name} code d'invitation : ${invite.code.toUpperCase()}, pour plus d'information, ou pour accepter ou decliné l'invitation clique sur ce lien : ${inviteUrl}`
 			message.replaceAll(' ', '%20')
 			message.replaceAll("'", '%27')
 			const link = `sms://${invite.tel}?body=${message}`
-			this.ChangeInviteStateAndSendInvite(2, invite, link).then (() => {
-				console.log(invite.id_state);
-			})
+			this.ChangeInviteStateAndSendInvite(2, invite, link)
 		},
 		async GetEvent() {
 			try {
 				const supabase = useSupabaseClient();
+				let masque = 6
+				if (this.admin)
+					masque = 5
 				let { data: evenements, error } = await supabase
 				.from('evenements')
-				.select("*")
+				.select('id_evenement, name, desc, rules, address, date, time, invitations ( id_evenement, id_invitation, first_name, surname, tel, id_state, code ), needs ( id_evenement, label, number )')
 				.eq('id_evenement', this.$route.params.id_event)
+				.neq('invitations.id_state', 5)
+				.neq('invitations.id_state', masque)
+				.order('id_state', { foreignTable: 'invitations', ascending: true })
+				.order('first_name', { foreignTable: 'invitations', ascending: true })
 				if (error) throw error
 				this.event = evenements[0];
+				this.GetInvitesAsked()
 			} catch (error) {
 			} finally {
 			}
@@ -169,7 +197,34 @@ export default {
 				.update({ id_state: newState })
 				.eq('id_invitation', invite.id_invitation)
 				if (error) throw error
+				invite.id_state = newState
+				if (this.mode == 2)
+				{
+					this.invitesAsked.splice(this.invitesAsked.indexOf(invite), 1)
+					this.event.invitations.push(invite)
+				}
 				window.location.href = link;
+			} catch (error) {
+				this.formMessages.push({ type: 'error', content: 'Une erreur est survenue le status de votre invitation n\'a pas pu étre mis a jour.' })
+			} finally {
+			}
+		},
+		async ChangeInviteState(newState, invite)
+		{
+			try {
+				this.formMessages = [];
+				const supabase = useSupabaseClient();
+				const { data, error } = await supabase
+				.from('invitations')
+				.update({ id_state: newState })
+				.eq('id_invitation', invite.id_invitation)
+				if (error) throw error
+				this.invitesAsked.splice(this.invitesAsked.indexOf(invite), 1)
+				if (this.mode == 2)
+				{
+					invite.id_state = newState
+					this.event.invitations.push(invite)
+				}
 			} catch (error) {
 				this.formMessages.push({ type: 'error', content: 'Une erreur est survenue le status de votre invitation n\'a pas pu étre mis a jour.' })
 			} finally {
@@ -177,7 +232,7 @@ export default {
 		},
 		SetInviteAskers(id) {
 			this.invitesAsked.forEach(element => {
-				element.asker = this.invites[this.invites.findIndex(invite => invite.id_invitation == element.id_invitation_asker)]
+				element.asker = this.event.invitations[this.event.invitations.findIndex(invite => invite.id_invitation == element.id_invitation_asker)]
 			});
 		},
 		async DeleteRow(id)  {
@@ -188,7 +243,7 @@ export default {
 				.delete()
 				.eq('id_invitation', id)
 				if (error) throw error
-				this.invites.splice(this.invites.findIndex(invite => invite.id_invitation == id), 1); 
+				this.event.invitations.splice(this.event.invitations.findIndex(invite => invite.id_invitation == id), 1); 
 			} catch {
 				this.formMessages.push({ type: 'error', content: 'Une erreur est survenue l\'invité n\'a pas pu étre supprimé de l\'événement.' })
 			}
@@ -211,22 +266,17 @@ export default {
 						id_evenement: this.$route.params.id_event,
 						first_name: this.popup.form.firstName,
 						surname: this.popup.form.surname,
-						tel: this.popup.form.tel,
+						tel: this.popup.form.tel.replaceAll(' ', ''),
 						id_state: 1,
 						code: code,
 					},
 				])
-				const invite = {
-					id_invitation: this.$route.params.id_event,
-					first_name: this.popup.form.firstName,
-					surname: this.popup.form.surname,
-					tel: this.popup.form.tel,
-					id_state: 1,
-					code: code,
-				}
-				this.invites.push(invite);
+				.select()
+				this.event.invitations.push(data[0]);
 				if (error) throw error
-				this.popup.formMessages.push({ type: 'succes', content: 'L\'invité a bien été ajouté a l\'événement.' })
+				this.popup.form.firstName = ''
+				this.popup.form.surname = ''
+				this.popup.form.tel = ''
 				this.popup.addInvite = false;
 			} catch (error) {
 				this.popup.formMessages.push({ type: 'error', content: 'Une erreur est survenue l\'invité n\'a pas pu étre ajouté a l\'événement.' })
@@ -241,14 +291,14 @@ export default {
 				this.popup.formMessages.push({type: 'error', content: 'Le champ "Nom" est requis.'})
 			if (!this.popup.form.tel)
 				this.popup.formMessages.push({type: 'error', content: 'Le champ "Tél" est requis.'})
-			else if (this.popup.form.tel.length != 10)
+			else if (this.popup.form.tel.replaceAll(' ', '').length != 10)
 				this.popup.formMessages.push({type: 'error', content: 'Le numéro de téléphone n\'est pas valide.'})
 			if (this.popup.formMessages.length == 0)
 				return (0)
 			return (1)
 		},
 		GetState(idState) {
-			const State = ['non invité','invité','comfirmé','refusé','demandé']
+			const State = ['non invité','invité','comfirmé','decliné','demandé','demande decliné']
 			return State[idState - 1]
 		},
 		AddInviteToEvent() {
@@ -264,25 +314,10 @@ export default {
 				.select("*")
 				.eq('id_evenement', this.$route.params.id_event)
 				.eq('id_state', 5)
-				.not("id_invitation_asker","is", null);
+				.not("id_invitation_asker","is", null)
 				if (error) throw error
 				this.invitesAsked = invitations;
 				this.SetInviteAskers();
-			} catch (error) {
-			} finally {
-			}
-		},
-		async GetInvites() {
-			try {
-				const supabase = useSupabaseClient();
-				let { data: invitations, error } = await supabase
-				.from('invitations')
-				.select("*")
-				.eq('id_evenement', this.$route.params.id_event)
-				.neq('id_state', 5)
-				if (error) throw error
-				this.invites = invitations;
-				this.GetInvitesAsked();
 			} catch (error) {
 			} finally {
 			}
@@ -293,26 +328,56 @@ export default {
 			this.user = user;
 		},
 	},
-	watch: {
-		// mode(newMode) {
-		// 	localStorage.mode = newMode;
-		// },
-	},
 	mounted() {
 		const user = useSupabaseUser();
+		watchEffect(() => {
+			if (user.value)
+				this.admin = true;
+		})
 		this.GetUser();
-		this.GetInvites();
 		this.GetEvent()
 		if (localStorage.mode) {
 			this.mode = localStorage.mode;
 		}
 		if (localStorage.code)
 			this.userCode = localStorage.code
-		watchEffect(() => {
-			if (user.value)
-				this.admin = true;
-		})
-		// console.log(this.admin);
 	},
+	created() {
+		const metadata = {
+			desc: "Visualisez la liste des invités de l'événement.",
+			url: "https://who-s-coming.vercel.app/",
+			pageName: "Invités - Who's coming",
+			imageDirectory: "cover.png"
+		}
+    	useHead({
+			title: metadata.pageName,
+			htmlAttrs: {
+				lang: 'fr'
+			},
+			meta: [
+				{ charset: 'utf-8' },
+				{ name: 'viewport', content: 'width=device-width, initial-scale=1' },
+				{ name: 'robots', content: 'index, follow'},
+				{ name: 'theme-color', content: '#014979'},
+				{ hid: 'description', name: 'description', content: metadata.desc },
+				{ property: 'og:url', content: metadata.url + this.$route.path },
+				{ property: 'og:type', content: 'article' },
+				{ property: 'og:title', content: metadata.desc },
+				{ property: 'og:description', content: metadata.desc },
+				{ property: 'og:image', content: metadata.url + metadata.imageDirectory },
+				{ property: 'twitter:card', content: 'summary_large_image' },
+				{ property: 'twitter:title', content: metadata.pageName },
+				{ property: 'twitter:description', content: metadata.desc },
+				{ property: 'twitter:image', content: metadata.url + metadata.imageDirectory },
+			],
+			link: [
+				{
+					hid: 'canonical',
+					rel: 'canonical',
+					href: metadata.url + this.$route.path,
+				},
+			],
+		})
+	}
 }
 </script>

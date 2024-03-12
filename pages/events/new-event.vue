@@ -295,9 +295,7 @@ export default {
 					},
 				])
 				if (error) throw error
-				console.log('need 1', this.form.needs);
 				this.form.needs.splice(this.form.needs.indexOf(need), 1)
-				console.log('need 2', this.form.needs);
 				this.formMessages.push({ type: 'succes', content: 'Le nécessaire a bien été ajouté a l\'événement.' })
 				if (this.form.needs.length == 0)
 					navigateTo(`/events/${eventId}`);
@@ -358,13 +356,44 @@ export default {
 		if (localStorage.message) {
 			this.form.message = localStorage.message;
 		}
-		
-		const user = useSupabaseUser();
 		this.GetUser();
-		watchEffect(() => {
-			if (!user.value)
-				navigateTo('/');
-		})
 	},
+	created() {
+		const metadata = {
+			desc: "Créés un nouvel événement choisissez votre date, créé une description et définissez votre règlement.",
+			url: "https://who-s-coming.vercel.app/",
+			pageName: "Nouvel événement - Who's coming",
+			imageDirectory: "cover.png"
+		}
+    	useHead({
+			title: metadata.pageName,
+			htmlAttrs: {
+				lang: 'fr'
+			},
+			meta: [
+				{ charset: 'utf-8' },
+				{ name: 'viewport', content: 'width=device-width, initial-scale=1' },
+				{ name: 'robots', content: 'index, follow'},
+				{ name: 'theme-color', content: '#014979'},
+				{ hid: 'description', name: 'description', content: metadata.desc },
+				{ property: 'og:url', content: metadata.url + this.$route.path },
+				{ property: 'og:type', content: 'article' },
+				{ property: 'og:title', content: metadata.desc },
+				{ property: 'og:description', content: metadata.desc },
+				{ property: 'og:image', content: metadata.url + metadata.imageDirectory },
+				{ property: 'twitter:card', content: 'summary_large_image' },
+				{ property: 'twitter:title', content: metadata.pageName },
+				{ property: 'twitter:description', content: metadata.desc },
+				{ property: 'twitter:image', content: metadata.url + metadata.imageDirectory },
+			],
+			link: [
+				{
+					hid: 'canonical',
+					rel: 'canonical',
+					href: metadata.url + this.$route.path,
+				},
+			],
+		})
+	}
 }
 </script> -->
