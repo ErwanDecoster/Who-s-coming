@@ -1,82 +1,225 @@
 <script setup lang="ts">
-// let events = ref()
-// const fetchEvents = async () => {
-//   const data = await $fetch('/api/events')
-// 	events.value = data.events
-// }
-const { data, pending, error, refresh } = useFetch('/api/events', {
-	onRequestError({ request, options, error }) {
-		console.log(request);
-		console.log(options);
-		console.log(error);
-		// Handle the request errors
-	},
-	onResponse({ request, response, options }) {
-		console.log(request);
-		console.log(response);
-		console.log(options);
-		console.log(data);
-		// events.value = data
-	},
-	onResponseError({ request, response, options }) {
-		console.log(request);
-		console.log(response);
-		console.log(options);
-		// Handle the response errors
-	}
-})
-
+const route = useRoute()
 interface Message {
-  type: string;
-  content: string;
+	type: string;
+	content: string;
+}
+let form = ref({
+	image: File,
+	name: "",
+	address: '',
+	datetime: '',
+	desc: '',
+	rules: '',
+})
+let messages = ref<Array<Message>>([])
+let data: unknown
+try {
+	data = await $fetch(`/api/events/${route.params.id}`, {})
+	form.value.address = data.event.address;
+	form.value.datetime = data.event.datetime;
+	form.value.desc = data.event.desc;
+	form.value.image = data.event.image;
+	form.value.name = data.event.name;
+	form.value.rules = data.event.rules;
+} catch (e) {
+	console.error(e);
+	messages.value.push({type: 'error', content: `L'évènement : "${route.params.name}" id : ${route.params.id} na pas pu etre recuperé.`})
 }
 
-let messages = ref<Array<Message>>([])
+
+const ValidForm = (() => {
+  messages.value = [];
+	if (!form.value.address)
+		messages.value.push({type: 'error', content: 'Une adresse est requise."'})
+  if (!form.value.datetime)
+    messages.value.push({type: 'error', content: 'La date et l\'heure sont requise.'})
+  if (!form.value.name)
+		messages.value.push({type: 'error', content: 'Un nom est requis.'})
+  if (!form.value.desc)
+    messages.value.push({type: 'error', content: 'Une description est requise.'})
+  if (!form.value.name)
+    messages.value.push({type: 'error', content: 'Un titre est requis.'})
+	if (messages.value.length)
+    return (0)
+  return (1)
+})
+
+const UpdateEvent = async () => {
+	if (ValidForm()) {
+		try {
+			const [eventResponse, pictureResponse] = await Promise.all([
+				$fetch(`/api/events/${route.params.id}`, {
+					method: 'put',
+					body: {
+						name: form.value.name,
+						address: form.value.address,
+						datetime: form.value.datetime,
+						desc: form.value.desc,
+						rules: form.value.rules,
+					},
+				}),
+				UploadImage(form.value.image, route.params.id, form.value.name)
+			])
+			console.log(pictureResponse);
+			console.log(eventResponse);
+			
+			if (eventResponse) {
+				messages.value.push({type: 'success', content: "L'évènement a été mis a jour."})
+			}
+			if (pictureResponse && pictureResponse != "done") {
+				messages.value.push({type: 'success', content: "L'image a été mis a jour."})
+			}
+			if (eventResponse && pictureResponse) {
+				navigateTo(`/events/${route.params.id}-${toSlug(route.params.name)}`);
+			}
+		} catch(e) {
+			console.log(e);
+		}
+	}
+}
+
+const UpdateImage = (event) => {
+	form.value.image = event.target.files[0]
+}
+
+const UploadImage = async (files:File, eventId, name) => {
+	console.log(files);
+	if (files) {
+		try {
+			const supabase = useSupabaseClient();
+			const { data, error } = await supabase.storage
+				.from('event_picture')
+				.upload(`${eventId.toString()}`, files)
+			if (error) throw error
+			return data;
+		} catch(e) {
+			messages.value.push({
+				type: 'error',
+				content: `L'image n'as pas pu etre ajouté.`
+			})
+			messages.value.push({
+				type: 'error',
+				content: `statusCode ${e.statusCode}, error : ${e.error}, message: ${message}`
+			})
+			console.log(e);
+			return e;
+		}
+	}
+	return "done"
+}
+
+
 </script>
 
 <template>
 	<div class="container">
-		<ul v-if="messages.length">
-			<li 
-				v-for="message in messages" 
-				:key="message.type"
-				class="bg-black rounded-lg py-1 px-4 text-white bg-opacity-85"
-				:class="[
-					{ 'bg-red': message.type === 'error'},
-					{ 'bg-green': message.type === 'success'}
-				]"
-			>
-				{{ message.content }}
-			</li>
-		</ul>
-		<img src="" alt="">
-		<NuxtLink :to="`/events/${toSlug($route.params.id)}/invites`" class="secondary">Liste des invités</NuxtLink>
-		<div class="grid gap-1">
-			<p>Adresse postale :</p>
-			<p v-if="event.address">{{ event.address }}</p>
-			<p v-else>Aucune adresse configuré.</p>
-		</div>
-		<div class="grid gap-1">
-			<p>Description :</p>
-			<p v-if="event.desc">{{ event.desc }}</p>
-			<p v-else>Aucune description configuré.</p>
-		</div>
-		<div class="grid gap-1">
-			<p>Règlement :</p>
-			<p v-if="event.rules">{{ event.rules }}</p>
-			<p v-else>Aucune adresse configuré.</p>
-		</div>
-		<div class="grid gap-1">
-			<p>Besoins : </p>
-			<div v-if="event.needs">
-				<NuxtLink :to="`/events/${toSlug($route.params.id)}/needs/${toSlug(need.id_need)}`" v-for="need in needs" :key="need.id_need">
-					<p>{{ need.label }}</p>
-					<p> / {{ need.min_required_number }}</p>
-				</NuxtLink>
+		<form @submit.prevent="UpdateEvent()">
+			<ul>
+				<li 
+					v-for="message in messages" 
+					:key="message.type"
+					class="bg-black rounded-lg py-1 px-4 text-white bg-opacity-85"
+					:class="[
+						{ 'bg-red': message.type === 'error'},
+						{ 'bg-green': message.type === 'success'}
+					]"
+				>
+					{{ message.content }}
+				</li>
+			</ul>
+			<div class="input-container">
+				<label class="image-label" for="image">
+					Image :
+					<div class="input-style">
+						<img v-if="data.event.publicUrl" :src="data.event.publicUrl" alt="">
+						<input 
+							@change="UpdateImage($event)"
+							type="file" 
+							accept="image/png, image/jpeg, image/webp"
+							name="image"
+							id="image"
+							class="img"
+							:data-image="data.event.publicUrl"
+						>
+					</div>
+				</label>
 			</div>
-			<p v-else>Aucun besoin ajouté.</p>
-			<NuxtLink :to="`/events/${toSlug($route.params.id)}/needs/newNeed`" class="secondary">Liste des invités</NuxtLink>
-		</div>
-		<NuxtLink :to="`/events/${toSlug($route.params.id)}/edit`" class="primary">Nouvel événement</NuxtLink>
+			<div class="input-container">
+				<label for="name">Titre :</label>
+				<input 
+					type="text" 
+					name="name" 
+					v-model="form.name" 
+					id="name"
+					required
+				>
+			</div>
+			<div class="input-container">
+				<label for="address">Adresse postale :</label>
+				<input 
+					type="text" 
+					name="address" 
+					v-model="form.address" 
+					id="address"
+					required
+				>
+			</div>
+			<div class="input-container">
+				<label for="datetime">Date et heure :</label>
+				<input 
+					type="datetime-local" 
+					name="datetime" 
+					v-model="form.datetime" 
+					id="datetime"
+					required
+				>
+			</div>
+			<div class="input-container">
+				<label for="desc">Description :</label>
+				<div class="grow-wrap" :data-replicated-value="form.desc">
+					<textarea 
+						name="desc" 
+						v-model="form.desc" 
+						id="desc"
+						required
+					/>
+				</div>
+			</div>
+			<div class="input-container">
+				<label for="rules">Règlement :</label>
+				<div class="grow-wrap" :data-replicated-value="form.rules">
+					<textarea 
+						name="rules" 
+						v-model="form.rules" 
+						id="rules"
+					/>
+				</div>
+			</div>
+			<div class="grid gap-1">
+				<p>Besoins : </p>
+				<div class="grid gap-1" v-if="data.event.needs.length">
+					<NuxtLink 
+						v-for="(need, index) in data.event.needs" 
+						:key="need.id_need"
+						:to="`/events/${$route.params.id}-${toSlug($route.params.name)}/needs/${need.id_need}/edit`" 
+						:class="[
+							{ 'rounded-tr-lg hover:*:rounded-tr-xl': index === 0},
+							{ 'rounded-bl-lg hover:*:rounded-bl-xl': index === data.event.needs.length - 1}
+						]"	
+						class="leaf flex justify-between rounded-sm"
+					>
+						<p class="text-base text-black-300">{{ need.label }}</p>
+						<p class="text-base text-black-300"> / {{ need.min_required_number }}</p>
+					</NuxtLink>
+				</div>
+				<p v-else class="text-base text-black-300">Aucun besoin ajouté.</p>
+			</div>
+			<button type="submit" class="primary">
+				Enregistrer
+			</button>
+		</form>
+		<button class="delete">Supprimer l'évènement</button>
+		<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}`" class="tertiary">Annuler</NuxtLink>
 	</div>
 </template>

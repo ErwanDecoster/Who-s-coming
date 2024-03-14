@@ -64,7 +64,7 @@ let messages = ref<Array<Message>>([])
 		<div class="grid gap-1">
 			<p>Règlement :</p>
 			<p v-if="event.rules">{{ event.rules }}</p>
-			<p v-else>Aucune adresse configuré.</p>
+			<p v-else>Aucune règlement configuré.</p>
 		</div>
 		<div class="grid gap-1">
 			<p>Besoins : </p>

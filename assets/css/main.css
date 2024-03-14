@@ -4,18 +4,21 @@ h1 {
 h2 {
   @apply text-xl text-center text-white
 }
+h3 {
+  @apply text-lg text-left text-primary first-letter:uppercase
+}
 .container {
   @apply flex flex-col gap-4 mx-auto max-w-sm p-6 bg-white bg-opacity-70 backdrop-blur-lg rounded-2xl
 }
 
-button, a, .leaf, input[type=submit] {
-  @apply duration-300 text-lg py-1.5 rounded-sm
-}
 img {
   @apply bg-beige rounded-sm rounded-tr-2xl rounded-bl-2xl aspect-video
 }
 form {
   @apply flex flex-col gap-4;
+}
+button, a, input[type=submit], .input-style {
+  @apply duration-300 py-1.5 rounded-sm
 }
 input[type=submit] {
   @apply text-center px-4 bg-primary hover:bg-opacity-90 text-beige rounded-tr-2xl rounded-bl-2xl hover:rounded-tr-3xl hover:rounded-bl-3xl;
@@ -26,7 +29,7 @@ input[type=submit] {
   label {
     @apply text-black-100;
   }
-  input, textarea {
+  input, textarea, .input-style {
     @apply px-2 py-1.5 bg-white hover:bg-beige text-black-300 duration-300 rounded-sm rounded-tr-xl rounded-bl-xl focus:rounded-tr-2xl focus:rounded-bl-2xl;
   }
   .grow-wrap {
@@ -43,8 +46,24 @@ input[type=submit] {
     }
   }
 }
+.image-label div {
+  @apply grid bg-white hover:bg-beige;
+  img, input {
+    @apply bg-transparent rounded-none;
+    grid-area: 1 / 1 / 2 / 2;
+  } 
+  img {
+    @apply bg-transparent w-full h-full pb-12 object-cover aspect-video;
+  }
+  input {
+    @apply mt-auto;
+  }
+}
+
 button, a {
-  @apply text-center px-4 rounded-tr-2xl rounded-bl-2xl hover:rounded-tr-3xl hover:rounded-bl-3xl;
+  &.primary, &.secondary, &.tertiary, &.delete {
+    @apply text-center text-lg px-4 rounded-tr-2xl rounded-bl-2xl hover:rounded-tr-3xl hover:rounded-bl-3xl;
+  }
   &.primary {
     @apply bg-primary hover:bg-opacity-90 text-beige;
   }
@@ -54,8 +73,11 @@ button, a {
   &.tertiary {
     @apply hover:bg-beige text-primary;
   }
+  &.delete {
+    @apply text-red hover:bg-red hover:text-white;
+  }
 }
-/* .leaf {
-  @apply bg-white hover:bg-beige px-2 text-primary rounded-tr-xl rounded-bl-xl focus:rounded-tr-2xl focus:rounded-bl-2xl;
-} */
+.leaf {
+  @apply duration-300 py-1 px-2 bg-white hover:bg-beige text-primary;
+}
 

@@ -58,7 +58,7 @@ let messages = ref<Array<Message>>([])
 		>
 			{{ event.name }}
 		</NuxtLink>
-		<NuxtLink to="/events/newEvent" class="primary">Nouvel événement</NuxtLink>
+		<NuxtLink to="/events/new-event" class="primary">Nouvel événement</NuxtLink>
 	</div>
 </template>
 
