@@ -66,83 +66,19 @@ try {
 			</div>
 			<div v-if="data.asked_invites_by_state[5]" class="grid gap-1">
 				<p>Demandes en attente - {{ data.asked_invites_by_state[5].length }} {{ (data.asked_invites_by_state[5].length > 1) ? 'demandes' : 'demande' }} : </p>
-				<div class="grid gap-1">
-					<div 
-						v-for="(invite, index) in data.asked_invites_by_state[5]" 
-						:key="invite.id_invitation"
-						:class="[
-							{ 'rounded-tr-lg hover:rounded-tr-xl': index === 0},
-							{ 'rounded-bl-lg hover:rounded-bl-xl': index === data.asked_invites_by_state[5].length - 1}
-						]"	
-						class="duration-300 p-0 overflow-hidden bg-white hover:bg-beige text-primary grid rounded-sm"
-					>
-						<NuxtLink 
-							:to="`/events/${$route.params.id}-${toSlug($route.params.name)}/invites/${invite.id_invitation}`" 
-							class="text-base py-1 px-2 w-full text-black-300"
-						>
-							{{ invite.first_name }} {{ invite.surname }} <span v-if="invite.asked_by">via {{ invite.asked_by.first_name }} {{ invite.asked_by.surname }}</span>
-						</NuxtLink>
-						<div class="grid grid-cols-2">
-							<button class="bg-primary rounded-r-none text-white">
-								Refuser
-							</button>
-							<button class="bg-secondary rounded-l-none text-white">
-								Envoyer
-							</button>
-						</div>
-					</div>
-				</div>
+				<AskedInvitesView :invites="data.asked_invites_by_state[5]" :eventUrl="`${$route.params.id}-${toSlug($route.params.name)}`" />
 			</div>
 			<div v-if="data.asked_invites_by_state[2]" class="grid gap-1">
 				<p>Demande confirmé en attente - {{ data.asked_invites_by_state[2].length }} {{ (data.asked_invites_by_state[2].length > 1) ? 'demandes' : 'demande' }} : </p>
-				<div class="grid gap-1">
-					<NuxtLink 
-						v-for="(invite, index) in data.asked_invites_by_state[2]" 
-						:key="invite.id_invitation"
-						:to="`/events/${$route.params.id}-${toSlug($route.params.name)}/invites/${invite.id_invitation}`" 
-						:class="[
-							{ 'rounded-tr-lg hover:*:rounded-tr-xl': index === 0},
-							{ 'rounded-bl-lg hover:*:rounded-bl-xl': index === data.asked_invites_by_state[2].length - 1}
-						]"	
-						class="leaf flex justify-between rounded-sm"
-					>
-						<p class="text-base text-black-300">{{ invite.first_name }} {{ invite.surname }} <span v-if="invite.asked_by">via {{ invite.asked_by.first_name }} {{ invite.asked_by.surname }}</span></p>
-					</NuxtLink>
-				</div>
+				<InvitesView :invites="data.asked_invites_by_state[2]" :eventUrl="`${$route.params.id}-${toSlug($route.params.name)}`" />
 			</div>
 			<div v-if="data.asked_invites_by_state[3]" class="grid gap-1">
 				<p>Demande accepées confirmé - {{ data.asked_invites_by_state[3].length }} {{ (data.asked_invites_by_state[3].length > 1) ? 'demandes' : 'demande' }} : </p>
-				<div class="grid gap-1">
-					<NuxtLink 
-						v-for="(invite, index) in data.asked_invites_by_state[3]" 
-						:key="invite.id_invitation"
-						:to="`/events/${$route.params.id}-${toSlug($route.params.name)}/invites/${invite.id_invitation}`" 
-						:class="[
-							{ 'rounded-tr-lg hover:*:rounded-tr-xl': index === 0},
-							{ 'rounded-bl-lg hover:*:rounded-bl-xl': index === data.asked_invites_by_state[3].length - 1}
-						]"	
-						class="leaf flex justify-between rounded-sm"
-					>
-						<p class="text-base text-black-300">{{ invite.first_name }} {{ invite.surname }} <span v-if="invite.asked_by">via {{ invite.asked_by.first_name }} {{ invite.asked_by.surname }}</span></p>
-					</NuxtLink>
-				</div>
+				<InvitesView :invites="data.asked_invites_by_state[3]" :eventUrl="`${$route.params.id}-${toSlug($route.params.name)}`" />
 			</div>
 			<div v-if="data.asked_invites_by_state[6]" class="grid gap-1">
 				<p>Demande declinées - {{ data.asked_invites_by_state[6].length }} {{ (data.asked_invites_by_state[6].length > 1) ? 'demandes' : 'demande' }} : </p>
-				<div class="grid gap-1">
-					<NuxtLink 
-						v-for="(invite, index) in data.asked_invites_by_state[6]" 
-						:key="invite.id_invitation"
-						:to="`/events/${$route.params.id}-${toSlug($route.params.name)}/invites/${invite.id_invitation}`" 
-						:class="[
-							{ 'rounded-tr-lg hover:*:rounded-tr-xl': index === 0},
-							{ 'rounded-bl-lg hover:*:rounded-bl-xl': index === data.asked_invites_by_state[6].length - 1}
-						]"	
-						class="leaf flex justify-between rounded-sm"
-					>
-						<p class="text-base text-black-300">{{ invite.first_name }} {{ invite.surname }} <span v-if="invite.asked_by">via {{ invite.asked_by.first_name }} {{ invite.asked_by.surname }}</span></p>
-					</NuxtLink>
-				</div>
+				<InvitesView :invites="data.asked_invites_by_state[6]" :eventUrl="`${$route.params.id}-${toSlug($route.params.name)}`" />
 			</div>
 			<div v-if="data.invite.id_state === 5" class="duration-300 p-0 overflow-hidden bg-white hover:bg-beige text-primary grid rounded-sm rounded-tr-lg hover:rounded-tr-xl rounded-bl-lg hover:rounded-bl-xl">
 				<p class="text-base py-1 px-2 w-full text-black-300">
