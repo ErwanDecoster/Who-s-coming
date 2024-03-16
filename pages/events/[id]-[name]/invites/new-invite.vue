@@ -10,7 +10,7 @@ let messages = ref<Array<Message>>([])
 let form = ref({
 	first_name: '',
 	surname: '',
-	contryCode: '33',
+	countryCode: '33',
 	tel: '',
 })
 
@@ -22,21 +22,14 @@ const ValidForm = (() => {
     messages.value.push({type: 'error', content: 'Un Nom est requis.'})
   if (!form.value.tel)
     messages.value.push({type: 'error', content: 'Un numéro de téléphone valide est requis.'})
-	else if (form.value.contryCode === '33' && FormatTel(form.value.tel, form.value.contryCode).length != 12)
+	else if (form.value.countryCode === '33' && formatPhoneNumberForDatabase(form.value.tel, form.value.countryCode).length != 12)
 		messages.value.push({type: 'error', content: 'Un numéro de téléphone valide est requis, par exemple : 06 39 98 68 13 ou 6 39 98 68 13.'})
 	if (messages.value.length)
     return (0)
   return (1)
 })
 
-const FormatTel = (tel: string, cc: string) => {
-	let formated = tel.replace(/^0/, '')
-	formated = cc + ' ' + formated.replace(/[ _-]/g, '')
-	return formated;
-}
-
 const AddInvite = async () => {
-
 	if (ValidForm()) {	
 		try {
 			const data = await $fetch(`/api/events/${route.params.id}/invites`, {
@@ -44,7 +37,7 @@ const AddInvite = async () => {
 				body: {
 					first_name: form.value.first_name,
 					surname: form.value.surname,
-					tel: form.value.tel,
+					tel: formatPhoneNumberForDatabase(form.value.tel, form.value.countryCode) ,
 				},
 			}).then((data) => {
 				console.log(data);
@@ -112,7 +105,7 @@ const AddInvite = async () => {
 					<select 
 						autocomplete="tel-country-code" 
 						name="comptry-code" 
-						v-model="form.contryCode"
+						v-model="form.countryCode"
 						id=""
 					>
 						<option value="33">FR (+33)</option>

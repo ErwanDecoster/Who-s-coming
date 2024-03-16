@@ -8,8 +8,9 @@ interface Message {
 }
 let form = ref({
 	first_name: '',
-	surname: 1,
-	tel: 1,
+	surname: '',
+	tel: '',
+	countryCode: '',
 })
 let comfirmDelete = ref()
 
@@ -19,7 +20,10 @@ try {
 	data = await $fetch(`/api/events/${route.params.id}/invites/${route.params.id_invite}`, {})
 	form.value.first_name = data.invite.first_name;
 	form.value.surname = data.invite.surname;
-	form.value.tel = data.invite.tel;
+	form.value.tel = formatPhoneNumberForDisplay(data.invite.tel).tel;
+	form.value.countryCode = formatPhoneNumberForDisplay(data.invite.tel).cc;
+	console.log(formatPhoneNumberForDisplay(data.invite.tel));
+	
 } catch (e) {
 	console.error(e);
 	messages.value.push({type: 'error', content: `L'évènement : "${route.params.name}" id : ${route.params.id} na pas pu etre recuperé.`})
@@ -33,6 +37,8 @@ const ValidForm = (() => {
     messages.value.push({type: 'error', content: 'Un Nom est requis.'})
   if (!form.value.tel)
     messages.value.push({type: 'error', content: 'Un numéro de téléphone valide est requis.'})
+	else if (form.value.countryCode === '33' && formatPhoneNumberForDatabase(form.value.tel, form.value.countryCode).length != 12)
+		messages.value.push({type: 'error', content: 'Un numéro de téléphone valide est requis, par exemple : 06 39 98 68 13 ou 6 39 98 68 13.'})
 	if (messages.value.length)
     return (0)
   return (1)
@@ -46,7 +52,7 @@ const UpdateInvite = async () => {
 				body: {
 					first_name: form.value.first_name,
 					surname: form.value.surname,
-					tel: form.value.tel,
+					tel: formatPhoneNumberForDatabase(form.value.tel, form.value.countryCode),
 				},
 			})
 			if (data) {
@@ -124,14 +130,36 @@ const DeleteInvite = async () => {
 			</div>
 			<div class="input-container">
 				<label for="tel">Téléphone :</label>
-				<input 
-					type="tel" 
-					name="tel" 
-					v-model="form.tel" 
-					id="tel"
-					:min="form.tel"
-					required
-				>
+				<div class="flex gap-1 relative">
+					<select 
+						autocomplete="tel-country-code" 
+						name="comptry-code" 
+						v-model="form.countryCode"
+						id=""
+					>
+						<option value="33">FR (+33)</option>
+						<option value="44">GB (+44)</option>
+						<option value="49">DE (+49)</option>
+						<option value="39">IT (+39)</option>
+						<option value="34">ES (+34)</option>
+						<option value="7">RU (+7)</option>
+						<option value="30">GR (+30)</option>
+						<option value="41">CH (+41)</option>
+						<option value="31">NL (+31)</option>
+						<option value="46">SE (+46)</option>
+						<option value=""></option>
+					</select>
+					<input 
+						type="tel" 
+						name="tel" 
+						v-model="form.tel" 
+						placeholder="06 39 98 68 13"
+						id="tel"
+						autocomplete="tel-national"
+						class="flex-1"
+						required
+					>
+				</div>
 			</div>
 			<button type="submit" class="primary">
 				Enregistrer
@@ -142,7 +170,7 @@ const DeleteInvite = async () => {
 				Comfirmer la suppresion
 			</template>
 			<template v-else>
-				Supprimer le besoin
+				Supprimer l'invité
 			</template>
 		</button>
 		<button @click="$router.back()" class="tertiary">Annuler</button>

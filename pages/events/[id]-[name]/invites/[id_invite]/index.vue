@@ -14,7 +14,6 @@ try {
 	messages.value.push({type: 'error', content: `L'invitation id : "${route.params.id_invite}" de l'évènement "${route.params.name}" id : ${route.params.id} na pas pu etre recuperé.`})
 }
 
-
 </script>
 
 <template>
@@ -44,11 +43,20 @@ try {
 			</h3>
 			<div class="grid gap-1">
 				<p>Téléphone :</p>
-				<p class="text-base text-black-300" v-if="data.invite.tel">{{ data.invite.tel }}</p>
+				<p class="text-base text-black-300" v-if="data.invite.tel">
+				 	<span v-if="formatPhoneNumberForDisplay(data.invite.tel).cc">
+						+{{ formatPhoneNumberForDisplay(data.invite.tel).cc }}
+					</span>	
+					{{ formatPhoneNumberForDisplay(data.invite.tel).tel.replace(/^0/, '') }}
+					<a class="secondary-inline ml-1" :href="`sms:+${data.invite.tel.replace(' ', '')}`">Ouvrir Messages</a>
+				</p>
 			</div>
 			<div class="grid gap-1">
 				<p>Code :</p>
-				<p class="text-base text-black-300 uppercase" v-if="data.invite.code">{{ data.invite.code }}</p>
+				<p class="text-base text-black-300 uppercase" v-if="data.invite.code">
+					{{ data.invite.code }}
+					<CopyButton :copy-text="data.invite.code" />
+				</p>
 			</div>
 			<div class="grid gap-1">
 				<p>Besoins lié - {{ data.invite.need_invitations.length }} {{ (data.invite.need_invitations.length < 1) ? 'besoins' : 'besoin' }} : </p>
