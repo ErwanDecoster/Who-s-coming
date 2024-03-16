@@ -4,9 +4,29 @@ const props = defineProps({
   invites: Array,
 })
 
-const SendInvite = ((eventId, inviteId, newState) => {
-  updateInviteState(eventId, inviteId, newState).then(() => {
+const OpenMessageApp = ((first_name, surname, code, tel, eventName) => {
+  const url = 'https://who-s-coming.vercel.app/'
+  const inviteUrl = `${url}events/${props.eventUrl}/invites/${code}`
+  const message = `Salut ${first_name} je t'invite a l'événement ${eventName} code d'invitation : ${code.toUpperCase()}, pour plus d'information, ou pour accepter ou decliné l'invitation clique sur ce lien : ${inviteUrl}`
+  message.replaceAll(' ', '%20')
+  message.replaceAll("'", '%27')
+  const link = `sms://${tel}?body=${message}`
+  // secure if message app not opened
+  window.location.href = link;
+})
+
+const SendInvite = ((invite, newState) => {
+  const data = updateInviteState(invite.id_evenement, invite.id_invitation, newState).then((data) => {
     // open message app
+    console.log(data);
+    if (data === true) {
+      // update invites liste
+      OpenMessageApp(invite.first_name, invite.surname, invite.code, invite.tel, props.eventUrl)
+    }
+    else {
+      // find a way to show an error message
+      console.error('Invite state not updated');
+    }
   })
 })
 
@@ -36,7 +56,7 @@ const SendInvite = ((eventId, inviteId, newState) => {
         </span>
       </NuxtLink>
       <button 
-        @click="SendInvite(invite.id_evenement, invite.id_invitation, 2)" 
+        @click="SendInvite(invite, 2)" 
         class="bg-secondary px-1.5 text-white"
       >
         Envoyer

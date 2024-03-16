@@ -47,6 +47,10 @@ try {
 				<p class="text-base text-black-300" v-if="data.invite.tel">{{ data.invite.tel }}</p>
 			</div>
 			<div class="grid gap-1">
+				<p>Code :</p>
+				<p class="text-base text-black-300 uppercase" v-if="data.invite.code">{{ data.invite.code }}</p>
+			</div>
+			<div class="grid gap-1">
 				<p>Besoins lié - {{ data.invite.need_invitations.length }} {{ (data.invite.need_invitations.length < 1) ? 'besoins' : 'besoin' }} : </p>
 				<div class="grid gap-1" v-if="data.invite.need_invitations.length">
 					<NuxtLink 

@@ -15,11 +15,37 @@ export default eventHandler(async (event) => {
       throw new Error('Impossible de récupére les invités.')
     }
 
-    function compareIdInvitationAsker(a, b) {
+    // function compareStateChangeDate(a, b) {
+    //   if (a.state_change_date < b.state_change_date) {
+    //     return 1;
+    //   }
+    //   if (a.state_change_date > b.state_change_date) {
+    //     return -1;
+    //   }
+    //   return 0;
+    // }
+
+    // function compareIdInvitationAsker(a, b) {
+    //   if (a.id_invitation_asker < b.id_invitation_asker) {
+    //     return -1;
+    //   }
+    //   if (a.id_invitation_asker > b.id_invitation_asker) {
+    //     return 1;
+    //   }
+    //   return 0;
+    // }
+
+    function compareInvites(a, b) {
       if (a.id_invitation_asker < b.id_invitation_asker) {
         return -1;
       }
       if (a.id_invitation_asker > b.id_invitation_asker) {
+        return 1;
+      }
+      if (a.state_change_date < b.state_change_date) {
+        return -1;
+      }
+      if (a.state_change_date > b.state_change_date) {
         return 1;
       }
       return 0;
@@ -27,7 +53,8 @@ export default eventHandler(async (event) => {
 
     let invitesByState = {}
 
-    invitesData.sort(compareIdInvitationAsker)
+    invitesData.sort(compareInvites)
+    // invitesData.sort(compareIdInvitationAsker)
 
     invitesData.forEach(invite => {
       if (!invitesByState.hasOwnProperty(invite.id_state)) {
@@ -41,8 +68,6 @@ export default eventHandler(async (event) => {
       invitesByState[invite.id_state].push(invite);
     })
 
-    // invitesData.sort(compareIdState)
-
     const result = {
       invitesByState: {
         ...invitesByState
@@ -53,6 +78,6 @@ export default eventHandler(async (event) => {
     console.log(e);
     return (e)
   }
-  
+
 
 })

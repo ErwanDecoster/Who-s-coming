@@ -1,82 +1,148 @@
 <script setup lang="ts">
-// let events = ref()
-// const fetchEvents = async () => {
-//   const data = await $fetch('/api/events')
-// 	events.value = data.events
-// }
-const { data, pending, error, refresh } = useFetch('/api/events', {
-	onRequestError({ request, options, error }) {
-		console.log(request);
-		console.log(options);
-		console.log(error);
-		// Handle the request errors
-	},
-	onResponse({ request, response, options }) {
-		console.log(request);
-		console.log(response);
-		console.log(options);
-		console.log(data);
-		// events.value = data
-	},
-	onResponseError({ request, response, options }) {
-		console.log(request);
-		console.log(response);
-		console.log(options);
-		// Handle the response errors
-	}
-})
-
 interface Message {
-  type: string;
+	type: string;
   content: string;
 }
 
+const route = useRoute()
 let messages = ref<Array<Message>>([])
+
+let form = ref({
+	first_name: '',
+	surname: '',
+	contryCode: '33',
+	tel: '',
+})
+
+const ValidForm = (() => {
+  messages.value = [];
+	if (!form.value.first_name)
+		messages.value.push({type: 'error', content: 'Un Prénom est requis.'})
+  if (!form.value.surname)
+    messages.value.push({type: 'error', content: 'Un Nom est requis.'})
+  if (!form.value.tel)
+    messages.value.push({type: 'error', content: 'Un numéro de téléphone valide est requis.'})
+	else if (form.value.contryCode === '33' && FormatTel(form.value.tel, form.value.contryCode).length != 12)
+		messages.value.push({type: 'error', content: 'Un numéro de téléphone valide est requis, par exemple : 06 39 98 68 13 ou 6 39 98 68 13.'})
+	if (messages.value.length)
+    return (0)
+  return (1)
+})
+
+const FormatTel = (tel: string, cc: string) => {
+	let formated = tel.replace(/^0/, '')
+	formated = cc + ' ' + formated.replace(/[ _-]/g, '')
+	return formated;
+}
+
+const AddInvite = async () => {
+
+	if (ValidForm()) {	
+		try {
+			const data = await $fetch(`/api/events/${route.params.id}/invites`, {
+				method: 'post',
+				body: {
+					first_name: form.value.first_name,
+					surname: form.value.surname,
+					tel: form.value.tel,
+				},
+			}).then((data) => {
+				console.log(data);
+				if (data != true) throw new Error
+				messages.value.push({
+					type: 'success',
+					content: "L'invité a été ajouté avec succès."
+				})
+				navigateTo(`/events/${route.params.id}-${toSlug(route.params.name)}/invites`);
+			})
+		} catch(e) {
+			messages.value.push({
+				type: 'error',
+				content: "L'invité n'as pas pu étre ajouté."
+			})
+			console.log(e);
+		}
+	}
+}
 </script>
 
 <template>
 	<div class="container">
-		<ul v-if="messages.length">
-			<li 
-				v-for="message in messages" 
-				:key="message.type"
-				class="bg-black rounded-lg py-1 px-4 text-white bg-opacity-85"
-				:class="[
-					{ 'bg-red': message.type === 'error'},
-					{ 'bg-green': message.type === 'success'}
-				]"
-			>
-				{{ message.content }}
-			</li>
-		</ul>
-		<img src="" alt="">
-		<NuxtLink :to="`/events/${toSlug($route.params.id)}/invites`" class="secondary">Liste des invités</NuxtLink>
-		<div class="grid gap-1">
-			<p>Adresse postale :</p>
-			<p v-if="event.address">{{ event.address }}</p>
-			<p v-else>Aucune adresse configuré.</p>
-		</div>
-		<div class="grid gap-1">
-			<p>Description :</p>
-			<p v-if="event.desc">{{ event.desc }}</p>
-			<p v-else>Aucune description configuré.</p>
-		</div>
-		<div class="grid gap-1">
-			<p>Règlement :</p>
-			<p v-if="event.rules">{{ event.rules }}</p>
-			<p v-else>Aucune adresse configuré.</p>
-		</div>
-		<div class="grid gap-1">
-			<p>Besoins : </p>
-			<div v-if="event.needs">
-				<NuxtLink :to="`/events/${toSlug($route.params.id)}/needs/${toSlug(need.id_need)}`" v-for="need in needs" :key="need.id_need">
-					<p>{{ need.label }}</p>
-					<p> / {{ need.min_required_number }}</p>
-				</NuxtLink>
+		<h3>Ajouter un invité</h3>
+		<form @submit.prevent="AddInvite()">
+			<ul v-if="messages.length">
+				<li 
+					v-for="message in messages" 
+					:key="message.type"
+					class="bg-black rounded-lg py-1 px-4 text-white bg-opacity-85"
+					:class="[
+						{ 'bg-red': message.type === 'error'},
+						{ 'bg-green': message.type === 'success'}
+					]"
+				>
+					{{ message.content }}
+				</li>
+			</ul>
+			<div class="input-container">
+				<label for="first_name">Prénom :</label>
+				<input 
+					type="text" 
+					name="first_name" 
+					v-model="form.first_name" 
+					placeholder="Jean"
+					id="first_name"
+					required
+				>
 			</div>
-			<p v-else>Aucun besoin ajouté.</p>
-			<NuxtLink :to="`/events/${toSlug($route.params.id)}/needs/newNeed`" class="secondary">Liste des invités</NuxtLink>
-		</div>
-		<NuxtLink :to="`/events/${toSlug($route.params.id)}/edit`" class="primary">Nouvel événement</NuxtLink>
+			<div class="input-container">
+				<label for="surname">Nom :</label>
+				<input 
+					type="text" 
+					name="surname" 
+					v-model="form.surname" 
+					placeholder="Dupont"
+					id="surname"
+					min="1"
+					required
+				>
+			</div>
+			<div class="input-container">
+				<label for="tel">Téléphone :</label>
+				<div class="flex gap-1 relative">
+					<select 
+						autocomplete="tel-country-code" 
+						name="comptry-code" 
+						v-model="form.contryCode"
+						id=""
+					>
+						<option value="33">FR (+33)</option>
+						<option value="44">GB (+44)</option>
+						<option value="49">DE (+49)</option>
+						<option value="39">IT (+39)</option>
+						<option value="34">ES (+34)</option>
+						<option value="7">RU (+7)</option>
+						<option value="30">GR (+30)</option>
+						<option value="41">CH (+41)</option>
+						<option value="31">NL (+31)</option>
+						<option value="46">SE (+46)</option>
+						<option value=""></option>
+					</select>
+					<input 
+						type="tel" 
+						name="tel" 
+						v-model="form.tel" 
+						placeholder="06 39 98 68 13"
+						id="tel"
+						autocomplete="tel-national"
+						class="flex-1"
+						required
+					>
+				</div>
+			</div>
+			<button type="submit" class="primary">
+				Ajouter
+			</button>
+		</form>
+		<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}/invites`" class="tertiary">Annuler</NuxtLink>
 	</div>
 </template>

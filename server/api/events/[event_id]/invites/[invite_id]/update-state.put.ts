@@ -20,15 +20,18 @@ export default eventHandler(async (event) => {
     .from('invitations')
     .update({ 
       id_state: body.id_state,
+      state_change_date: new Date,
     })
     .eq('id_evenement', event_id)
-    .eq('id_invite', invite_id)
+    .eq('id_invitation', invite_id)
     .select()
-  
-    if (error) throw new Error("Le besoin n'as pas pu étre mis a jour.")
-    return (evenements)
+    console.log(error);
+    
+    if (error) throw error
+    return true
   } catch(e) {
     console.log(e);
+    console.log('e');
     return (e)
   }
 })

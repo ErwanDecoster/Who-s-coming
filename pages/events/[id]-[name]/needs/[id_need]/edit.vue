@@ -90,8 +90,9 @@ const DeleteNeed = async () => {
 
 <template>
 	<div class="container">
+		<h3>Modifier le besoin</h3>
 		<form @submit.prevent="UpdateNeed()">
-			<ul>
+			<ul v-if="messages.length">
 				<li 
 					v-for="message in messages" 
 					:key="message.type"
