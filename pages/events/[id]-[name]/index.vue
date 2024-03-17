@@ -1,20 +1,17 @@
 <script setup lang="ts">
 const route = useRoute()
-interface Message {
-	type: string;
-	content: string;
-}
 
 let messages = ref<Array<Message>>([])
-let data: unknown
+let data: {
+	event: event;
+	publicUrl: string;
+}
 try {
 	data = await $fetch(`/api/events/${route.params.id}`, {})
 } catch (e) {
 	console.error(e);
 	messages.value.push({type: 'error', content: `L'évènement : "${route.params.name}" id : ${route.params.id} na pas pu etre recuperé.`})
 }
-
-
 </script>
 
 <template>
@@ -33,7 +30,7 @@ try {
 			</li>
 		</ul>
 		<template v-if="data?.event">
-			<img v-if="data.event.publicUrl" :src="data.event.publicUrl" alt="">
+			<img v-if="data.publicUrl" :src="data.publicUrl" alt="">
 			<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}/invites`" class="secondary">Liste des invités</NuxtLink>
 			<div class="grid gap-1">
 				<p>Adresse postale :</p>

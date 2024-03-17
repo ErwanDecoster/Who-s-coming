@@ -4,34 +4,16 @@
 //   const data = await $fetch('/api/events')
 // 	events.value = data.events
 // }
-const { data, pending, error, refresh } = useFetch('/api/events', {
-	onRequestError({ request, options, error }) {
-		console.log(request);
-		console.log(options);
-		console.log(error);
-		// Handle the request errors
-	},
-	onResponse({ request, response, options }) {
-		console.log(request);
-		// console.log(response);
-		// console.log(options);
-		// console.log(data);
-		// events.value = data
-	},
-	onResponseError({ request, response, options }) {
-		console.log(request);
-		console.log(response);
-		console.log(options);
-		// Handle the response errors
-	}
-})
-
-interface Message {
-  type: string;
-  content: string;
-}
-
 let messages = ref<Array<Message>>([])
+let data: {
+	events: event[];
+}
+try {
+	data = await $fetch(`/api/events/`, {})
+} catch (e) {
+	console.error(e);
+	messages.value.push({type: 'error', content: `Vos évènements non pas pu etre recuperé.`})
+}
 </script>
 
 <template>
@@ -49,7 +31,7 @@ let messages = ref<Array<Message>>([])
 				{{ message.content }}
 			</li>
 		</ul>
-		<!-- <p v-if="events && !data.length">Aucun événement pour le moment.</p> -->
+		<p v-if="!data.events.length">Aucun événement pour le moment.</p>
 		<NuxtLink 
 			v-for="event in data?.events" 
 			:key="event.id_evenement" 

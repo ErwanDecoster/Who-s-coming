@@ -1,9 +1,5 @@
 <script setup lang="ts">
 const route = useRoute()
-interface Message {
-	type: string;
-	content: string;
-}
 let form = ref({
 	image: File,
 	name: "",
@@ -13,20 +9,23 @@ let form = ref({
 	rules: '',
 })
 let messages = ref<Array<Message>>([])
-let data: unknown
+let data: {
+	event: event;
+	publicUrl: string;
+}
 try {
 	data = await $fetch(`/api/events/${route.params.id}`, {})
 	form.value.address = data.event.address;
-	form.value.datetime = data.event.datetime;
+	console.log(data.event.datetime);
+	
+	form.value.datetime = new Date(data.event.datetime).toISOString().slice(0, 16)
 	form.value.desc = data.event.desc;
-	form.value.image = data.event.image;
 	form.value.name = data.event.name;
 	form.value.rules = data.event.rules;
 } catch (e) {
 	console.error(e);
 	messages.value.push({type: 'error', content: `L'évènement : "${route.params.name}" id : ${route.params.id} na pas pu etre recuperé.`})
 }
-
 
 const ValidForm = (() => {
   messages.value = [];
@@ -71,7 +70,7 @@ const UpdateEvent = async () => {
 				messages.value.push({type: 'success', content: "L'image a été mis a jour."})
 			}
 			if (eventResponse && pictureResponse) {
-				navigateTo(`/events/${route.params.id}-${toSlug(route.params.name)}`);
+				navigateTo(`/events/${route.params.id}-${toSlug(route.params.name[0])}`);
 			}
 		} catch(e) {
 			console.log(e);
@@ -83,7 +82,7 @@ const UpdateImage = (event) => {
 	form.value.image = event.target.files[0]
 }
 
-const UploadImage = async (files:File, eventId, name) => {
+const UploadImage = async (files:File, eventId: number, name: string) => {
 	console.log(files);
 	if (files) {
 		try {
@@ -132,7 +131,7 @@ const UploadImage = async (files:File, eventId, name) => {
 				<label class="image-label" for="image">
 					Image :
 					<div class="input-style">
-						<img v-if="data.event.publicUrl" :src="data.event.publicUrl" alt="">
+						<img v-if="data.publicUrl" :src="data.publicUrl" alt="">
 						<input 
 							@change="UpdateImage($event)"
 							type="file" 
@@ -140,7 +139,7 @@ const UploadImage = async (files:File, eventId, name) => {
 							name="image"
 							id="image"
 							class="img"
-							:data-image="data.event.publicUrl"
+							:data-image="data.publicUrl"
 						>
 					</div>
 				</label>

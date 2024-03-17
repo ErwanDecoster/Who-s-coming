@@ -1,12 +1,12 @@
 <script setup lang="ts">
 const route = useRoute()
-interface Message {
-	type: string;
-	content: string;
-}
 
 let messages = ref<Array<Message>>([])
-let data: unknown
+let data: {
+	invite: invite,
+	asked_invites_by_state: asked_invites_by_state,
+	asker_invite: invite
+}
 try {
 	data = await $fetch(`/api/events/${route.params.id}/invites/${route.params.id_invite}`, {})
 } catch (e) {
@@ -47,8 +47,8 @@ try {
 				 	<span v-if="formatPhoneNumberForDisplay(data.invite.tel).cc">
 						+{{ formatPhoneNumberForDisplay(data.invite.tel).cc }}
 					</span>	
-					{{ formatPhoneNumberForDisplay(data.invite.tel).tel.replace(/^0/, '') }}
-					<a class="secondary-inline ml-1" :href="`sms:+${data.invite.tel.replace(' ', '')}`">Ouvrir Messages</a>
+					{{ formatPhoneNumberForDisplay(data.invite.tel).cc ? formatPhoneNumberForDisplay(data.invite.tel).tel.replace(/^0/, '') : formatPhoneNumberForDisplay(data.invite.tel).tel }}
+					<a class="secondary-inline ml-1" :href="`sms:${(formatPhoneNumberForDisplay(data.invite.tel).cc) ? '+' + data.invite.tel.replace(' ', '') : data.invite.tel}`">Ouvrir Messages</a>
 				</p>
 			</div>
 			<div class="grid gap-1">
@@ -64,33 +64,33 @@ try {
 					<NuxtLink 
 						v-for="(need_invitation, index) in data.invite.need_invitations" 
 						:key="need_invitation.id"
-						:to="`/events/${$route.params.id}-${toSlug($route.params.name)}/needs/${need_invitation.needs.id_need}`" 
+						:to="`/events/${$route.params.id}-${toSlug($route.params.name)}/needs/${need_invitation.need.id_need}`" 
 						:class="[
 							{ 'rounded-tr-lg hover:rounded-tr-xl': index === 0},
 							{ 'rounded-bl-lg hover:rounded-bl-xl': index === data.invite.need_invitations.length - 1}
 						]"	
 						class="leaf flex justify-between rounded-sm"
 					>
-						<p class="text-base text-black-300">{{ need_invitation.needs.label }}</p>
+						<p class="text-base text-black-300">{{ need_invitation.need.label }}</p>
 					</NuxtLink>
 				</div>
 				<p v-else class="text-base text-black-300">Aucun besoin n'est associer a cette invité.</p>
 			</div>
 			<div v-if="data.asked_invites_by_state[5]" class="grid gap-1">
 				<p>Demandes en attente - {{ data.asked_invites_by_state[5].length }} {{ (data.asked_invites_by_state[5].length > 1) ? 'demandes' : 'demande' }} : </p>
-				<AskedInvitesView :invites="data.asked_invites_by_state[5]" :eventUrl="`${$route.params.id}-${toSlug($route.params.name)}`" />
+				<InvitesViewAsked :invites="data.asked_invites_by_state[5]" />
 			</div>
 			<div v-if="data.asked_invites_by_state[2]" class="grid gap-1">
 				<p>Demande confirmé en attente - {{ data.asked_invites_by_state[2].length }} {{ (data.asked_invites_by_state[2].length > 1) ? 'demandes' : 'demande' }} : </p>
-				<InvitesView :invites="data.asked_invites_by_state[2]" :eventUrl="`${$route.params.id}-${toSlug($route.params.name)}`" />
+				<InvitesView :invites="data.asked_invites_by_state[2]" />
 			</div>
 			<div v-if="data.asked_invites_by_state[3]" class="grid gap-1">
 				<p>Demande accepées confirmé - {{ data.asked_invites_by_state[3].length }} {{ (data.asked_invites_by_state[3].length > 1) ? 'demandes' : 'demande' }} : </p>
-				<InvitesView :invites="data.asked_invites_by_state[3]" :eventUrl="`${$route.params.id}-${toSlug($route.params.name)}`" />
+				<InvitesView :invites="data.asked_invites_by_state[3]" />
 			</div>
 			<div v-if="data.asked_invites_by_state[6]" class="grid gap-1">
 				<p>Demande declinées - {{ data.asked_invites_by_state[6].length }} {{ (data.asked_invites_by_state[6].length > 1) ? 'demandes' : 'demande' }} : </p>
-				<InvitesView :invites="data.asked_invites_by_state[6]" :eventUrl="`${$route.params.id}-${toSlug($route.params.name)}`" />
+				<InvitesView :invites="data.asked_invites_by_state[6]" />
 			</div>
 			<div v-if="data.invite.id_state === 5" class="duration-300 p-0 overflow-hidden bg-white hover:bg-beige text-primary grid rounded-sm rounded-tr-lg hover:rounded-tr-xl rounded-bl-lg hover:rounded-bl-xl">
 				<p class="text-base py-1 px-2 w-full text-black-300">
@@ -105,9 +105,10 @@ try {
 					</button>
 				</div>
 			</div>
+			{{ $route.params }}
 			<button v-if="data.invite.id_state === 2" class="primary">Renvoyer l'invitation</button>
 			<button v-if="data.invite.id_state === 1" class="primary">Envoyer l'invitation</button>
-			<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}/invites/${toSlug($route.params.id_invite)}/edit`" class="primary">Modifier</NuxtLink>
+			<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}/invites/${toSlug($route.params.id_invite[0])}/edit`" class="primary">Modifier</NuxtLink>
 			<button @click="$router.back()" class="tertiary">Retour</button>
 		</template>
 	</div>

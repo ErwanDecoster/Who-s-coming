@@ -2,10 +2,6 @@
 const route = useRoute()
 const router = useRouter()
 
-interface Message {
-	type: string;
-	content: string;
-}
 let form = ref({
 	label: '',
 	min_required_number: 1,
@@ -14,12 +10,12 @@ let form = ref({
 let comfirmDelete = ref()
 
 let messages = ref<Array<Message>>([])
-let data: unknown
+let need: need
 try {
-	data = await $fetch(`/api/events/${route.params.id}/needs/${route.params.id_need}`, {})
-	form.value.label = data.need.label;
-	form.value.min_required_number = data.need.min_required_number;
-	form.value.max_number = data.need.max_number;
+	need = await $fetch(`/api/events/${route.params.id}/needs/${route.params.id_need}`, {})
+	form.value.label = need.label;
+	form.value.min_required_number = need.min_required_number;
+	form.value.max_number = need.max_number;
 } catch (e) {
 	console.error(e);
 	messages.value.push({type: 'error', content: `L'évènement : "${route.params.name}" id : ${route.params.id} na pas pu etre recuperé.`})
@@ -45,7 +41,7 @@ const ValidForm = (() => {
 const UpdateNeed = async () => {
 	if (ValidForm()) {
 		try {
-			const data = await $fetch(`/api/events/${route.params.id}/needs/${route.params.id_need}`, {
+			const need = await $fetch(`/api/events/${route.params.id}/needs/${route.params.id_need}`, {
 				method: 'put',
 				body: {
 					label: form.value.label,
@@ -53,7 +49,7 @@ const UpdateNeed = async () => {
 					max_number: form.value.max_number,
 				},
 			})
-			if (data) {
+			if (need) {
 				messages.value.push({type: 'success', content: "Le besoin a été mis a jour."})
 				router.back()
 			}
@@ -70,10 +66,10 @@ const DeleteNeed = async () => {
 	}
 	if (comfirmDelete.value === true) {
 		try {
-			const data = await $fetch(`/api/events/${route.params.id}/needs/${route.params.id_need}`, {
+			const need = await $fetch(`/api/events/${route.params.id}/needs/${route.params.id_need}`, {
 				method: 'delete',
 			})
-			if (data) {
+			if (need) {
 				messages.value.push({type: 'success', content: "Le besoin a été supprimé."})
 				router.go(-2)
 			}

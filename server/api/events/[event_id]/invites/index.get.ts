@@ -69,7 +69,7 @@ export default eventHandler(async (event) => {
     })
 
     const result = {
-      invitesByState: {
+      invites_by_state: {
         ...invitesByState
       }
     }

@@ -2,10 +2,6 @@
 const route = useRoute()
 const router = useRouter()
 
-interface Message {
-	type: string;
-	content: string;
-}
 let form = ref({
 	first_name: '',
 	surname: '',
@@ -15,7 +11,9 @@ let form = ref({
 let comfirmDelete = ref()
 
 let messages = ref<Array<Message>>([])
-let data: unknown
+let data: {
+	invite: invite;
+}
 try {
 	data = await $fetch(`/api/events/${route.params.id}/invites/${route.params.id_invite}`, {})
 	form.value.first_name = data.invite.first_name;

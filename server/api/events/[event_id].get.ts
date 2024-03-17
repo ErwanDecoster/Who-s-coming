@@ -29,8 +29,8 @@ export default eventHandler(async (event) => {
     const combinedResult = {
       event: {
         ...eventData[0], // Utilisation de la première (et unique) entrée de la réponse de la première requête
-        publicUrl: pictureData.publicUrl
-      }
+      },
+      publicUrl: pictureData.publicUrl
     }
     return combinedResult
   } catch (e) {

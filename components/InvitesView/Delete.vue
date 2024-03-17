@@ -1,12 +1,12 @@
 <script setup lang="ts">
 const props = defineProps({
-  eventUrl: String,
+  isEdit: Boolean,
   invites: Array,
 })
 
 const OpenMessageApp = ((first_name, surname, code, tel, eventName) => {
   const url = 'https://who-s-coming.vercel.app/'
-  const inviteUrl = `${url}events/${props.eventUrl}/invites/${code}`
+  const inviteUrl = `${url}events/${props.url}/invites/${code}`
   const message = `Salut ${first_name} je t'invite a l'événement ${eventName} code d'invitation : ${code.toUpperCase()}, pour plus d'information, ou pour accepter ou decliné l'invitation clique sur ce lien : ${inviteUrl}`
   message.replaceAll(' ', '%20')
   message.replaceAll("'", '%27')
@@ -21,7 +21,7 @@ const SendInvite = ((invite, newState) => {
     console.log(data);
     if (data === true) {
       // update invites liste
-      OpenMessageApp(invite.first_name, invite.surname, invite.code, invite.tel, props.eventUrl)
+      OpenMessageApp(invite.first_name, invite.surname, invite.code, invite.tel, props.url)
     }
     else {
       // find a way to show an error message
@@ -44,23 +44,18 @@ const SendInvite = ((invite, newState) => {
       class="duration-300 pl-2 overflow-hidden bg-white hover:bg-beige text-primary flex justify-between rounded-sm"
     >
       <NuxtLink 
-        :to="`/events/${eventUrl}/invites/${invite.id_invitation}`" 
-        class="text-base text-black-300"
+        :to="getInviteUrl($route.params, invite, isEdit)" 
+        class="text-base text-black-300 grow"
       >
         {{ invite.first_name }} 
         {{ invite.surname }} 
         <span v-if="invite.asked_by">
           via 
-          {{ invite.asked_by.first_name }}
+          {{ invite.asked_by.first_name }} 
           {{ invite.asked_by.surname }}
         </span>
       </NuxtLink>
-      <button 
-        @click="SendInvite(invite, 2)" 
-        class="bg-secondary px-1.5 text-white"
-      >
-        Envoyer
-      </button>
+      <button class="bg-secondary px-1.5 text-white">Supprimer</button>
     </div>
   </div>
 </template>

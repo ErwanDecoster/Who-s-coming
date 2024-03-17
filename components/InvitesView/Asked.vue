@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const props = defineProps({
-  eventUrl: String,
+  isEdit: Boolean,
   invites: Array,
 })
 const SendInvite = ((eventId, inviteId, newState) => {
@@ -29,7 +29,7 @@ const DenieInvite = ((eventId, inviteId, newState) => {
       class="duration-300 p-0 overflow-hidden bg-white hover:bg-beige text-primary grid rounded-sm"
     >
       <NuxtLink 
-        :to="`/events/${eventUrl}/invites/${invite.id_invitation}`" 
+        :to="getInviteUrl($route.params, invite, isEdit)" 
         class="text-base py-1 px-2 w-full text-black-300"
       >
         {{ invite.first_name }} 
