@@ -16,8 +16,6 @@ let data: {
 try {
 	data = await $fetch(`/api/events/${route.params.id}`, {})
 	form.value.address = data.event.address;
-	console.log(data.event.datetime);
-	
 	form.value.datetime = new Date(data.event.datetime).toISOString().slice(0, 16)
 	form.value.desc = data.event.desc;
 	form.value.name = data.event.name;
@@ -60,8 +58,6 @@ const UpdateEvent = async () => {
 				}),
 				UploadImage(form.value.image, route.params.id, form.value.name)
 			])
-			console.log(pictureResponse);
-			console.log(eventResponse);
 			
 			if (eventResponse) {
 				messages.value.push({type: 'success', content: "L'évènement a été mis a jour."})
@@ -70,7 +66,7 @@ const UpdateEvent = async () => {
 				messages.value.push({type: 'success', content: "L'image a été mis a jour."})
 			}
 			if (eventResponse && pictureResponse) {
-				navigateTo(`/events/${route.params.id}-${toSlug(route.params.name[0])}`);
+				navigateTo(`/events/${route.params.id}-${toSlug(route.params.name)}`);
 			}
 		} catch(e) {
 			console.log(e);
@@ -83,7 +79,6 @@ const UpdateImage = (event) => {
 }
 
 const UploadImage = async (files:File, eventId: number, name: string) => {
-	console.log(files);
 	if (files) {
 		try {
 			const supabase = useSupabaseClient();

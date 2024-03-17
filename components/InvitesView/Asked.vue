@@ -1,8 +1,8 @@
 <script setup lang="ts">
-const props = defineProps({
-  isEdit: Boolean,
-  invites: Array,
-})
+const props = defineProps<{
+  isEdit?: boolean
+  invites: invite[]
+}>();
 const SendInvite = ((eventId, inviteId, newState) => {
   updateInviteState(eventId, inviteId, newState).then(() => {
     // open message app

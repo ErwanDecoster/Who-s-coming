@@ -1,13 +1,14 @@
 <script setup lang="ts">
-const props = defineProps({
-  isEdit: Boolean,
-  invites: Array,
-})
+const props = defineProps<{
+  isEdit?: boolean
+  invites: invite[]
+}>();
 
-const OpenMessageApp = ((first_name, surname, code, tel, eventName) => {
+
+const OpenMessageApp = ((first_name: string, surname: string, code: string, tel: string, eventName: string) => {
   const url = 'https://who-s-coming.vercel.app/'
   const inviteUrl = `${url}events/${props.url}/invites/${code}`
-  const message = `Salut ${first_name} je t'invite a l'événement ${eventName} code d'invitation : ${code.toUpperCase()}, pour plus d'information, ou pour accepter ou decliné l'invitation clique sur ce lien : ${inviteUrl}`
+  const message = `Salut ${first_name} ${surname} je t'invite a l'événement ${eventName} code d'invitation : ${code.toUpperCase()}, pour plus d'information, ou pour accepter ou decliné l'invitation clique sur ce lien : ${inviteUrl}`
   message.replaceAll(' ', '%20')
   message.replaceAll("'", '%27')
   const link = `sms://${tel}?body=${message}`
@@ -15,7 +16,7 @@ const OpenMessageApp = ((first_name, surname, code, tel, eventName) => {
   window.location.href = link;
 })
 
-const SendInvite = ((invite, newState) => {
+const SendInvite = ((invite: invite, newState: number) => {
   const data = updateInviteState(invite.id_evenement, invite.id_invitation, newState).then((data) => {
     // open message app
     console.log(data);

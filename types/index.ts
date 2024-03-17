@@ -51,6 +51,7 @@ declare global {
     tel: string;
     relationship: string;
     id_invitation_asker: number;
+    asked_by: invite;
     need_invitations: need_invitation[];
   }
   

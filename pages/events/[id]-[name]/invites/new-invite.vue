@@ -46,7 +46,7 @@ const AddInvite = async () => {
 					type: 'success',
 					content: "L'invité a été ajouté avec succès."
 				})
-				navigateTo(`/events/${route.params.id}-${toSlug(route.params.name[0])}/invites`);
+				navigateTo(`/events/${route.params.id}-${toSlug(route.params.name)}/invites`);
 			})
 		} catch(e) {
 			messages.value.push({

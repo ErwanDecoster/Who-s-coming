@@ -37,7 +37,7 @@ try {
 				<p class="text-base text-black-300" v-if="need.max_number">{{ need.max_number }} maximun</p>
 			</div>
 			<div v-if="need.need_invitations" class="grid gap-1">
-				<p>Invité lié - {{ need.need_invitations.length }} {{ (need.need_invitations.length < 1) ? 'personnes' : 'personne' }} : </p>
+				<p>Invitées lié - {{ need.need_invitations.length }} {{ (need.need_invitations.length < 1) ? 'personnes' : 'personne' }} : </p>
 				<div class="grid gap-1" v-if="need.need_invitations.length">
 					<NuxtLink 
 						v-for="(need_invitation, index) in need.need_invitations" 

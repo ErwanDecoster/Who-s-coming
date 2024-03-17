@@ -12,6 +12,6 @@
     "@nuxt/devtools": "latest",
     "@nuxtjs/supabase": "^0.3.7",
     "@nuxtjs/tailwindcss": "^6.11.4",
-    "nuxt": "^3.10.2"
+    "nuxt": "^3.11.0"
   }
 }

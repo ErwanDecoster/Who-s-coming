@@ -1,9 +1,4 @@
 <script setup lang="ts">
-// let events = ref()
-// const fetchEvents = async () => {
-//   const data = await $fetch('/api/events')
-// 	events.value = data.events
-// }
 let messages = ref<Array<Message>>([])
 let data: {
 	events: event[];

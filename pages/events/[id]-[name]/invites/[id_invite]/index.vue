@@ -105,10 +105,9 @@ try {
 					</button>
 				</div>
 			</div>
-			{{ $route.params }}
 			<button v-if="data.invite.id_state === 2" class="primary">Renvoyer l'invitation</button>
 			<button v-if="data.invite.id_state === 1" class="primary">Envoyer l'invitation</button>
-			<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}/invites/${toSlug($route.params.id_invite[0])}/edit`" class="primary">Modifier</NuxtLink>
+			<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}/invites/${toSlug($route.params.id_invite)}/edit`" class="primary">Modifier</NuxtLink>
 			<button @click="$router.back()" class="tertiary">Retour</button>
 		</template>
 	</div>

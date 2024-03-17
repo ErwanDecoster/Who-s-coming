@@ -20,7 +20,6 @@ try {
 	form.value.surname = data.invite.surname;
 	form.value.tel = formatPhoneNumberForDisplay(data.invite.tel).tel;
 	form.value.countryCode = formatPhoneNumberForDisplay(data.invite.tel).cc;
-	console.log(formatPhoneNumberForDisplay(data.invite.tel));
 	
 } catch (e) {
 	console.error(e);

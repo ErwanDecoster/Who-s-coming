@@ -1,8 +1,8 @@
 <script setup lang="ts">
-const props = defineProps({
-  isEdit: Boolean,
-  invites: Array,
-})
+const props = defineProps<{
+  isEdit?: boolean
+  invites: invite[]
+}>();
 </script>
 
 <template>
