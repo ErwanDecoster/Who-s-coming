@@ -72,12 +72,13 @@ const DeleteInvite = async () => {
 			const data = await $fetch(`/api/events/${route.params.id}/invites/${route.params.id_invite}`, {
 				method: 'delete',
 			})
-			if (data) {
+			if (data == true) {
 				messages.value.push({type: 'success', content: "L'invité a été supprimé."})
 				router.go(-2)
 			}
 		} catch(e) {
 			console.log(e);
+		  comfirmDelete.value = null
 			messages.value.push({type: 'error', content: "L'invité n'as pas pu étre supprimé."})
 		}
 	} else {

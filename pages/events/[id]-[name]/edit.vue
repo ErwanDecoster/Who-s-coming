@@ -108,8 +108,9 @@ const UploadImage = async (files:File, eventId: number, name: string) => {
 
 <template>
 	<div class="container">
+		<h3>Modification {{ data.event.name }}</h3>
 		<form @submit.prevent="UpdateEvent()">
-			<ul>
+			<ul v-if="messages.length">
 				<li 
 					v-for="message in messages" 
 					:key="message.type"

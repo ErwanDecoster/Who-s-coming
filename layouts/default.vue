@@ -4,7 +4,12 @@
       <h1>Who's coming</h1>
       <h2>Organisateur d'évènements</h2>
     </header>
-    <div class="grow w-full grid p-2">
+    <div class="grow w-full flex flex-col p-2">
+      <div class="mx-auto w-full py-2 max-w-sm flex justify-between">
+        <NuxtLink v-if="$route.name?.toString().includes('events-')" to="/events" class="frosted">Mes évènements</NuxtLink>
+        <span />
+        <NuxtLink class="frosted">Mon compte</NuxtLink>
+      </div>
       <slot />
     </div>
   </div>

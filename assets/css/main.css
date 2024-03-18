@@ -64,7 +64,7 @@ button, a {
   &.secondary-inline {
     @apply px-2 py-1 text-base inline-block rounded-tr-lg rounded-bl-lg hover:rounded-tr-xl hover:rounded-bl-xl bg-secondary hover:bg-opacity-90 text-primary
   }
-  &.primary, &.secondary, &.tertiary, &.delete {
+  &.primary, &.secondary, &.tertiary, &.delete, &.frosted {
     @apply text-center text-lg px-4 rounded-tr-2xl rounded-bl-2xl hover:rounded-tr-3xl hover:rounded-bl-3xl;
   }
   &.primary {
@@ -78,6 +78,9 @@ button, a {
   }
   &.delete {
     @apply text-red hover:bg-red hover:text-white;
+  }
+  &.frosted {
+    @apply bg-primary bg-opacity-20 hover:bg-opacity-15 text-beige;
   }
 }
 .leaf {

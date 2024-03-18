@@ -2,7 +2,37 @@
 const props = defineProps<{
   isEdit?: boolean
   invites: invite[]
+  messages: Message[]
 }>();
+let comfirmDelete = ref()
+const emit = defineEmits(['inDelete'])
+
+const EmitDeleteInvite = async (invite: invite) => {
+	if (comfirmDelete.value === false) {
+		comfirmDelete.value = true
+	}
+	if (comfirmDelete.value === true) {
+    emit('inDelete', invite)
+		// try {
+		// 	const data = await $fetch(`/api/events/${route.params.id}/invites/${invite.id_invitation}`, {
+		// 		method: 'delete',
+		// 	})
+    //   console.log(data);
+      
+		// 	if (data == true) {
+    //     // visible.value = false
+    //     props.invites = props.invites.filter(item => item !== invite);
+		// 		props.messages.push({type: 'success', content: "L'invité a été supprimé."})
+		// 	}
+		// } catch(e) {
+		// 	console.log(e);
+		//   comfirmDelete.value = null
+		// 	props.messages.push({type: 'error', content: "L'invité n'as pas pu étre supprimé."})
+		// }
+	} else {
+		comfirmDelete.value = false
+	}
+}
 </script>
 
 <template>
@@ -28,7 +58,14 @@ const props = defineProps<{
           {{ invite.asked_by.surname }}
         </span>
       </NuxtLink>
-      <button class="bg-secondary px-1.5 text-white">Supprimer</button>
+      <button @click="EmitDeleteInvite(invite)" class="bg-secondary px-1.5 text-white">
+        <template v-if="comfirmDelete === false">
+          Comfirmer
+        </template>
+        <template v-else>
+          Supprimer
+        </template>
+      </button>
     </div>
   </div>
 </template>

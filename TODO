@@ -1,9 +1,9 @@
 ✅change invite state
 ✅open sms app
 add sms link on invite page
-add interniational phone gestion "+33625306813"
+✅add interniational phone gestion "+33625306813"
 add define sms message in event edit
 ✅add invite
 ✅edit invite
-create component for repetitiv code
-rajouter un espace (padding) sur la bas de toute les page
+✅create component for repetitiv code
+rajouter un espace (padding) sur la bas de toute les pages

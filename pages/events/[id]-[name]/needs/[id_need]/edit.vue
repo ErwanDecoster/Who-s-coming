@@ -75,6 +75,7 @@ const DeleteNeed = async () => {
 			}
 		} catch(e) {
 			console.log(e);
+		  comfirmDelete.value = null
 			messages.value.push({type: 'error', content: "Le besoin n'as pas pu étre supprimé."})
 		}
 	} else {

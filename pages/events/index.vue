@@ -13,6 +13,7 @@ try {
 
 <template>
 	<div class="container">
+		<h3>Mes événements</h3>
 		<ul v-if="messages.length">
 			<li 
 				v-for="message in messages" 

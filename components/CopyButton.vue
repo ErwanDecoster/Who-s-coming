@@ -14,7 +14,6 @@ const copyText = () => {
     text.value = error
   }
 }
-
 </script>
 
 <template>

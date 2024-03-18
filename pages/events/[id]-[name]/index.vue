@@ -30,6 +30,7 @@ try {
 			</li>
 		</ul>
 		<template v-if="data?.event">
+			<h3>{{ data.event.name }}</h3>
 			<img v-if="data.publicUrl" :src="data.publicUrl" alt="">
 			<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}/invites`" class="secondary">Liste des invités</NuxtLink>
 			<div class="grid gap-1">
