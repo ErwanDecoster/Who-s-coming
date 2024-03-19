@@ -131,7 +131,7 @@ const UploadImage = async (files:File, eventId: number, name: string) => {
 						<input 
 							@change="UpdateImage($event)"
 							type="file" 
-							accept="image/png, image/jpeg, image/webp"
+							accept="image/*"
 							name="image"
 							id="image"
 							class="img"
