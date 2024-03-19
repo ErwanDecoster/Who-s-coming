@@ -37,6 +37,15 @@ input[type=submit] {
   input, textarea, select, .input-style {
     @apply px-2 py-1.5 bg-white hover:bg-beige text-black-300 duration-300 rounded-sm rounded-tr-xl rounded-bl-xl focus:rounded-tr-2xl focus:rounded-bl-2xl;
   }
+  .info {
+    @apply h-0 pb-0 overflow-hidden duration-500
+  }
+  .info:hover {
+    @apply h-32 pb-2
+  }
+  .info:has(~ .grow-wrap > textarea:focus) {
+    @apply h-32 pb-2
+  }
   .grow-wrap {
     @apply grid;
     &::after {

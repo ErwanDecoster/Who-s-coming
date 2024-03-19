@@ -16,6 +16,7 @@ declare global {
     rules: string;
     user_id: string;
     datetime: Date;
+    invite_message: string;
     needs: need[];
   }
  

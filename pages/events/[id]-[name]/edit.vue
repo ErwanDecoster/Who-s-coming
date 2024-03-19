@@ -7,6 +7,7 @@ let form = ref({
 	datetime: '',
 	desc: '',
 	rules: '',
+	invite_message: '',
 })
 let messages = ref<Array<Message>>([])
 let data: {
@@ -20,13 +21,24 @@ try {
 	form.value.desc = data.event.desc;
 	form.value.name = data.event.name;
 	form.value.rules = data.event.rules;
+	form.value.invite_message = data.event.invite_message;
 } catch (e) {
 	console.error(e);
 	messages.value.push({type: 'error', content: `L'évènement : "${route.params.name}" id : ${route.params.id} na pas pu etre recuperé.`})
 }
 
+const checkInviteMessage = () => {
+	if (!form.value.invite_message.includes("{first_name}") && !form.value.invite_message.includes("{surname}"))
+		messages.value.push({type: 'error', content: "Le message d'invitation doit contenir : {first_name} ou {surname}"})
+	if (!form.value.invite_message.includes("{code}"))
+		messages.value.push({type: 'error', content: "Le message d'invitation doit contenir : {code}"})
+	if (!form.value.invite_message.includes("{inviteUrl}"))
+		messages.value.push({type: 'error', content: "Le message d'invitation doit contenir : {inviteUrl}"})
+}
+
 const ValidForm = (() => {
   messages.value = [];
+	checkInviteMessage()
 	if (!form.value.address)
 		messages.value.push({type: 'error', content: 'Une adresse est requise."'})
   if (!form.value.datetime)
@@ -54,11 +66,11 @@ const UpdateEvent = async () => {
 						datetime: form.value.datetime,
 						desc: form.value.desc,
 						rules: form.value.rules,
+						invite_message: form.value.invite_message,
 					},
 				}),
 				UploadImage(form.value.image, route.params.id, form.value.name)
 			])
-			
 			if (eventResponse) {
 				messages.value.push({type: 'success', content: "L'évènement a été mis a jour."})
 			}
@@ -66,7 +78,7 @@ const UpdateEvent = async () => {
 				messages.value.push({type: 'success', content: "L'image a été mis a jour."})
 			}
 			if (eventResponse && pictureResponse) {
-				navigateTo(`/events/${route.params.id}-${toSlug(route.params.name)}`);
+				// navigateTo(`/events/${route.params.id}-${toSlug(route.params.name)}`);
 			}
 		} catch(e) {
 			console.log(e);
@@ -96,8 +108,7 @@ const UploadImage = async (files:File, eventId: number, name: string) => {
 				type: 'error',
 				content: `statusCode ${e.statusCode}, error : ${e.error}, message: ${e.message}`
 			})
-			console.log(e);
-			return e;
+			return false;
 		}
 	}
 	return "done"
@@ -148,6 +159,7 @@ const UploadImage = async (files:File, eventId: number, name: string) => {
 					v-model="form.name" 
 					id="name"
 					required
+					autocomplete="off"
 				>
 			</div>
 			<div class="input-container">
@@ -168,6 +180,7 @@ const UploadImage = async (files:File, eventId: number, name: string) => {
 					v-model="form.datetime" 
 					id="datetime"
 					required
+					autocomplete="off"
 				>
 			</div>
 			<div class="input-container">
@@ -188,6 +201,26 @@ const UploadImage = async (files:File, eventId: number, name: string) => {
 						name="rules" 
 						v-model="form.rules" 
 						id="rules"
+					/>
+				</div>
+			</div>
+			<div class="input-container">
+				<label for="invite_message">Message d'invitation :</label>
+				<div class="info text-black-300 text-sm pb-2">
+					<p class="text-base">Variable utilisable :</p>
+					<ul class="list-disc list-inside">
+						<li>Prénom : {first_name}</li>
+						<li>Nom : {surname}</li>
+						<li>Nom de l'événement : {eventName}</li>
+						<li>Code d'invitation : {code}</li>
+						<li>Lien de l'invitation : {inviteUrl}</li>
+					</ul>
+				</div>
+				<div class="grow-wrap" :data-replicated-value="form.invite_message">
+					<textarea 
+						name="invite_message" 
+						v-model="form.invite_message" 
+						id="invite_message"
 					/>
 				</div>
 			</div>

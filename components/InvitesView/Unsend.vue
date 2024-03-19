@@ -14,11 +14,7 @@ const OpenMessageApp = ((first_name: string, surname: string, code: string, tel:
   message.replaceAll("'", '%27')
   const link = `sms://${tel}?body=${message}`
   // secure if message app not opened
-  try {
-    window.location.href = link;
-  } catch (error) {
-    console.log('wsh');
-  }
+  window.location.href = link;
 })
 
 const SendInvite = ((invite: invite, newState: number) => {

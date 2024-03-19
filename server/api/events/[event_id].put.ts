@@ -27,6 +27,7 @@ export default eventHandler(async (event) => {
       datetime: body.datetime,
       desc: body.desc,
       rules: body.rules,
+      invite_message: body.invite_message,
     })
     .eq('id_evenement', event_id)
     .select()
