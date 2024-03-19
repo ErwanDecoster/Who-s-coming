@@ -9,11 +9,16 @@ const OpenMessageApp = ((first_name: string, surname: string, code: string, tel:
   const url = 'https://who-s-coming.vercel.app/'
   const inviteUrl = `${url}events/${props.url}/invites/${code}`
   const message = `Salut ${first_name} ${surname} je t'invite a l'événement ${eventName} code d'invitation : ${code.toUpperCase()}, pour plus d'information, ou pour accepter ou decliné l'invitation clique sur ce lien : ${inviteUrl}`
+  // Stocker et recuperer les donnée dans le local host
   message.replaceAll(' ', '%20')
   message.replaceAll("'", '%27')
   const link = `sms://${tel}?body=${message}`
   // secure if message app not opened
-  window.location.href = link;
+  try {
+    window.location.href = link;
+  } catch (error) {
+    console.log('wsh');
+  }
 })
 
 const SendInvite = ((invite: invite, newState: number) => {

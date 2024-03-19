@@ -1,36 +1,34 @@
 <script setup lang="ts">
+const route = useRoute()
 const props = defineProps<{
   isEdit?: boolean
   invites: invite[]
   messages: Message[]
 }>();
-let comfirmDelete = ref()
-const emit = defineEmits(['inDelete'])
+const comfirmDelete = ref<boolean[]>([])
+const emit = defineEmits(['updateList'])
 
-const EmitDeleteInvite = async (invite: invite) => {
-	if (comfirmDelete.value === false) {
-		comfirmDelete.value = true
+const DeleteInvite = async (invite: invite, index: number) => {
+	if (comfirmDelete.value[index] === false) {
+		comfirmDelete.value[index] = true
 	}
-	if (comfirmDelete.value === true) {
-    emit('inDelete', invite)
-		// try {
-		// 	const data = await $fetch(`/api/events/${route.params.id}/invites/${invite.id_invitation}`, {
-		// 		method: 'delete',
-		// 	})
-    //   console.log(data);
-      
-		// 	if (data == true) {
-    //     // visible.value = false
-    //     props.invites = props.invites.filter(item => item !== invite);
-		// 		props.messages.push({type: 'success', content: "L'invité a été supprimé."})
-		// 	}
-		// } catch(e) {
-		// 	console.log(e);
-		//   comfirmDelete.value = null
-		// 	props.messages.push({type: 'error', content: "L'invité n'as pas pu étre supprimé."})
-		// }
+	if (comfirmDelete.value[index] === true) {
+		try {
+		const data = await $fetch(`/api/events/${route.params.id}/invites/${invite.id_invitation}`, {
+			method: 'delete',
+		})
+		console.log(data);
+		
+		if (data == true) {
+			props.messages.push({type: 'success', content: "L'invité a été supprimé."})
+      emit('updateList', invite)
+		}
+	} catch(e) {
+		console.log(e);
+		props.messages.push({type: 'error', content: "L'invité n'as pas pu étre supprimé."})
+	}
 	} else {
-		comfirmDelete.value = false
+		comfirmDelete.value[index] = false
 	}
 }
 </script>
@@ -58,8 +56,8 @@ const EmitDeleteInvite = async (invite: invite) => {
           {{ invite.asked_by.surname }}
         </span>
       </NuxtLink>
-      <button @click="EmitDeleteInvite(invite)" class="bg-secondary px-1.5 text-white">
-        <template v-if="comfirmDelete === false">
+      <button @click="DeleteInvite(invite, index)" class="bg-secondary px-1.5 text-white">
+        <template v-if="comfirmDelete[index] === false">
           Comfirmer
         </template>
         <template v-else>
@@ -67,5 +65,6 @@ const EmitDeleteInvite = async (invite: invite) => {
         </template>
       </button>
     </div>
+    <p v-if="!invites.length" class="text-black-300">Aucune invitation.</p>
   </div>
 </template>
