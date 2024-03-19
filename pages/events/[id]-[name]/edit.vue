@@ -94,7 +94,7 @@ const UploadImage = async (files:File, eventId: number, name: string) => {
 			})
 			messages.value.push({
 				type: 'error',
-				content: `statusCode ${e.statusCode}, error : ${e.error}, message: ${message}`
+				content: `statusCode ${e.statusCode}, error : ${e.error}, message: ${e.message}`
 			})
 			console.log(e);
 			return e;

@@ -10,6 +10,11 @@ h3 {
 .container {
   @apply flex flex-col gap-4 mx-auto max-w-sm p-6 bg-white bg-opacity-70 backdrop-blur-lg rounded-2xl
 }
+@media only screen and (hover: none) and (pointer: coarse){
+  .container {
+    @apply mb-12
+  }
+}
 
 img {
   @apply bg-beige rounded-sm rounded-tr-2xl rounded-bl-2xl aspect-video

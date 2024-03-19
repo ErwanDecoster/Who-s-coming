@@ -39,6 +39,10 @@ try {
 				<p v-else class="text-black-300">Aucune adresse configuré.</p>
 			</div>
 			<div class="grid gap-1">
+				<p>Date et heure :</p>
+				<p v-if="data.event.datetime" class="text-black-300">{{ formatDate(new Date(data.event.datetime)) }}</p>
+			</div>
+			<div class="grid gap-1">
 				<p>Description :</p>
 				<p v-if="data.event.desc" class="text-black-300 whitespace-pre-line">{{ data.event.desc }}</p>
 				<p v-else class="text-black-300">Aucune description configuré.</p>
