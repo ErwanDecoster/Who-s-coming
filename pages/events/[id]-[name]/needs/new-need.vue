@@ -94,6 +94,7 @@ watch(() => form.value.min_required_number, (newVal) => {
 					v-model="form.label" 
 					id="label"
 					required
+					autocomplete="off"
 				>
 			</div>
 			<div class="input-container">
@@ -104,6 +105,8 @@ watch(() => form.value.min_required_number, (newVal) => {
 					v-model="form.min_required_number" 
 					id="min_required_number"
 					min="1"
+					pattern="[0-9]*"
+					inputmode="numeric"
 					required
 				>
 			</div>
@@ -115,6 +118,8 @@ watch(() => form.value.min_required_number, (newVal) => {
 					v-model="form.max_number" 
 					id="max_number"
 					:min="form.min_required_number"
+					pattern="[0-9]*"
+					inputmode="numeric"
 					required
 				>
 			</div>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const router = useRouter()
 const route = useRoute()
 let form = ref({
 	image: File,
@@ -9,6 +10,8 @@ let form = ref({
 	rules: '',
 	invite_message: '',
 })
+let comfirmDelete = ref()
+const isImageAccessible = ref<boolean>(false)
 let messages = ref<Array<Message>>([])
 let data: {
 	event: event;
@@ -22,6 +25,8 @@ try {
 	form.value.name = data.event.name;
 	form.value.rules = data.event.rules;
 	form.value.invite_message = data.event.invite_message;
+	const imageExists = await fetch(data.publicUrl)
+  isImageAccessible.value = imageExists.ok
 } catch (e) {
 	console.error(e);
 	messages.value.push({type: 'error', content: `L'évènement : "${route.params.name}" id : ${route.params.id} na pas pu etre recuperé.`})
@@ -116,6 +121,30 @@ const UploadImage = async (files:File, eventId: number, name: string) => {
 	return "done"
 }
 
+const DeleteEvent = async () => {
+	if (comfirmDelete.value === false) {
+		comfirmDelete.value = true
+	}
+	if (comfirmDelete.value === true) {
+		try {
+			const data = await $fetch(`/api/events/${route.params.id}`, {
+				method: 'delete',
+			})
+			if (data == true) {
+				messages.value.push({type: 'success', content: "L'événement a été supprimé."})
+				router.push("/events")
+			} else {
+				throw Error
+			}
+		} catch(e) {
+			console.log(e);
+		  comfirmDelete.value = null
+			messages.value.push({type: 'error', content: "L'événement n'as pas pu étre supprimé."})
+		}
+	} else {
+		comfirmDelete.value = false
+	}
+}
 
 </script>
 
@@ -140,7 +169,7 @@ const UploadImage = async (files:File, eventId: number, name: string) => {
 				<label class="image-label" for="image">
 					Image :
 					<div class="input-style">
-						<img v-if="data.publicUrl" :src="data.publicUrl" alt="">
+						<img v-if="data.publicUrl && isImageAccessible" :src="data.publicUrl" alt="">
 						<input 
 							@change="UpdateImage($event)"
 							type="file" 
@@ -249,7 +278,14 @@ const UploadImage = async (files:File, eventId: number, name: string) => {
 				Enregistrer
 			</button>
 		</form>
-		<button class="delete">Supprimer l'évènement</button>
+		<button @click="DeleteEvent()" class="delete">
+			<template v-if="comfirmDelete === false">
+				Comfirmer la suppresion
+			</template>
+			<template v-else>
+				Supprimer l'évènement
+			</template>
+		</button>
 		<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}`" class="tertiary">Annuler</NuxtLink>
 	</div>
 </template>

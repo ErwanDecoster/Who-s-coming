@@ -75,6 +75,8 @@ const DeleteInvite = async () => {
 			if (data == true) {
 				messages.value.push({type: 'success', content: "L'invité a été supprimé."})
 				router.go(-2)
+			} else {
+				throw Error
 			}
 		} catch(e) {
 			console.log(e);

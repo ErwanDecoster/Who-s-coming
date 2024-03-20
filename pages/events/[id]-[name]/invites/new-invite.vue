@@ -118,7 +118,7 @@ const AddInvite = async () => {
 						<option value="41">CH (+41)</option>
 						<option value="31">NL (+31)</option>
 						<option value="46">SE (+46)</option>
-						<option value=""></option>
+						<option value="">Autre</option>
 					</select>
 					<input 
 						type="tel" 

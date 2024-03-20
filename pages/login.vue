@@ -81,6 +81,7 @@ const Register = async () => {
 						</svg>
 					</button>
 					<input 
+						class="w-full"
 						type="password" 
 						name="password" 
 						v-model="password" 

@@ -66,12 +66,14 @@ const DeleteNeed = async () => {
 	}
 	if (comfirmDelete.value === true) {
 		try {
-			const need = await $fetch(`/api/events/${route.params.id}/needs/${route.params.id_need}`, {
+			const data = await $fetch(`/api/events/${route.params.id}/needs/${route.params.id_need}`, {
 				method: 'delete',
 			})
-			if (need) {
+			if (data == true) {
 				messages.value.push({type: 'success', content: "Le besoin a été supprimé."})
 				router.go(-2)
+			} else {
+				throw Error
 			}
 		} catch(e) {
 			console.log(e);
@@ -120,6 +122,8 @@ const DeleteNeed = async () => {
 					v-model="form.min_required_number" 
 					id="min_required_number"
 					min="1"
+					pattern="[0-9]*"
+					inputmode="numeric"
 					required
 				>
 			</div>
@@ -131,6 +135,8 @@ const DeleteNeed = async () => {
 					v-model="form.max_number" 
 					id="max_number"
 					:min="form.min_required_number"
+					pattern="[0-9]*"
+					inputmode="numeric"
 					required
 				>
 			</div>
