@@ -1,11 +1,11 @@
 <script setup lang="ts">
+const route = useRoute()
 interface Message {
   type: string;
   content: string;
 }
 let messages = ref<Array<Message>>([])
 
-// let needEmailComfirmation = ref(false);
 let email = ref('')
 let password = ref('')
 
@@ -29,7 +29,6 @@ const Register = async () => {
 				password: password.value,
 			})
 			if (error) throw error
-			console.log(data);
 			if (data.user?.role && data.user.role === "authenticated") {
 				const router = useRouter()
 				router.push('/events')
@@ -40,6 +39,12 @@ const Register = async () => {
 		}
 	}
 }
+
+if (typeof route.query.comfirm !== 'undefined')
+	messages.value.push({type: 'success', content: "Votre e-mail a été vérifiée avec succès. Vous pouvez maintenant vous connecter !" })
+	
+
+
 
 </script>
 
@@ -86,7 +91,7 @@ const Register = async () => {
 						name="password" 
 						v-model="password" 
 						id="password" 
-						autocomplete="new-password"
+						autocomplete="current-password"
 						required
 					>
 				</div>
