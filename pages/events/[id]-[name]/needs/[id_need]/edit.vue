@@ -112,6 +112,7 @@ const DeleteNeed = async () => {
 					v-model="form.label" 
 					id="label"
 					required
+					placeholder="Bouée gonflable"
 				>
 			</div>
 			<div class="input-container">

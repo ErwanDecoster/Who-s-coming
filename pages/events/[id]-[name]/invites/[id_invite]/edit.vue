@@ -113,6 +113,7 @@ const DeleteInvite = async () => {
 					type="text" 
 					name="first_name" 
 					v-model="form.first_name" 
+					placeholder="Jean"
 					id="first_name"
 					required
 				>
@@ -123,6 +124,7 @@ const DeleteInvite = async () => {
 					type="text" 
 					name="surname" 
 					v-model="form.surname" 
+					placeholder="Dupont"
 					id="surname"
 					min="1"
 					required

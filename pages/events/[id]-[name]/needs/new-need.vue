@@ -95,6 +95,7 @@ watch(() => form.value.min_required_number, (newVal) => {
 					id="label"
 					required
 					autocomplete="off"
+					placeholder="Bouée gonflable"
 				>
 			</div>
 			<div class="input-container">

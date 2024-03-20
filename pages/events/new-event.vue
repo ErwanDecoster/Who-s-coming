@@ -8,10 +8,10 @@ let messages = ref<Array<Message>>([])
 
 let form = ref({
 	image: File,
-	name: "Soirée d'integration 2026",
-	address: '1 Quartier Les Marettes, Andancette',
-	datetime: '',
-	desc: 'Cette soirée a pour objectif de mieux integret les nouveau éléves aux sein de l’école',
+	name: "",
+	address: '',
+	datetime: Date.now(),
+	desc: '',
 	rules: '',
 })
 
@@ -33,31 +33,29 @@ const ValidForm = (() => {
 })
 
 const AddEvent = async () => {
-	try {
-		console.log(form.value);
-		
-		const data = await $fetch('/api/events/event', {
-			method: 'post',
-			body: {
-				name: form.value.name,
-				address: form.value.address,
-				datetime: form.value.datetime,
-				desc: form.value.desc,
-				rules: form.value.rules,
-			},
-		}).then((data) => {
-			if (data) {
-				messages.value.push({
-					type: 'success',
-					content: "L'événement a été crée avec succès."
-				})
-				// console.log(data);
-				// console.log(form.value.image);
-				UploadImage(form.value.image, data[0].id_evenement, form.value.name)
-			}
-		})
-	} catch(e) {
-		console.log(e);
+	if (ValidForm()) {
+		try {
+			const data = await $fetch('/api/events/event', {
+				method: 'post',
+				body: {
+					name: form.value.name,
+					address: form.value.address,
+					datetime: form.value.datetime,
+					desc: form.value.desc,
+					rules: form.value.rules,
+				},
+			}).then((data) => {
+				if (data) {
+					messages.value.push({
+						type: 'success',
+						content: "L'événement a été crée avec succès."
+					})
+					UploadImage(form.value.image, data[0].id_evenement, form.value.name)
+				}
+			})
+		} catch(e) {
+			console.log(e);
+		}
 	}
 }
 
@@ -66,8 +64,6 @@ const UpdateImage = (event) => {
 }
 
 const UploadImage = async (files:File, eventId, name) => {
-	console.log(files);
-	
 	try {
 		const supabase = useSupabaseClient();
 		const { data, error } = await supabase.storage
@@ -114,7 +110,7 @@ const UploadImage = async (files:File, eventId, name) => {
 				<input 
 					@change="UpdateImage($event)"
 					type="file" 
-					accept="image/png, image/jpeg, image/webp"
+					accept="image/*"
 					name="image"
 					id="image"
 					required
@@ -128,6 +124,8 @@ const UploadImage = async (files:File, eventId, name) => {
 					v-model="form.name" 
 					id="name"
 					required
+					autocomplete="off"
+					placeholder="Anniversaire surprise Anna"
 				>
 			</div>
 			<div class="input-container">
@@ -138,6 +136,7 @@ const UploadImage = async (files:File, eventId, name) => {
 					v-model="form.address" 
 					id="address"
 					required
+					placeholder="114 Av. des Champs-Élysées, 75008 Paris"
 				>
 			</div>
 			<div class="input-container">
@@ -158,16 +157,18 @@ const UploadImage = async (files:File, eventId, name) => {
 						v-model="form.desc" 
 						id="desc"
 						required
+						placeholder="Thème haut en couleur : n'oubliez pas d'apporter votre maillot de bain. L'entrée se fait par le garage."
 					/>
 				</div>
 			</div>
 			<div class="input-container">
 				<label for="rules">Règlement :</label>
-				<div class="grow-wrap" :data-replicated-value="form.rule">
+				<div class="grow-wrap" :data-replicated-value="form.rules">
 					<textarea 
 						name="rules" 
 						v-model="form.rules" 
 						id="rules"
+						placeholder="Le chat est malade. Merci de ne pas le toucher."
 					/>
 				</div>
 			</div>

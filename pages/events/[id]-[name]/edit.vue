@@ -83,7 +83,7 @@ const UpdateEvent = async () => {
 				messages.value.push({type: 'success', content: "L'image a été mis a jour."})
 			}
 			if (eventResponse && pictureResponse) {
-				// navigateTo(`/events/${route.params.id}-${toSlug(route.params.name)}`);
+				navigateTo(`/events/${route.params.id}-${toSlug(route.params.name)}`);
 			}
 		} catch(e) {
 			console.log(e);
@@ -150,7 +150,7 @@ const DeleteEvent = async () => {
 
 <template>
 	<div class="container">
-		<h3>Modification {{ data.event.name }}</h3>
+		<h3>Modifier {{ data.event.name }}</h3>
 		<form @submit.prevent="UpdateEvent()">
 			<ul v-if="messages.length">
 				<li 
