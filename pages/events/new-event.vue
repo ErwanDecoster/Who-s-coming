@@ -72,7 +72,9 @@ const UploadImage = async (files:File, eventId, name) => {
 		const supabase = useSupabaseClient();
 		const { data, error } = await supabase.storage
 			.from('event_picture')
-			.upload(`${eventId.toString()}`, files)
+			.upload(`${eventId.toString()}`, files, {
+				upsert: true,
+			})
 		if (error) throw error
 			if (data) {
 			navigateTo(`/events/${eventId}-${toSlug(name)}`);

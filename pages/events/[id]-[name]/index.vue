@@ -1,13 +1,16 @@
 <script setup lang="ts">
 const route = useRoute()
 
-let messages = ref<Array<Message>>([])
+const isImageAccessible = ref<boolean>(false)
+const messages = ref<Array<Message>>([])
 let data: {
 	event: event;
 	publicUrl: string;
 }
 try {
 	data = await $fetch(`/api/events/${route.params.id}`, {})
+	const imageExists = await fetch(data.publicUrl)
+  isImageAccessible.value = imageExists.ok
 } catch (e) {
 	console.error(e);
 	messages.value.push({type: 'error', content: `L'évènement : "${route.params.name}" id : ${route.params.id} na pas pu etre recuperé.`})
@@ -31,7 +34,7 @@ try {
 		</ul>
 		<template v-if="data?.event">
 			<h3>{{ data.event.name }}</h3>
-			<img v-if="data.publicUrl" :src="data.publicUrl" alt="">
+			<img v-if="data.publicUrl && isImageAccessible" :src="data.publicUrl" alt="">
 			<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}/invites`" class="secondary">Liste des invités</NuxtLink>
 			<div class="grid gap-1">
 				<p>Adresse postale :</p>
