@@ -19,8 +19,8 @@ export default eventHandler(async (event) => {
     .insert([
       {
         id_evenement: event_id,
-        first_name: body.first_name,
-        surname: body.surname,
+        first_name: body.first_name.trimEnd(),
+        surname: body.surname.trimEnd(),
         tel: body.tel,
         code: Date.now().toString(36).slice(-6).toUpperCase().padStart(6, '0'),
       }

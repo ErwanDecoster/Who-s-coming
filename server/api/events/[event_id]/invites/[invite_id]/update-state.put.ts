@@ -14,8 +14,7 @@ export default eventHandler(async (event) => {
     const body = await readBody(event)
     const event_id = getRouterParam(event, 'event_id')
     const invite_id = getRouterParam(event, 'invite_id')
-
-
+    
     const { data: evenements, error } = await client
     .from('invitations')
     .update({ 

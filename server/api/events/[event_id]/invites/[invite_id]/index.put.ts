@@ -20,8 +20,8 @@ export default eventHandler(async (event) => {
     const { data: invitations, error } = await client
     .from('invitations')
     .update({ 
-      first_name: body.first_name,
-      surname: body.surname,
+      first_name: body.first_name.trimEnd(),
+      surname: body.surname.trimEnd(),
       tel: body.tel,
     })
     .eq('id_evenement', event_id)

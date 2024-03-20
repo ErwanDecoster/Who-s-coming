@@ -21,7 +21,7 @@ export default eventHandler(async (event) => {
     const { data: evenements, error } = await client
     .from('needs')
     .update({ 
-      label: body.label,
+      label: body.label.trimEnd(),
       min_required_number: body.min_required_number,
       max_number: body.max_number,
     })

@@ -22,12 +22,12 @@ export default eventHandler(async (event) => {
     const { data: evenements, error } = await client
     .from('evenements')
     .update({ 
-      name: body.name,
-      address: body.address,
+      name: body.name.trimEnd(),
+      address: body.address.trimEnd(),
       datetime: body.datetime,
-      desc: body.desc,
-      rules: body.rules,
-      invite_message: body.invite_message,
+      desc: body.desc.trimEnd(),
+      rules: body.rules.trimEnd(),
+      invite_message: body.invite_message.trimEnd(),
     })
     .eq('id_evenement', event_id)
     .select()

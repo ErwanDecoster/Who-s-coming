@@ -19,7 +19,7 @@ export default eventHandler(async (event) => {
     .insert([
       {
         id_evenement: event_id,
-        label: body.label,
+        label: body.label.trimEnd(),
         min_required_number: body.min_required_number,
         max_number: body.max_number,
       }

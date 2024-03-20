@@ -19,11 +19,11 @@ export default eventHandler(async (event) => {
     const { data: evenements, error } = await client.from('evenements')
     .insert([
       {
-        name: body.name,
-        address: body.address,
+        name: body.name.trimEnd(),
+        address: body.address.trimEnd(),
         datetime: body.datetime,
-        desc: body.desc,
-        rules: body.rules,
+        desc: body.desc.trimEnd(),
+        rules: body.rules.trimEnd(),
       }
     ]).select()
     if (error) throw new Error("L'événement n'as pas pu étre ajouté.")

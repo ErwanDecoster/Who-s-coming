@@ -10,7 +10,7 @@ export default eventHandler(async (event) => {
     const client = await serverSupabaseClient(event)
 
     const inviteResponse = await client.from('invitations')
-                                      .select('*, need_invitations (*, need:needs (*)), asked_for:invitations (*)').eq('id_evenement', event_id).eq('id_invitation', invite_id)
+      .select('*, need_invitations (*, need:needs (*)), asked_for:invitations (*)').eq('id_evenement', event_id).eq('id_invitation', invite_id)
     const inviteData = inviteResponse.data
 
     if (!inviteData) {
