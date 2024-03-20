@@ -150,6 +150,13 @@ watch(() => email.value, (newVal) => {
 				</div>
 				<div class="input-container">
 					<label for="password">Mot de passe :</label>
+					<button type="button" @click.self="showPassword" class="show_pass p-2 absolute top-1/2 -translate-y-1/2 right-2">
+						<svg class="pointer-events-none" width="18" height="16" viewBox="0 0 18 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M1 8.30154C5.74762 1.80365 12.4889 1.88804 17 8.30154C12.1679 15.0526 5.78141 14.6813 1 8.30154Z" stroke="#333333" stroke-linejoin="round"/>
+							<path d="M11.7864 8.33554C11.7864 9.86722 10.5433 11.1098 9.00868 11.1098C7.47409 11.1098 6.23096 9.86722 6.23096 8.33554C6.23096 6.80386 7.47409 5.56128 9.00868 5.56128C10.5433 5.56128 11.7864 6.80386 11.7864 8.33554Z" stroke="#333333"/>
+							<path class="barred duration-300 delay-100 scale-0 origin-center" d="M2.62195 1.33341L15.9694 14.6667" stroke="#333333" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</button>
 					<input 
 						type="password" 
 						name="password" 
@@ -169,6 +176,13 @@ watch(() => email.value, (newVal) => {
 				</div>
 				<div class="input-container">
 					<label for="passwordRetype">Comfirmation du mot de passe :</label>
+					<button type="button" @click.self="showPassword" class="show_pass p-2 absolute top-1/2 -translate-y-1/2 right-2">
+						<svg class="pointer-events-none" width="18" height="16" viewBox="0 0 18 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M1 8.30154C5.74762 1.80365 12.4889 1.88804 17 8.30154C12.1679 15.0526 5.78141 14.6813 1 8.30154Z" stroke="#333333" stroke-linejoin="round"/>
+							<path d="M11.7864 8.33554C11.7864 9.86722 10.5433 11.1098 9.00868 11.1098C7.47409 11.1098 6.23096 9.86722 6.23096 8.33554C6.23096 6.80386 7.47409 5.56128 9.00868 5.56128C10.5433 5.56128 11.7864 6.80386 11.7864 8.33554Z" stroke="#333333"/>
+							<path class="barred duration-300 delay-100 scale-0 origin-center" d="M2.62195 1.33341L15.9694 14.6667" stroke="#333333" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</button>
 					<input 
 						type="password" 
 						name="passwordRetype" 

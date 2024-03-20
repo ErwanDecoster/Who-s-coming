@@ -43,13 +43,15 @@ try {
 			</h3>
 			<div class="grid gap-1">
 				<p>Téléphone :</p>
-				<p class="text-base text-black-300" v-if="data.invite.tel">
-				 	<span v-if="formatPhoneNumberForDisplay(data.invite.tel).cc">
-						+{{ formatPhoneNumberForDisplay(data.invite.tel).cc }}
-					</span>	
-					{{ formatPhoneNumberForDisplay(data.invite.tel).cc ? formatPhoneNumberForDisplay(data.invite.tel).tel.replace(/^0/, '') : formatPhoneNumberForDisplay(data.invite.tel).tel }}
+				<div class="flex items-center">
+					<p class="text-base text-black-300" v-if="data.invite.tel">
+						<span v-if="formatPhoneNumberForDisplay(data.invite.tel).cc">
+							+{{ formatPhoneNumberForDisplay(data.invite.tel).cc }}
+						</span>	
+						{{ formatPhoneNumberForDisplay(data.invite.tel).cc ? formatPhoneNumberForDisplay(data.invite.tel).tel.replace(/^0/, '') : formatPhoneNumberForDisplay(data.invite.tel).tel }}
+					</p>
 					<a class="secondary-inline ml-1" :href="`sms:${(formatPhoneNumberForDisplay(data.invite.tel).cc) ? '+' + data.invite.tel.replace(' ', '') : data.invite.tel}`">Ouvrir Messages</a>
-				</p>
+				</div>
 			</div>
 			<div class="grid gap-1">
 				<p>Code :</p>

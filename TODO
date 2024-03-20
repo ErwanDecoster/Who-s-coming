@@ -1,6 +1,6 @@
 ✅change invite state
 ✅open sms app
-add sms link on invite page
+✅add sms link on invite page
 ✅add interniational phone gestion "+33625306813"
 ✅add define sms message in event edit
 ✅add invite
@@ -13,4 +13,5 @@ order events list by date
 ✅delete invite component
 ✅show image only if existe
 ✅better image event gestion
+✅show password button
 delete event
