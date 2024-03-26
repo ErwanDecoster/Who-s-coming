@@ -46,7 +46,6 @@ const Register = async () => {
 				password: password.value
 			})
 			if (error) throw error
-			console.log(data);
 			if (data.user?.role && data.user.role === "authenticated") {
 				messages.value.push({type: 'success', content: "Veuillez vérifier votre boîte mail et confirmer votre inscription." })
 				needEmailComfirmation.value = true;

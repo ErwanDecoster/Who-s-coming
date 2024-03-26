@@ -32,7 +32,8 @@ export default eventHandler(async (event) => {
     .eq('id_evenement', event_id)
     .select()
   
-    if (error) throw new Error("L'événement n'as pas pu étre mis a jour.")
+    if (error) throw error
+    // if (error) throw new Error("L'événement n'as pas pu étre mis a jour.")
     return (evenements)
   } catch(e) {
     console.log(e);

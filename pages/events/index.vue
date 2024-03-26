@@ -1,10 +1,8 @@
 <script setup lang="ts">
 let messages = ref<Array<Message>>([])
-let data: {
-	events: event[];
-}
+let events:  event[];
 try {
-	data = await $fetch(`/api/events/`, {})
+	events = await $fetch(`/api/events/`, {})
 } catch (e) {
 	console.error(e);
 	messages.value.push({type: 'error', content: `Vos évènements non pas pu etre recuperé.`})
@@ -27,9 +25,9 @@ try {
 				{{ message.content }}
 			</li>
 		</ul>
-		<p v-if="!data.events.length">Aucun événement pour le moment.</p>
+		<p v-if="!events || !events.length">Aucun événement pour le moment.</p>
 		<NuxtLink 
-			v-for="event in data?.events" 
+			v-for="event in events" 
 			:key="event.id_evenement" 
 			:to="`/events/${event.id_evenement}-${toSlug(event.name)}`" 
 			class="secondary"

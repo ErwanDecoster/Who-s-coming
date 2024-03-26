@@ -20,7 +20,6 @@ const OpenMessageApp = ((first_name: string, surname: string, code: string, tel:
 const SendInvite = ((invite: invite, newState: number) => {
   const data = updateInviteState(invite.id_evenement, invite.id_invitation, newState).then((data) => {
     // open message app
-    console.log(data);
     if (data === true) {
       // update invites liste
       OpenMessageApp(invite.first_name, invite.surname, invite.code, invite.tel, props.url)

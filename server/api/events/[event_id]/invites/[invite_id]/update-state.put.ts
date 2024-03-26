@@ -24,13 +24,10 @@ export default eventHandler(async (event) => {
     .eq('id_evenement', event_id)
     .eq('id_invitation', invite_id)
     .select()
-    console.log(error);
-    
     if (error) throw error
     return true
   } catch(e) {
     console.log(e);
-    console.log('e');
     return (e)
   }
 })

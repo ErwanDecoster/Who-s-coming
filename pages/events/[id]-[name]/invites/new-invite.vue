@@ -40,7 +40,6 @@ const AddInvite = async () => {
 					tel: formatPhoneNumberForDatabase(form.value.tel, form.value.countryCode) ,
 				},
 			}).then((data) => {
-				console.log(data);
 				if (data != true) throw new Error
 				messages.value.push({
 					type: 'success',

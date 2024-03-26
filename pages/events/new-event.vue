@@ -44,6 +44,7 @@ const AddEvent = async () => {
 					desc: form.value.desc,
 					rules: form.value.rules,
 				},
+				
 			}).then((data) => {
 				if (data) {
 					messages.value.push({
@@ -67,12 +68,12 @@ const UploadImage = async (files:File, eventId, name) => {
 	try {
 		const supabase = useSupabaseClient();
 		const { data, error } = await supabase.storage
-			.from('event_picture')
-			.upload(`${eventId.toString()}`, files, {
-				upsert: true,
-			})
+		.from('event_picture')
+		.upload(`${eventId.toString()}`, files, {
+			upsert: true,
+		})
 		if (error) throw error
-			if (data) {
+		if (data) {
 			navigateTo(`/events/${eventId}-${toSlug(name)}`);
 		}
 	} catch(e) {

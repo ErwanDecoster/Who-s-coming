@@ -30,7 +30,7 @@ export default eventHandler(async (event) => {
     .select()
   
     if (error) throw new Error("Le besoin n'as pas pu étre mis a jour.")
-    return (evenements)
+    return (evenements[0])
   } catch(e) {
     console.log(e);
     return (e)

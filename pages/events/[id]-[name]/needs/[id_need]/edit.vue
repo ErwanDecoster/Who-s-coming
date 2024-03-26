@@ -52,6 +52,8 @@ const UpdateNeed = async () => {
 			if (need) {
 				messages.value.push({type: 'success', content: "Le besoin a été mis a jour."})
 				router.back()
+			} else {
+				throw Error
 			}
 		} catch(e) {
 			console.log(e);
@@ -84,6 +86,12 @@ const DeleteNeed = async () => {
 		comfirmDelete.value = false
 	}
 }
+
+watch(() => form.value.min_required_number, (newVal) => {
+	if (newVal > form.value.max_number) {
+		form.value.max_number = newVal
+	}
+})
 
 </script>
 

@@ -1,11 +1,22 @@
 import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseUser } from '#supabase/server'
 
 export default eventHandler(async (event) => {
-  const name = getRouterParam(event, 'name')
+  try {
+    const client = await serverSupabaseClient(event)
+    const user = await serverSupabaseUser(event);
+    if (user) {
+      const eventsResponse = await client.from('evenements').select('*').eq('user_id', user?.id)
+      const eventsData = eventsResponse.data
 
-  const client = await serverSupabaseClient(event)
+      if (!eventsData) {
+        throw new Error('Impossible de récupérer les événements.')
+      }
 
-  const { data } = await client.from('evenements').select('*')
-
-  return { events: data }
+      return eventsData
+    }
+  } catch (e) {
+    console.log(e);
+    return (e)
+  }
 })

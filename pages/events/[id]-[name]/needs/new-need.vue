@@ -41,8 +41,6 @@ const AddNeed = async () => {
 					max_number: form.value.max_number,
 				},
 			}).then((data) => {
-				console.log(data);
-				
 				if (data[0]) {
 					messages.value.push({
 						type: 'success',

@@ -17,7 +17,6 @@ const DeleteInvite = async (invite: invite, index: number) => {
 		const data = await $fetch(`/api/events/${route.params.id}/invites/${invite.id_invitation}`, {
 			method: 'delete',
 		})
-		console.log(data);
 		
 		if (data == true) {
 			props.messages.push({type: 'success', content: "L'invité a été supprimé."})
@@ -56,7 +55,7 @@ const DeleteInvite = async (invite: invite, index: number) => {
           {{ invite.asked_by.surname }}
         </span>
       </NuxtLink>
-      <button @click="DeleteInvite(invite, index)" class="bg-secondary px-1.5 text-white">
+      <button @click="DeleteInvite(invite, index)" class="bg-red px-1.5 text-white">
         <template v-if="comfirmDelete[index] === false">
           Comfirmer
         </template>

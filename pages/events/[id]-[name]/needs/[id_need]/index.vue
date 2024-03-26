@@ -29,15 +29,15 @@ try {
 		<template v-if="need">
 			<h3 v-if="need.label">{{ need.label }}</h3>
 			<div class="grid gap-1">
-				<p>Nombre minimun requis :</p>
+				<p>Minimun requis :</p>
 				<p class="text-base text-black-300" v-if="need.min_required_number">{{ need.min_required_number }} requis</p>
 			</div>
 			<div class="grid gap-1">
-				<p>Nombre maximun :</p>
+				<p>Maximun :</p>
 				<p class="text-base text-black-300" v-if="need.max_number">{{ need.max_number }} maximun</p>
 			</div>
 			<div v-if="need.need_invitations" class="grid gap-1">
-				<p>Invitées lié - {{ need.need_invitations.length }} {{ (need.need_invitations.length < 1) ? 'personnes' : 'personne' }} : </p>
+				<p>Invités lié - {{ need.need_invitations.length }} {{ (need.need_invitations.length < 1) ? 'personnes' : 'personne' }} : </p>
 				<div class="grid gap-1" v-if="need.need_invitations.length">
 					<NuxtLink 
 						v-for="(need_invitation, index) in need.need_invitations" 

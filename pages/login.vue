@@ -20,7 +20,7 @@ const ValidForm = (() => {
   return (1)
 })
 
-const Register = async () => {
+const Login = async () => {
 	if (ValidForm()) {
 		try {
 			const supabase = useSupabaseClient();
@@ -30,6 +30,7 @@ const Register = async () => {
 			})
 			if (error) throw error
 			if (data.user?.role && data.user.role === "authenticated") {
+				localStorage.user = data.user
 				const router = useRouter()
 				router.push('/events')
 			}
@@ -50,7 +51,7 @@ if (typeof route.query.comfirm !== 'undefined')
 
 <template>
 	<div class="container">
-		<form @submit.prevent="Register()">
+		<form @submit.prevent="Login()">
 			<ul>
 				<li 
 					v-for="message in messages" 

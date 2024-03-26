@@ -20,9 +20,7 @@ try {
 }
 
 const updateInviteList = (inviteList: invite[], invite: invite) => {
-	console.log(inviteList, invite);
 	inviteList = inviteList.filter(item => item !== invite);
-	console.log(inviteList);
 	return inviteList
 	
 }
