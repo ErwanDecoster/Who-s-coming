@@ -30,7 +30,6 @@ const Login = async () => {
 			})
 			if (error) throw error
 			if (data.user?.role && data.user.role === "authenticated") {
-				localStorage.user = data.user
 				const router = useRouter()
 				router.push('/events')
 			}
@@ -43,9 +42,6 @@ const Login = async () => {
 
 if (typeof route.query.comfirm !== 'undefined')
 	messages.value.push({type: 'success', content: "Votre e-mail a été vérifiée avec succès. Vous pouvez maintenant vous connecter !" })
-	
-
-
 
 </script>
 
