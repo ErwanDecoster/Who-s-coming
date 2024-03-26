@@ -5,6 +5,9 @@ h2 {
   @apply text-xl text-center text-white
 }
 h3 {
+  @apply text-xl text-left text-primary first-letter:uppercase
+}
+h4 {
   @apply text-lg text-left text-primary first-letter:uppercase
 }
 .container {
@@ -26,7 +29,7 @@ button, a, input[type=submit], .input-style {
   @apply duration-300 py-1.5 rounded-sm
 }
 input[type=submit] {
-  @apply text-center px-4 bg-primary hover:bg-opacity-90 text-beige rounded-tr-2xl rounded-bl-2xl hover:rounded-tr-3xl hover:rounded-bl-3xl;
+  @apply text-center text-base cursor-pointer px-4 bg-primary hover:bg-opacity-90 text-beige rounded-tr-2xl rounded-bl-2xl hover:rounded-tr-3xl hover:rounded-bl-3xl;
   @apply disabled:bg-red;
 }
 .input-container {
@@ -81,8 +84,8 @@ button, a {
   &.secondary-inline {
     @apply px-2 py-1 text-base inline-block rounded-tr-lg rounded-bl-lg hover:rounded-tr-xl hover:rounded-bl-xl bg-secondary hover:bg-opacity-90 text-primary
   }
-  &.primary, &.secondary, &.tertiary, &.delete, &.frosted {
-    @apply text-center text-lg px-4 rounded-tr-2xl rounded-bl-2xl hover:rounded-tr-3xl hover:rounded-bl-3xl;
+  &.primary, &.secondary, &.tertiary, &.delete, &.delete-rev, &.frosted {
+    @apply text-center text-base px-4 rounded-tr-2xl rounded-bl-2xl hover:rounded-tr-3xl hover:rounded-bl-3xl;
   }
   &.primary {
     @apply bg-primary hover:bg-opacity-90 text-beige;
@@ -95,6 +98,9 @@ button, a {
   }
   &.delete {
     @apply text-red hover:bg-red hover:text-white;
+  }
+  &.delete-rev {
+    @apply bg-red  text-white;
   }
   &.frosted {
     @apply bg-primary bg-opacity-20 hover:bg-opacity-15 text-beige;

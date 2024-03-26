@@ -6,9 +6,9 @@
     </header>
     <div class="grow w-full flex flex-col p-2">
       <div class="mx-auto w-full pb-2 max-w-sm flex justify-between">
-        <NuxtLink v-if="$route.name?.toString().includes('events-')" to="/events" class="frosted">Mes évènements</NuxtLink>
+        <NuxtLink v-if="$route.name?.toString().includes('events-') || $route.name?.toString().includes('account')" to="/events" class="frosted">Mes évènements</NuxtLink>
         <span />
-        <NuxtLink class="frosted">Mon compte</NuxtLink>
+        <NuxtLink v-if="!$route.name?.toString().includes('account')" to="/account" class="frosted">Mon compte</NuxtLink>
       </div>
       <slot />
     </div>
