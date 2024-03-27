@@ -30,14 +30,33 @@ useSeoMeta({
   twitterImage: img,
 })
 
+const groupEventsByDateAndMonth = (events: event[]) => {
+  const groupedEvents: any = {};
+  events.forEach(event => {
+    const eventDate = new Date(event.datetime);
+    const yearMonth = eventDate.toLocaleString('default', { month: 'long' }) + ' ' + eventDate.getFullYear();
+    if (!groupedEvents[yearMonth]) {
+      groupedEvents[yearMonth] = [];
+    }
+    groupedEvents[yearMonth].push(event);
+  });
+  return groupedEvents;
+};
+
+// Appel de la fonction de regroupement
+
 let messages = ref<Array<Message>>([])
 let events:  event[];
+let eventsGroupedByDateAndMonth: any
 try {
 	events = await $fetch(`/api/events/`, {})
+	eventsGroupedByDateAndMonth = groupEventsByDateAndMonth(events);
 } catch (e) {
 	console.error(e);
 	messages.value.push({type: 'error', content: `Vos évènements non pas pu etre recuperé.`})
 }
+
+console.log(eventsGroupedByDateAndMonth);
 </script>
 
 <template>
@@ -57,14 +76,23 @@ try {
 			</li>
 		</ul>
 		<p v-if="!events || !events.length">Aucun événement pour le moment.</p>
-		<NuxtLink 
-			v-for="event in events" 
-			:key="event.id_evenement" 
-			:to="`/events/${event.id_evenement}-${toSlug(event.name)}`" 
-			class="secondary"
-		>
-			{{ event.name }}
-		</NuxtLink>
+		<div class="grid gap-2">
+			<div 
+				v-for="(eventsOfMonth, month) in eventsGroupedByDateAndMonth" 
+				:key="month"
+				class="grid gap-1"
+			>
+				<h4 class="first-letter:uppercase">{{ month }}</h4>
+				<NuxtLink 
+					v-for="event in eventsOfMonth" 
+					:key="event.id_evenement" 
+					:to="`/events/${event.id_evenement}-${toSlug(event.name)}`" 
+					class="secondary"
+				>
+					{{ event.name }}
+				</NuxtLink>
+			</div>
+		</div>
 		<NuxtLink to="/events/new-event" class="primary">Nouvel événement</NuxtLink>
 	</div>
 </template>
