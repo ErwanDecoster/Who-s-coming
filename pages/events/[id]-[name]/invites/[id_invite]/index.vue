@@ -1,5 +1,34 @@
 <script setup lang="ts">
 const route = useRoute()
+const runtimeConfig = useRuntimeConfig()
+const title = "Invité - Who's coming - Organisateur d'évènements";
+const desc = "Consultez les détails de votre invité sur Who's coming. Découvrez ses informations, y compris le numéro de téléphone et les besoins liés."
+const img = runtimeConfig.public.siteUrl + "/images/minia.png"
+const url = runtimeConfig.public.siteUrl + route.path
+useHead({
+  link: [
+    {
+      hid: 'canonical',
+      rel: 'canonical',
+      href: url,
+    },
+  ],
+})
+useSeoMeta({
+  title: title,
+  description: desc,
+  ogDescription: desc,
+  ogTitle: title,
+  ogUrl: url,
+  ogType: 'article',
+  ogImage: img,
+  twitterCard: 'summary_large_image',
+  twitterSite: '@erwan_decoster',
+  twitterCreator: '@erwan_decoster',
+  twitterTitle: title,
+  twitterDescription: desc,
+  twitterImage: img,
+})
 
 let messages = ref<Array<Message>>([])
 let data: {

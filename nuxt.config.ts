@@ -9,5 +9,10 @@ export default defineNuxtConfig({
   supabase: {
     supabaseUrl: process.env.SUPABASE_URL,
     supabaseKey: process.env.SUPABASE_KEY
-  }
+  },
+  runtimeConfig: {
+    public: {
+      siteUrl: process.env.PUBLIC_SITE_URL || 'https://who-s-coming.vercel.app/',
+    },
+  },
 })

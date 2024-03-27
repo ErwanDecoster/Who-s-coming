@@ -1,4 +1,35 @@
 <script setup lang="ts">
+const route = useRoute()
+const runtimeConfig = useRuntimeConfig()
+const title = "Mon compte - Who's coming - Organisateur d'évènements";
+const desc = "Gérez votre compte Who's coming : modifiez votre adresse e-mail, votre mot de passe et supprimez votre compte si nécessaire."
+const img = runtimeConfig.public.siteUrl + "/images/minia.png"
+const url = runtimeConfig.public.siteUrl + route.path
+useHead({
+  link: [
+    {
+      hid: 'canonical',
+      rel: 'canonical',
+      href: url,
+    },
+  ],
+})
+useSeoMeta({
+  title: title,
+  description: desc,
+  ogDescription: desc,
+  ogTitle: title,
+  ogUrl: url,
+  ogType: 'article',
+  ogImage: img,
+  twitterCard: 'summary_large_image',
+  twitterSite: '@erwan_decoster',
+  twitterCreator: '@erwan_decoster',
+  twitterTitle: title,
+  twitterDescription: desc,
+  twitterImage: img,
+})
+
 const messages = ref<Array<Message>>([])
 
 let passwordForm = ref({

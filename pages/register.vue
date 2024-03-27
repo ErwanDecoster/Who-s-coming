@@ -1,4 +1,34 @@
 <script setup lang="ts">
+const route = useRoute()
+const runtimeConfig = useRuntimeConfig()
+const title = "Inscription - Who's coming - Organisateur d'évènements";
+const desc = "Rejoignez Who's coming et commencez à organiser vos événements en toute simplicité. Inscrivez-vous dès maintenant pour bénéficier de fonctionnalités exclusives."
+const img = runtimeConfig.public.siteUrl + "/images/minia.png"
+const url = runtimeConfig.public.siteUrl + route.path
+useHead({
+  link: [
+    {
+      hid: 'canonical',
+      rel: 'canonical',
+      href: url,
+    },
+  ],
+})
+useSeoMeta({
+  title: title,
+  description: desc,
+  ogDescription: desc,
+  ogTitle: title,
+  ogUrl: url,
+  ogType: 'article',
+  ogImage: img,
+  twitterCard: 'summary_large_image',
+  twitterSite: '@erwan_decoster',
+  twitterCreator: '@erwan_decoster',
+  twitterTitle: title,
+  twitterDescription: desc,
+  twitterImage: img,
+})
 
 interface Message {
   type: string;

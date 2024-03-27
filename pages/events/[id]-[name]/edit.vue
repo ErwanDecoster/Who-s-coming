@@ -1,6 +1,36 @@
 <script setup lang="ts">
-const router = useRouter()
 const route = useRoute()
+const runtimeConfig = useRuntimeConfig()
+const title = "Modifier mon événement - Who's coming - Organisateur d'évènements";
+const desc = "Modifiez les détails de votre événement sur Who's coming. Mettez à jour les informations de l'événement selon vos besoins."
+const img = runtimeConfig.public.siteUrl + "/images/minia.png"
+const url = runtimeConfig.public.siteUrl + route.path
+useHead({
+  link: [
+    {
+      hid: 'canonical',
+      rel: 'canonical',
+      href: url,
+    },
+  ],
+})
+useSeoMeta({
+  title: title,
+  description: desc,
+  ogDescription: desc,
+  ogTitle: title,
+  ogUrl: url,
+  ogType: 'article',
+  ogImage: img,
+  twitterCard: 'summary_large_image',
+  twitterSite: '@erwan_decoster',
+  twitterCreator: '@erwan_decoster',
+  twitterTitle: title,
+  twitterDescription: desc,
+  twitterImage: img,
+})
+
+const router = useRouter()
 let form = ref({
 	image: File,
 	name: "",
