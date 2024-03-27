@@ -69,6 +69,7 @@ if (typeof route.query.comfirm !== 'undefined')
 					v-model="email" 
 					id="email" 
 					autocomplete="email"
+					autofocus
 					required
 				>
 			</div>

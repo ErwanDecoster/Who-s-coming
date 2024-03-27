@@ -31,6 +31,7 @@ declare global {
   }
 
   interface need_invitation {
+    count: number;
     id: number;
     needs: need[];
     need: need;

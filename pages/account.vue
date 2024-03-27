@@ -51,11 +51,11 @@ const ValidPasswordForm = (() => {
     return (0)
   return (1)
 })
+const supabase = useSupabaseClient();
 
 // let { data, error } = await supabase.auth.resetPasswordForEmail(email)
 const disconect = async () => {
 	try {
-		const supabase = useSupabaseClient();
 		let { error } = await supabase.auth.signOut()
 		if (error) throw error
 	} catch (error) {
@@ -66,22 +66,22 @@ const disconect = async () => {
 const updateUserEmail = async () => {
 	if (ValidEmailForm()) {
 		try {
-			const supabase = useSupabaseClient();
 			const { data, error } = await supabase.auth.updateUser({
 				email: emailForm.value.newEmail,
 			})
 			if (error) throw error
 			console.log(data);
+			messages.value.push({type: 'success', content: "Votre email a bien été mis a jour."})
 		} catch (error) {
 			messages.value.push({type: 'error', content: "Votre email n'as pas pu étre mis a jour."})
 			console.error(error);
 		}
 	}
 }
+
 const updateUserPassword = async () => {
 	if (ValidPasswordForm()) {
 		try {
-			const supabase = useSupabaseClient();
 			const { data, error } = await supabase.auth.updateUser({
 				password: passwordForm.value.newPassword,
 			})
@@ -242,8 +242,8 @@ watch(() => emailForm.value.newEmail, (newVal: string) => {
 				{{ passwordForm.showForm? 'Annuler': 'Modifier le mot de passe'}}
 			</button>
 		</div>
-		<button v-if="!passwordForm.showForm && !emailForm.showForm" @click="disconect" class="delete" >Deconnexion</button>
 		<NuxtLink v-if="!passwordForm.showForm && !emailForm.showForm" :to="`/account`" class="primary">Retour</NuxtLink>
 		<button v-if="!passwordForm.showForm && !emailForm.showForm" class="delete-rev" @click="delete">Supprimer mon compte</button>
+		<button v-if="!passwordForm.showForm && !emailForm.showForm" @click="disconect" class="delete" >Deconnexion</button>
 	</div>
 </template>

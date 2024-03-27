@@ -92,6 +92,7 @@ watch(() => form.value.min_required_number, (newVal) => {
 					v-model="form.label" 
 					id="label"
 					required
+					autofocus
 					autocomplete="off"
 					placeholder="Bouée gonflable"
 				>

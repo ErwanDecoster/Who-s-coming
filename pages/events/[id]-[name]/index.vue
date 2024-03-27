@@ -9,8 +9,11 @@ let data: {
 }
 try {
 	data = await $fetch(`/api/events/${route.params.id}`, {})
-	const imageExists = await fetch(data.publicUrl)
-  isImageAccessible.value = imageExists.ok
+	// console.log(data);
+	if (data && data.publicUrl) {
+		const imageExists = await fetch(data.publicUrl)
+		isImageAccessible.value = imageExists.ok
+	}
 } catch (e) {
 	console.error(e);
 	messages.value.push({type: 'error', content: `L'évènement : "${route.params.name}" id : ${route.params.id} na pas pu etre recuperé.`})
@@ -34,7 +37,7 @@ try {
 		</ul>
 		<template v-if="data?.event">
 			<h3>{{ data.event.name }}</h3>
-			<img v-if="data.publicUrl && isImageAccessible" :src="data.publicUrl" alt="">
+			<img v-if="isImageAccessible && data.publicUrl" :src="data.publicUrl" alt="">
 			<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}/invites`" class="secondary">Liste des invités</NuxtLink>
 			<div class="grid gap-1">
 				<p>Adresse postale :</p>
@@ -69,7 +72,7 @@ try {
 						class="leaf flex justify-between rounded-sm"
 					>
 						<p class="text-base text-black-300 first-letter:uppercase">{{ need.label }}</p>
-						<p class="text-base text-black-300"> / {{ need.min_required_number }}</p>
+						<p class="text-base text-black-300">{{ need.need_invitations[0].count }} / {{ need.min_required_number }}</p>
 					</NuxtLink>
 				</div>
 				<p v-else class="text-base text-black-300">Aucun besoin ajouté.</p>

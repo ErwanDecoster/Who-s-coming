@@ -141,6 +141,7 @@ watch(() => email.value, (newVal) => {
 						v-model="email" 
 						id="email" 
 						autocomplete="email"
+						autofocus
 						required
 					>
 					<ul>

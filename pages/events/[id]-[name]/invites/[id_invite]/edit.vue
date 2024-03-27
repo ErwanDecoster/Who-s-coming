@@ -115,6 +115,7 @@ const DeleteInvite = async () => {
 					v-model="form.first_name" 
 					placeholder="Jean"
 					id="first_name"
+					autofocus
 					required
 				>
 			</div>
