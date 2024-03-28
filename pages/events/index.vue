@@ -42,21 +42,28 @@ const groupEventsByDateAndMonth = (events: event[]) => {
   });
   return groupedEvents;
 };
-
-// Appel de la fonction de regroupement
+ 
 
 let messages = ref<Array<Message>>([])
-let events:  event[];
 let eventsGroupedByDateAndMonth: any
 try {
-	events = await $fetch(`/api/events/`, {})
-	eventsGroupedByDateAndMonth = groupEventsByDateAndMonth(events);
+	const { data: events } = await useFetch(
+		`/api/events/`,
+		{
+			transform: (events: event[]) => {
+				return events.map((event) => ({
+					id_evenement: event.id_evenement,
+					name: event.name,
+					datetime: event.datetime,
+				}))
+			}
+		}
+	)
+	eventsGroupedByDateAndMonth = groupEventsByDateAndMonth(events.value);
 } catch (e) {
 	console.error(e);
 	messages.value.push({type: 'error', content: `Vos évènements non pas pu etre recuperé.`})
 }
-
-console.log(eventsGroupedByDateAndMonth);
 </script>
 
 <template>
@@ -75,7 +82,7 @@ console.log(eventsGroupedByDateAndMonth);
 				{{ message.content }}
 			</li>
 		</ul>
-		<p v-if="!events || !events.length">Aucun événement pour le moment.</p>
+		<p v-if="!eventsGroupedByDateAndMonth || !eventsGroupedByDateAndMonth.length">Aucun événement pour le moment.</p>
 		<div class="grid gap-2">
 			<div 
 				v-for="(eventsOfMonth, month) in eventsGroupedByDateAndMonth" 

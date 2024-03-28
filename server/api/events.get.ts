@@ -6,7 +6,7 @@ export default eventHandler(async (event) => {
     const client = await serverSupabaseClient(event)
     const user = await serverSupabaseUser(event);
     if (user) {
-      const eventsResponse = await client.from('evenements').select('*').eq('user_id', user?.id)
+      const eventsResponse = await client.from('evenements').select('id_evenement, name, datetime').eq('user_id', user?.id)
       const eventsData = eventsResponse.data
 
       if (!eventsData) {

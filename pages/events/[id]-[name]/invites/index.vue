@@ -31,15 +31,23 @@ useSeoMeta({
 })
 
 let messages = ref<Array<Message>>([])
-let data: {
-	invites_by_state: invites_by_state;
-}
-try {
-	data = await $fetch(`/api/events/${route.params.id}/invites`, {})
-} catch (e) {
-	console.error(e);
-	messages.value.push({type: 'error', content: `Les invites de l'évènement "${route.params.name}" id : ${route.params.id} non pas pu étre recuperé.`})
-}
+// let data: {
+// 	invites_by_state: invites_by_state;
+// }
+
+const { data } = await useFetch(
+	`/api/events/${route.params.id}/invites`,
+	{}
+)
+
+
+
+// try {
+// 	data = await $fetch(`/api/events/${route.params.id}/invites`, {})
+// } catch (e) {
+// 	console.error(e);
+// 	messages.value.push({type: 'error', content: `Les invites de l'évènement "${route.params.name}" id : ${route.params.id} non pas pu étre recuperé.`})
+// }
 </script>
 
 <template>
@@ -90,9 +98,9 @@ try {
 				<InvitesView :invites="data.invites_by_state[6]" />
 			</div>
 			<p v-if="Object.keys(data.invites_by_state).length === 0" class="text-base text-black-300">Aucun invités n'est associer a cette événement.</p>
-			<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}/invites/new-invite`" class="primary">Ajouter un invité</NuxtLink>
-			<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}/invites/edit`" class="secondary">Modifier</NuxtLink>
-			<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}`" class="tertiary">Retour</NuxtLink>
+			<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name.toString())}/invites/new-invite`" class="primary">Ajouter un invité</NuxtLink>
+			<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name.toString())}/invites/edit`" class="secondary">Modifier</NuxtLink>
+			<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name.toString())}`" class="tertiary">Retour</NuxtLink>
 		</template>
 	</div>
 </template>

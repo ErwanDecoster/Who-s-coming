@@ -8,7 +8,9 @@ export default eventHandler(async (event) => {
     const event_id = getRouterParam(event, 'event_id')
     const client = await serverSupabaseClient(event)
 
-    const invitesResponse = await client.from('invitations').select('*').eq('id_evenement', event_id)
+    const invitesResponse = await client.from('invitations')
+      .select("id_invitation, id_state, state_change_date, id_invitation_asker, first_name, surname, code, tel")
+      .eq('id_evenement', event_id)
     const invitesData = invitesResponse.data
 
     if (!invitesData) {
@@ -56,7 +58,7 @@ export default eventHandler(async (event) => {
     invitesData.sort(compareInvites)
     // invitesData.sort(compareIdInvitationAsker)
 
-    invitesData.forEach(invite => {
+    invitesData.forEach((invite: invite) => {
       if (!invitesByState.hasOwnProperty(invite.id_state)) {
         // Si la clé n'existe pas, créer un tableau vide pour stocker les invités avec cet id_state
         invitesByState[invite.id_state] = [];

@@ -10,7 +10,7 @@ export default eventHandler(async (event) => {
     const user = await serverSupabaseUser(event);
     if (user) {
       const [eventResponse, pictureResponse] = await Promise.all([
-        client.from('evenements').select('*, needs (*, need_invitations (count))').eq('id_evenement', event_id).eq('user_id', user?.id),
+        client.from('evenements').select('name, address, datetime, desc, invite_message, rules, needs (id_need, label, min_required_number, need_invitations (count))').eq('id_evenement', event_id).eq('user_id', user?.id),
         client.storage.from('event_picture').getPublicUrl(event_id)
       ])
   

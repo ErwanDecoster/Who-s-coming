@@ -32,20 +32,56 @@ useSeoMeta({
 
 const isImageAccessible = ref<boolean>(false)
 const messages = ref<Array<Message>>([])
-let data: {
-	event: event;
-	publicUrl: string;
-}
-try {
-	data = await $fetch(`/api/events/${route.params.id}`, {})
-	// console.log(data);
-	if (data && data.publicUrl) {
-		const imageExists = await fetch(data.publicUrl)
-		isImageAccessible.value = imageExists.ok
+
+const { data } = await useFetch(
+	`/api/events/${route.params.id}`,
+	{
+		transform: (data: any) => {
+			return {
+				event: {
+					id_evenement: data.event.id_evenement,
+					name: data.event.name,
+					address: data.event.address,
+					desc: data.event.desc,
+					rules: data.event.rules,
+					datetime: data.event.datetime,
+					needs: data.event.needs.map((need: need) => ({
+						id_need: need.id_need,
+						label: need.label,
+						min_required_number: need.min_required_number,
+						actual_number: need.need_invitations[0].count
+					}))
+				},
+				publicUrl: data.publicUrl,
+				fetchedAt: new Date(),
+			}
+		},
+		getCachedData(key, nuxtApp) {
+			const data = nuxtApp.payload.data[key] || nuxtApp.static.data[key]
+			if (!data) {
+				return 
+			}
+			const espirationDate = new Date(data.fetchedAt)
+			espirationDate.setTime(espirationDate.getTime() + 120 * 1000)
+			if (espirationDate.getTime() < Date.now()) {
+				return
+			}
+			const localStorageRefresh = localStorage.getItem("refresh")
+			if (localStorageRefresh) {
+				let refreshDatas = JSON.parse(localStorageRefresh)
+				const toFind = `event-${route.params.id}`
+				if (refreshDatas.includes(toFind)) {
+					refreshDatas = refreshDatas.filter((refreshData: string) => refreshData !== toFind)
+					localStorage.setItem('refresh', JSON.stringify(refreshDatas))
+					return
+				}
+			}
+		},
 	}
-} catch (e) {
-	console.error(e);
-	messages.value.push({type: 'error', content: `L'évènement : "${route.params.name}" id : ${route.params.id} na pas pu etre recuperé.`})
+)
+if (data.value && data.value.publicUrl) {
+	const imageExists = await fetch(data.value.publicUrl)
+	isImageAccessible.value = imageExists.ok
 }
 </script>
 
@@ -67,7 +103,7 @@ try {
 		<template v-if="data?.event">
 			<h3>{{ data.event.name }}</h3>
 			<img v-if="isImageAccessible && data.publicUrl" :src="data.publicUrl" alt="">
-			<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}/invites`" class="secondary">Liste des invités</NuxtLink>
+			<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name.toString())}/invites`" class="secondary">Liste des invités</NuxtLink>
 			<div class="grid gap-1">
 				<p>Adresse postale :</p>
 				<p v-if="data.event.address" class="text-black-300">{{ data.event.address }}</p>
@@ -93,7 +129,7 @@ try {
 					<NuxtLink 
 						v-for="(need, index) in data.event.needs" 
 						:key="need.id_need"
-						:to="`/events/${$route.params.id}-${toSlug($route.params.name)}/needs/${need.id_need}`" 
+						:to="`/events/${$route.params.id}-${toSlug($route.params.name.toString())}/needs/${need.id_need}`" 
 						:class="[
 							{ 'rounded-tr-lg hover:rounded-tr-xl': index === 0},
 							{ 'rounded-bl-lg hover:rounded-bl-xl': index === data.event.needs.length - 1}
@@ -101,13 +137,13 @@ try {
 						class="leaf flex justify-between rounded-sm"
 					>
 						<p class="text-base text-black-300 first-letter:uppercase">{{ need.label }}</p>
-						<p class="text-base text-black-300">{{ need.need_invitations[0].count }} / {{ need.min_required_number }}</p>
+						<p class="text-base text-black-300">{{ need.actual_number }} / {{ need.min_required_number }}</p>
 					</NuxtLink>
 				</div>
 				<p v-else class="text-base text-black-300">Aucun besoin ajouté.</p>
-				<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}/needs/new-need`" class="secondary">Ajouter un besoin</NuxtLink>
+				<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name.toString())}/needs/new-need`" class="secondary">Ajouter un besoin</NuxtLink>
 			</div>
-			<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}/edit`" class="primary">Modifier</NuxtLink>
+			<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name.toString())}/edit`" class="primary">Modifier</NuxtLink>
 		</template>
 	</div>
 </template>

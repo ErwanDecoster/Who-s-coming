@@ -10,7 +10,7 @@ export default eventHandler(async (event) => {
     const client = await serverSupabaseClient(event)
 
     const inviteResponse = await client.from('invitations')
-      .select('*, need_invitations (*, need:needs (*)), asked_for:invitations (*)').eq('id_evenement', event_id).eq('id_invitation', invite_id)
+      .select('id_invitation, id_invitation_asker, id_state, first_name, surname, tel, code, need_invitations (need:needs (id_need, label)), asked_for:invitations (id_invitation, id_state, first_name, surname)').eq('id_evenement', event_id).eq('id_invitation', invite_id)
     const inviteData = inviteResponse.data
 
     if (!inviteData) {
@@ -19,7 +19,8 @@ export default eventHandler(async (event) => {
 
     let askerInviteData = {}
     if (inviteData[0].id_invitation_asker) {
-      const askerInviteResponse = await client.from('invitations').select('*').eq('id_evenement', event_id).eq('id_invitation', inviteData[0].id_invitation_asker)
+      const askerInviteResponse = await client.from('invitations')
+        .select('first_name, surname, id_invitation').eq('id_evenement', event_id).eq('id_invitation', inviteData[0].id_invitation_asker)
       askerInviteData = askerInviteResponse.data
     }
 

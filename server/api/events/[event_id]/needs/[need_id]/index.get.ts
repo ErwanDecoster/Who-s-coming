@@ -9,7 +9,7 @@ export default eventHandler(async (event) => {
     const need_id = getRouterParam(event, 'need_id')
     const client = await serverSupabaseClient(event)
 
-    const needResponse = await client.from('needs').select('*, need_invitations (*, invitation:invitations (*))').eq('id_evenement', event_id).eq('id_need', need_id)
+    const needResponse = await client.from('needs').select('id_need, label, max_number, min_required_number, need_invitations (invitation:invitations (id_invitation, first_name, surname))').eq('id_evenement', event_id).eq('id_need', need_id)
     const needData = needResponse.data
 
     if (!needData) {

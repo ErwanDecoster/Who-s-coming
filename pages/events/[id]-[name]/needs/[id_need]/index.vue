@@ -71,7 +71,7 @@ try {
 					<NuxtLink 
 						v-for="(need_invitation, index) in need.need_invitations" 
 						:key="need_invitation.id"
-						:to="`/events/${$route.params.id}-${toSlug($route.params.name)}/invites/${need_invitation.id_invitation}`" 
+						:to="`/events/${$route.params.id}-${toSlug($route.params.name.toString())}/invites/${need_invitation.invitation.id_invitation}`" 
 						:class="[
 							{ 'rounded-tr-lg hover:*:rounded-tr-xl': index === 0},
 							{ 'rounded-bl-lg hover:*:rounded-bl-xl': index === need.need_invitations.length - 1}

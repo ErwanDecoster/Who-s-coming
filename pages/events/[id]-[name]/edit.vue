@@ -107,13 +107,15 @@ const UpdateEvent = async () => {
 				UploadImage(form.value.image, route.params.id, form.value.name)
 			])
 			if (eventResponse) {
+				addRefreshData(`event-${data.event.id_evenement}`)
+				
 				messages.value.push({type: 'success', content: "L'évènement a été mis a jour."})
 			}
 			if (pictureResponse && pictureResponse != "done") {
 				messages.value.push({type: 'success', content: "L'image a été mis a jour."})
 			}
 			if (eventResponse && pictureResponse) {
-				navigateTo(`/events/${route.params.id}-${toSlug(route.params.name)}`);
+				navigateTo(`/events/${route.params.id}-${toSlug(route.params.name.toString())}`);
 			}
 		} catch(e) {
 			console.log(e);
@@ -291,7 +293,7 @@ const DeleteEvent = async () => {
 					<NuxtLink 
 						v-for="(need, index) in data.event.needs" 
 						:key="need.id_need"
-						:to="`/events/${$route.params.id}-${toSlug($route.params.name)}/needs/${need.id_need}/edit`" 
+						:to="`/events/${$route.params.id}-${toSlug($route.params.name.toString())}/needs/${need.id_need}/edit`" 
 						:class="[
 							{ 'rounded-tr-lg hover:*:rounded-tr-xl': index === 0},
 							{ 'rounded-bl-lg hover:*:rounded-bl-xl': index === data.event.needs.length - 1}
@@ -316,6 +318,6 @@ const DeleteEvent = async () => {
 				Supprimer l'évènement
 			</template>
 		</button>
-		<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name)}`" class="tertiary">Annuler</NuxtLink>
+		<NuxtLink :to="`/events/${$route.params.id}-${toSlug($route.params.name.toString())}`" class="tertiary">Annuler</NuxtLink>
 	</div>
 </template>
