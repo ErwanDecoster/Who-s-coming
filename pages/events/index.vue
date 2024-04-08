@@ -82,7 +82,7 @@ try {
 				{{ message.content }}
 			</li>
 		</ul>
-		<p v-if="!eventsGroupedByDateAndMonth || !eventsGroupedByDateAndMonth.length">Aucun événement pour le moment.</p>
+		<p v-if="!eventsGroupedByDateAndMonth">Aucun événement pour le moment.</p>
 		<div class="grid gap-2">
 			<div 
 				v-for="(eventsOfMonth, month) in eventsGroupedByDateAndMonth" 

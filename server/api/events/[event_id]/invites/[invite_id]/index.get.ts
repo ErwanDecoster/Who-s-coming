@@ -1,6 +1,6 @@
 import { serverSupabaseClient } from '#supabase/server'
 
-// use api/events/:event_id/:need_id
+// use api/events/:event_id/:invite_id
 // exemple api/events/45/12
 
 export default eventHandler(async (event) => {
@@ -14,7 +14,7 @@ export default eventHandler(async (event) => {
     const inviteData = inviteResponse.data
 
     if (!inviteData) {
-      throw new Error("Impossible de récupérer l'invité")
+      throw new Error("Impossible de récupérer l'invité.")
     }
 
     let askerInviteData = {}

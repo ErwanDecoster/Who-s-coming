@@ -32,6 +32,17 @@ input[type=submit] {
   @apply text-center text-base cursor-pointer px-4 bg-primary hover:bg-opacity-90 text-beige rounded-tr-2xl rounded-bl-2xl hover:rounded-tr-3xl hover:rounded-bl-3xl;
   @apply disabled:bg-red;
 }
+input[type=checkbox] {
+  @apply appearance-none size-4 rounded-[4px] border-2 border-black-300 accent-black-300 checked:bg-black-300 relative;
+  &::before {
+    @apply bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-0 size-full;
+    content: "";
+    clip-path: polygon(48% 78%, 87% 24%, 100% 34%, 51% 99%, 11% 67%, 21% 55%);
+  }
+  &:checked::before {
+    @apply scale-100
+  }
+}
 .input-container {
   @apply flex flex-col gap-1 text-base;
   label {

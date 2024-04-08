@@ -31,12 +31,6 @@ useSeoMeta({
 })
 
 let messages = ref<Array<Message>>([])
-
-// let data = ref<{
-//   invites_by_state: invites_by_state
-// }>({
-//   invites_by_state: {}// Initialisez les invites par état selon votre logique
-// })
 let data: {
 	invites_by_state: invites_by_state,
 }
@@ -51,7 +45,6 @@ try {
 const updateInviteList = (inviteList: invite[], invite: invite) => {
 	inviteList = inviteList.filter(item => item !== invite);
 	return inviteList
-	
 }
 
 </script>
